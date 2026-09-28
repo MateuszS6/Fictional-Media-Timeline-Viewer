@@ -1,4 +1,4 @@
-# Timeline Studio: Fictional-Media Timeline Viewer
+# Fictional-Media Timeline Viewer
 
 _A personal tool for exploring and editing fictional-media timelines,
 starting with the Marvel Cinematic Universe._
