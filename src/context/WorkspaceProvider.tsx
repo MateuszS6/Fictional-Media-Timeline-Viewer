@@ -1,9 +1,26 @@
-import { useEffect, useState, type ReactNode } from "react";
-import { getFranchises } from "../services/franchises";
-import { getUniversesByFranchise } from "../services/universes";
-import type { Franchise } from "../types/franchise";
-import type { Universe } from "../types/universe";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createFranchise, deleteFranchise, getFranchises, updateFranchise } from "../services/franchises";
+import { createUniverse, deleteUniverse, getUniversesByFranchise, updateUniverse } from "../services/universes";
+import type { Franchise, FranchiseInput } from "../types/franchise";
+import type { Universe, UniverseInput } from "../types/universe";
 import { WorkspaceContext } from "./WorkspaceContext";
+
+function sortFranchises(items: Franchise[]): Franchise[] {
+    return [...items].sort((a, b) =>
+        a.name.localeCompare(b.name) || a.id - b.id
+    );
+}
+
+function sortUniverses(items: Universe[]): Universe[] {
+    return [...items].sort((a, b) => {
+        if (a.code === null && b.code !== null) return 1;
+        if (a.code !== null && b.code === null) return -1;
+
+        return (a.code ?? "").localeCompare(b.code ?? "") ||
+            a.name.localeCompare(b.name) ||
+            a.id - b.id;
+    });
+}
 
 export function WorkspaceProvider({
     children
@@ -23,6 +40,8 @@ export function WorkspaceProvider({
     const [universesError, setUniversesError] = useState<string | null>(null);
 
     const [loadAttempt, setLoadAttempt] = useState(0);
+    const [savingWorkspace, setSavingWorkspace] = useState(false);
+    const savingRef = useRef(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -86,28 +105,126 @@ export function WorkspaceProvider({
         }
     }, [selectedFranchiseId]);
 
-    function selectFranchise(id: number) {
-        if (id === selectedFranchiseId) return;
-
+    function activateFranchise(id: number | null) {
         setSelectedFranchiseId(id);
         setUniverses([]);
         setSelectedUniverseId(null);
         setUniversesError(null);
-        setUniversesLoading(true);
+        setUniversesLoading(id !== null);
+    }
+
+    function selectFranchise(id: number) {
+        if (savingRef.current || id === selectedFranchiseId) return;
+
+        activateFranchise(id);
+    }
+
+    function selectUniverse(id: number) {
+        if (savingRef.current) return;
+
+        setSelectedUniverseId(id);
     }
 
     function retryWorkspace() {
+        if (savingRef.current) return;
+
         setFranchises([]);
-        setUniverses([]);
-        setSelectedFranchiseId(null);
-        setSelectedUniverseId(null);
-
+        activateFranchise(null);
         setFranchisesError(null);
-        setUniversesError(null);
         setFranchisesLoading(true);
-        setUniversesLoading(false);
-
         setLoadAttempt((current) => current + 1);
+    }
+
+    async function runWorkspaceAction(
+        action: () => Promise<void>
+    ) {
+        if (savingRef.current) {
+            throw new Error("A workspace change is already being saved.");
+        }
+
+        savingRef.current = true;
+        setSavingWorkspace(true);
+
+        try {
+            await action();
+        } finally {
+            savingRef.current = false;
+            setSavingWorkspace(false);
+        }
+    }
+
+    async function saveFranchise(
+        id: number | null,
+        input: FranchiseInput
+    ) {
+        await runWorkspaceAction(async () => {
+            const saved = id === null
+                ? await createFranchise(input)
+                : await updateFranchise(id, input);
+
+            setFranchises((current) => sortFranchises([
+                ...current.filter((item) => item.id !== saved.id),
+                saved
+            ]));
+
+            if (id === null) activateFranchise(saved.id);
+        });
+    }
+
+    async function saveUniverse(
+        id: number | null,
+        input: UniverseInput
+    ) {
+        const franchiseId = selectedFranchiseId;
+
+        if (franchiseId === null) {
+            throw new Error("Select a franchise first.");
+        }
+
+        await runWorkspaceAction(async () => {
+            const saved = id === null
+                ? await createUniverse(franchiseId, input)
+                : await updateUniverse(id, input);
+
+            setUniverses((current) => sortUniverses([
+                ...current.filter((item) => item.id !== saved.id),
+                saved
+            ]));
+
+            if (id === null) setSelectedUniverseId(saved.id);
+        });
+    }
+
+    async function removeFranchise(id: number) {
+        await runWorkspaceAction(async () => {
+            await deleteFranchise(id);
+
+            const remaining = franchises.filter(
+                (item) => item.id !== id
+            );
+
+            setFranchises(remaining);
+
+            if (selectedFranchiseId === id) {
+                activateFranchise(remaining[0]?.id ?? null);
+            }
+        });
+    }
+
+    async function removeUniverse(id: number) {
+        await runWorkspaceAction(async () => {
+            await deleteUniverse(id);
+
+            const remaining = universes.filter(
+                (item) => item.id !== id
+            );
+
+            setUniverses(remaining);
+
+            if (selectedUniverseId === id) {
+                setSelectedUniverseId(remaining[0]?.id ?? null);
+            }
+        });
     }
 
     return (
@@ -118,10 +235,15 @@ export function WorkspaceProvider({
                 selectedFranchiseId,
                 selectedUniverseId,
                 loading: franchisesLoading || universesLoading,
+                savingWorkspace,
                 error: franchisesError || universesError,
                 setSelectedFranchiseId: selectFranchise,
-                setSelectedUniverseId,
-                retryWorkspace
+                setSelectedUniverseId: selectUniverse,
+                retryWorkspace,
+                saveFranchise,
+                saveUniverse,
+                removeFranchise,
+                removeUniverse
             }}
         >
             {children}
