@@ -16,7 +16,7 @@ This plan tracks the functionality needed to manage the timeline data from the a
 
 - Add, edit, and delete franchises and universes from a dedicated management view.
 - Keep universes grouped under their franchise and preserve the current workspace selection after saves.
-- Prevent accidental removal of connected timeline data: a franchise can be deleted only after its universes are removed, and a universe can be deleted only when no characters, projects, or timeline links refer to it. Confirm the live foreign-key relationships before wiring these checks.
+- Decide deletion behavior from the live foreign keys before wiring it: deleting a universe may affect project links, character links, and origin/primary-universe references; deleting a franchise may affect its universes. Make those outcomes explicit and never silently remove connected data.
 - Handle duplicate names and database errors in plain language.
 
 ### 2. Cross-universe projects, appearances, and events
