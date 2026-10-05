@@ -17,7 +17,8 @@ export default function Sidebar({
         selectedUniverseId,
         setSelectedFranchiseId,
         setSelectedUniverseId,
-        loading
+        loading,
+        savingWorkspace
     } = useWorkspace();
 
     return (
@@ -34,7 +35,11 @@ export default function Sidebar({
 
                     <select
                         value={selectedFranchiseId ?? ""}
-                        disabled={franchises.length === 0}
+                        disabled={
+                            loading ||
+                            savingWorkspace ||
+                            franchises.length === 0
+                        }
                         onChange={(event) =>
                             setSelectedFranchiseId(Number(event.target.value))
                         }
@@ -56,7 +61,11 @@ export default function Sidebar({
 
                     <select
                         value={selectedUniverseId ?? ""}
-                        disabled={loading || universes.length === 0}
+                        disabled={
+                            loading ||
+                            savingWorkspace ||
+                            universes.length === 0
+                        }
                         onChange={(event) =>
                             setSelectedUniverseId(Number(event.target.value))
                         }
@@ -84,6 +93,7 @@ export default function Sidebar({
                             : "sidebar-item"
                     }
                     aria-current={activeView === "timeline" ? "page" : undefined}
+                    disabled={savingWorkspace}
                     onClick={() => onViewChange("timeline")}
                 >
                     Timeline
@@ -97,6 +107,7 @@ export default function Sidebar({
                             : "sidebar-item"
                     }
                     aria-current={activeView === "characters" ? "page" : undefined}
+                    disabled={savingWorkspace}
                     onClick={() => onViewChange("characters")}
                 >
                     Characters
@@ -110,9 +121,24 @@ export default function Sidebar({
                             : "sidebar-item"
                     }
                     aria-current={activeView === "projects" ? "page" : undefined}
+                    disabled={savingWorkspace}
                     onClick={() => onViewChange("projects")}
                 >
                     Projects
+                </button>
+
+                <button
+                    type="button"
+                    className={
+                        activeView === "workspaces"
+                            ? "sidebar-item active"
+                            : "sidebar-item"
+                    }
+                    disabled={savingWorkspace}
+                    aria-current={activeView === "workspaces" ? "page" : undefined}
+                    onClick={() => onViewChange("workspaces")}
+                >
+                    Workspaces
                 </button>
             </nav>
         </aside>

@@ -26,6 +26,11 @@
     gap: 12px;
 }
 
+.management-section-title {
+    margin: 0;
+    font-size: 18px;
+}
+
 .management-table-container {
     flex-shrink: 0;
     max-width: 100%;
