@@ -7,15 +7,15 @@ Inspired by an Excel workflow, Timeline Studio places characters in rows
 and projects in chronological columns, with appearance markers and
 automatically calculated character lifelines.
 
-## Current version — `0.2.4`
+## Current version — `0.2.5`
 
-Character and project management, with error handling and feedback.
+Workspace management, with error handling and feedback.
+
+> ![Workspaces](docs/images/timeline-studio-v0.2.5-workspace-management.png)
 
 > ![Timeline](docs/images/timeline-studio-v0.2.3-hide-character-timelines.png)
 
 > ![Projects](docs/images/timeline-studio-v0.2.4-project-actions.png)
-
-> ![Characters](docs/images/timeline-studio-v0.2.3-character-actions.png)
 
 ## Aim
 

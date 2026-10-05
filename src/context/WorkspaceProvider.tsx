@@ -48,7 +48,7 @@ export function WorkspaceProvider({
 
         async function loadFranchises() {
             try {
-                const data = await getFranchises();
+                const data = sortFranchises(await getFranchises());
 
                 if (cancelled) return;
 
@@ -82,7 +82,7 @@ export function WorkspaceProvider({
 
         async function loadUniverses() {
             try {
-                const data = await getUniversesByFranchise(franchiseId);
+                const data = sortUniverses(await getUniversesByFranchise(franchiseId));
 
                 if (cancelled) return;
 

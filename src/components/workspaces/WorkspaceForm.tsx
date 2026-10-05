@@ -10,7 +10,7 @@ interface WorkspaceFormProps {
     initialValues: WorkspaceFormValues;
     editing: boolean;
     saving: boolean;
-    onSave: (values: WorkspaceFormValues) => void;
+    onSave: (values: WorkspaceFormValues) => Promise<void>;
     onCancel: () => void;
 }
 

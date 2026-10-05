@@ -44,9 +44,11 @@ export default function Sidebar({
                             setSelectedFranchiseId(Number(event.target.value))
                         }
                     >
-                        <option value="" disabled>
-                            {loading ? "Loading..." : "No franchises"}
-                        </option>
+                        {franchises.length === 0 && (
+                            <option value="" disabled>
+                                {loading ? "Loading..." : "No franchises"}
+                            </option>
+                        )}
 
                         {franchises.map((franchise) => (
                             <option key={franchise.id} value={franchise.id}>
@@ -70,9 +72,11 @@ export default function Sidebar({
                             setSelectedUniverseId(Number(event.target.value))
                         }
                     >
-                        <option value="" disabled>
-                            {loading ? "Loading..." : "No universes"}
-                        </option>
+                        {universes.length === 0 && (
+                            <option value="" disabled>
+                                {loading ? "Loading..." : "No universes"}
+                            </option>
+                        )}
 
                         {universes.map((universe) => (
                             <option key={universe.id} value={universe.id} >

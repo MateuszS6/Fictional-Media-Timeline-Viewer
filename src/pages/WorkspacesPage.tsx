@@ -91,7 +91,7 @@ export default function WorkspacesPage() {
                 typeof caughtError === "object" &&
                 caughtError !== null &&
                 "code" in caughtError &&
-                caughtError.code === "23505";
+                caughtError.code === "23503";
 
             setActionError(
                 hasReferences
@@ -129,6 +129,18 @@ export default function WorkspacesPage() {
                         <>
                             <button
                                 type="button"
+                                className="utility-button"
+                                disabled={controlsDisabled}
+                                onClick={() => openEditor({
+                                    kind: "franchise",
+                                    record: franchise
+                                })}
+                            >
+                                Edit franchise
+                            </button>
+
+                            <button
+                                type="button"
                                 className="utility-button utility-button-danger"
                                 disabled={
                                     controlsDisabled ||
@@ -153,7 +165,7 @@ export default function WorkspacesPage() {
 
             {franchise && universes.length > 0 && (
                 <p className="management-summary">
-                    A franchise can be delted after its universes have been removed.
+                    A franchise can be deleted after its universes have been removed.
                 </p>
             )}
 
@@ -222,7 +234,7 @@ export default function WorkspacesPage() {
                     This franchise has no universes yet.
                 </p>
             ) : (
-                <div className="management-table-contents">
+                <div className="management-table-container">
                     <table className="management-table">
                         <thead>
                             <tr>
