@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { Character, CharacterInput } from "../types/character";
-import { createCharacter, deleteCharacter, getCharactersByOriginUniverse, updateCharacter } from "../services/characters";
+import { createCharacter, deleteCharacter, getCharactersForUniverses, updateCharacter } from "../services/characters";
 import { useWorkspace } from "../context/WorkspaceContext";
 import CharacterForm from "../components/characters/CharacterForm";
 import { getTimelineCharactersIds, hideCharacterFromTimeline, showCharacterOnTimeline } from "../services/timelineCharacters";
+import { formatUniverseLabel } from "../utils/formatUniverseLabel";
 
 interface CharactersPageProps {
     universeId: number;
@@ -34,8 +35,16 @@ export default function CharactersPage({
     const [changingCharacterId, setChangingCharacterId] = useState<number | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
 
+    const [includeOtherUniverses, setIncludeOtherUniverses] = useState(false);
+
     const changingRef = useRef(false);
     const controlsDisabled = editor !== null || changingCharacterId !== null;
+
+    const visibleCharacters = characters.filter((character) =>
+        includeOtherUniverses ||
+        character.origin_universe_id === universeId ||
+        timelineCharacterIds.includes(character.id)
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -43,7 +52,9 @@ export default function CharactersPage({
         async function loadCharacters() {
             try {
                 const [data, selectedIds] = await Promise.all([
-                    getCharactersByOriginUniverse(universeId),
+                    getCharactersForUniverses(
+                        universes.map((universe) => universe.id)
+                    ),
                     getTimelineCharactersIds(universeId)
                 ]);
 
@@ -69,7 +80,7 @@ export default function CharactersPage({
         return () => {
             cancelled = true;
         }
-    }, [universeId, loadAttempt])
+    }, [universeId, universes, loadAttempt])
 
     function retry() {
         setError(null);
@@ -79,6 +90,7 @@ export default function CharactersPage({
 
     function openEditor(value: Character | "new") {
         setNotice(null);
+        setActionError(null);
         setEditor(value);
     }
 
@@ -142,24 +154,10 @@ export default function CharactersPage({
                 (character) => character.id !== savedCharacter.id
             );
 
-            if (savedCharacter.origin_universe_id !== universeId) {
-                return remaining;
-            }
-
             return sortCharacters([...remaining, savedCharacter]);
         });
 
-        const originName = universes.find(
-            (universe) => universe.id === savedCharacter.origin_universe_id
-        )?.name;
-
-        setNotice(
-            savedCharacter.origin_universe_id === universeId
-                ? `${savedCharacter.alias} saved.`
-                : `${savedCharacter.alias} saved under ${originName ?? "another universe"
-                }. Switch to that universe to see the character in this list.`
-        );
-
+        setNotice(savedCharacter.alias + " saved.");
         setEditor(null);
     }
 
@@ -229,8 +227,8 @@ export default function CharactersPage({
         <section className="management-page" aria-label="Characters">
             <div className="management-toolbar">
                 <p className="management-summary">
-                    {characters.length}{" "}
-                    {characters.length === 1 ? "character" : "characters"}
+                    {visibleCharacters.length}{" "}
+                    {visibleCharacters.length === 1 ? "character" : "characters"}
                 </p>
 
                 <button
@@ -266,9 +264,19 @@ export default function CharactersPage({
                 />
             )}
 
-            {characters.length === 0 ? (
+            <label className="management-summary">
+                <input
+                    type="checkbox"
+                    checked={includeOtherUniverses}
+                    disabled={controlsDisabled}
+                    onChange={(event) => setIncludeOtherUniverses(event.target.checked)}
+                />
+                {" Include other characters in this franchise."}
+            </label>
+
+            {visibleCharacters.length === 0 ? (
                 <p className="status-message">
-                    No characters have this universe assigned as their origin.
+                    No characters match this view. Include other universes to find more.
                 </p>
             ) : (
                 <div className="management-table-container">
@@ -277,13 +285,14 @@ export default function CharactersPage({
                             <tr>
                                 <th scope="col">Character</th>
                                 <th scope="col">Real name</th>
+                                <th scope="col">Origin universe</th>
                                 <th scope="col">Timeline</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            {characters.map((character) => {
+                            {visibleCharacters.map((character) => {
                                 const isShown = timelineCharacterIds.includes(character.id);
                                 const isChanging = changingCharacterId === character.id;
 
@@ -291,6 +300,9 @@ export default function CharactersPage({
                                     <tr key={character.id}>
                                         <td>{character.alias}</td>
                                         <td>{character.real_name ?? "?"}</td>
+                                        <td>
+                                            {formatUniverseLabel(character.origin_universe_id, universes)}
+                                        </td>
                                         <td>{isShown ? "Shown" : "Hidden"}</td>
 
                                         <td>

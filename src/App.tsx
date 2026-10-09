@@ -43,7 +43,7 @@ export default function App() {
 	if (activeView === "workspaces") {
 		description = "Manage franchises and their universes.";
 	} else if (activeView === "characters") {
-		description = `Characters whose origin is ${universeName}`;
+		description = `Manage characters and their visibility on ${universeName}`;
 	} else if (activeView === "projects") {
 		description = `Projects in the chronology of ${universeName}`;
 	} else if (
