@@ -60,11 +60,9 @@ export default function WorkspacesPage() {
 
         const details = kind === "franchise"
             ? "This franchise must have no universes before it can be deleted."
-            : "This removes the universe and its timeline links.\n\n" +
-            "Character and project records, appearances, and events are kept. " +
-            "Characters originating here and projects based here become unassigned.\n\n" +
-            "Unassigned characters and projects with no remaining timeline " +
-            "will not appear in the current management lists.";
+            : "This universe can only be deleted when no characters, projects " +
+            "or timeline memberships reference it. Move or remove those " +
+            "references first.";
 
         const confirmed = window.confirm(
             'Permanently delete "' + record.name + '"?\n\n' +

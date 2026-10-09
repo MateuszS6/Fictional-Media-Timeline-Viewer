@@ -24,8 +24,8 @@ export default function ProjectForm({
     const [title, setTitle] = useState(project?.title ?? "");
     const [releaseDate, setReleaseDate] = useState(project?.release_date ?? "");
 
-    const [primaryUniverseId, setPrimaryUniverseId] = useState<number | null>(
-        project ? project.primary_universe_id : universeId
+    const [primaryUniverseId, setPrimaryUniverseId] = useState<number>(
+        project?.primary_universe_id ?? universeId
     );
 
     const [position, setPosition] = useState(String(initialPosition));
@@ -59,6 +59,14 @@ export default function ProjectForm({
             nextPosition > maxPosition
         ) {
             setError(`Choose a position between 1 and ${maxPosition}`);
+            return;
+        }
+
+        if (
+            !universes.some((universe) => universe.id === primaryUniverseId) &&
+            primaryUniverseId !== originalPrimaryId
+        ) {
+            setError("Choose a primary universe.")
             return;
         }
 
@@ -139,15 +147,10 @@ export default function ProjectForm({
                         <select
                             value={primaryUniverseId ?? ""}
                             onChange={(event) =>
-                                setPrimaryUniverseId(
-                                    event.target.value === ""
-                                        ? null
-                                        : Number(event.target.value)
-                                )
+                                setPrimaryUniverseId(Number(event.target.value))
                             }
+                            required
                         >
-                            <option value="">Unassigned</option>
-
                             {hasOutsidePrimary && (
                                 <option value={originalPrimaryId}>
                                     Keep existing universe outside this franchise
