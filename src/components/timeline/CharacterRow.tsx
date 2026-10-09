@@ -1,8 +1,10 @@
+import { useWorkspace } from "../../context/WorkspaceContext";
 import type { Appearance, AppearanceUpdate } from "../../types/appearance";
 import type { Character } from "../../types/character";
 import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from "../../types/characterEvent";
 import type { Project } from "../../types/project";
 import { buildLifelineSegments } from "../../utils/buildLifelineSegments";
+import { formatUniverseLabel } from "../../utils/formatUniverseLabel";
 
 import TimelineCell from "./TimelineCell";
 
@@ -57,6 +59,15 @@ export default function CharacterRow({
     onHideCharacter,
     hideDisabled
 }: CharacterRowProps) {
+    const { universes, selectedUniverseId } = useWorkspace();
+
+    const isVisitor = character.origin_universe_id !== selectedUniverseId;
+
+    const originLabel = formatUniverseLabel(
+        character.origin_universe_id,
+        universes
+    );
+
     const rowAppearances = projects.map((project) =>
         appearances.find(
             (appearance) =>
@@ -90,6 +101,16 @@ export default function CharacterRow({
         <div className="timeline-row">
             <div className="character-column">
                 <span>{character.alias}</span>
+
+                <small
+                    className={
+                        isVisitor
+                            ? "character-origin character-origin-visitor"
+                            : "character-origin"
+                    }
+                >
+                    {isVisitor ? originLabel : ""}
+                </small>
 
                 <button
                     type="button"

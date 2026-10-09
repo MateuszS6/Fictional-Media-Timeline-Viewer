@@ -8,7 +8,5 @@ export function formatUniverseLabel(
 
     if (!universe) return "Universe #" + universeId;
 
-    return universe.code
-        ? universe.name + " (" + universe.code + ")"
-        : universe.name;
+    return universe.code ?? universe.name;
 }
