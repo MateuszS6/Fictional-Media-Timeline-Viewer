@@ -48,6 +48,23 @@ export async function getProjectsForUniverse(
     })
 }
 
+export async function getProjectsForPrimaryUniverses(
+    universeIds: number[]
+): Promise<Project[]> {
+    if (universeIds.length === 0) return [];
+
+    const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .in("primary_universe_id", universeIds)
+        .order("title")
+        .order("id");
+
+    if (error) throw error;
+
+    return data ?? [];
+}
+
 export async function saveProjectInUniverse(
     universeId: number,
     projectId: number | null,
@@ -69,6 +86,38 @@ export async function saveProjectInUniverse(
     if (error) throw error;
 
     return data ?? [];
+}
+
+export async function linkProjectToUniverse(
+    universeId: number,
+    projectId: number
+): Promise<Project[]> {
+    const { data, error } = await supabase.rpc(
+        "link_project_to_universe",
+        {
+            p_universe_id: universeId,
+            p_project_id: projectId
+        }
+    );
+
+    if (error) throw error;
+
+    return data ?? [];
+}
+
+export async function unlinkProjectToUniverse(
+    universeId: number,
+    projectId: number
+): Promise<void> {
+    const { error } = await supabase
+        .from("universe_projects")
+        .delete()
+        .eq("universe_id", universeId)
+        .eq("project_id", projectId)
+        .select("project_id")
+        .single();
+
+    if (error) throw error;
 }
 
 export async function deleteProject(id: number): Promise<void> {

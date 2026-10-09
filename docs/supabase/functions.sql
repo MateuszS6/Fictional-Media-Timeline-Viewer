@@ -140,3 +140,52 @@ revoke execute on function public.save_project_in_universe(
 grant execute on function public.save_project_in_universe(
     bigint, bigint, text, date, bigint, integer
 ) to anon, authenticated;
+
+-- Generated function
+create or replace function public.link_project_to_universe(
+    p_universe_id bigint,
+    p_project_id bigint
+)
+returns setof public.projects
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+begin
+    -- Use the same chronology lock as save_project_in_universe.
+    perform 1
+    from public.universes
+    where id = p_universe_id
+    for update;
+
+    if not found then
+        raise exception 'Universe does not exist or is unavailable.';
+    end if;
+
+    insert into public.universe_projects (
+        universe_id,
+        project_id,
+        timeline_position
+    )
+    select
+        p_universe_id,
+        p_project_id,
+        coalesce(max(timeline_position), 0) + 1
+    from public.universe_projects
+    where universe_id = p_universe_id
+    on conflict (universe_id, project_id) do nothing;
+
+    return query
+    select p.*
+    from public.projects p
+    join public.universe_projects up on up.project_id = p.id
+    where up.universe_id = p_universe_id
+    order by up.timeline_position;
+end;
+$$;
+
+revoke execute on function public.link_project_to_universe(bigint, bigint)
+    from public;
+
+grant execute on function public.link_project_to_universe(bigint, bigint)
+    to anon, authenticated;
