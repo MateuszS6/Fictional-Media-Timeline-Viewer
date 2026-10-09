@@ -18,12 +18,12 @@ create table
         id bigint generated always as identity primary key,
         title text not null,
         release_date date,
-        primary_universe_id bigint references universes (id) on delete set null
+        primary_universe_id bigint references universes (id) on delete restrict
     );
 
 create table
     universe_projects (
-        universe_id bigint not null references universes (id) on delete cascade,
+        universe_id bigint not null references universes (id) on delete restrict,
         project_id bigint not null references projects (id) on delete cascade,
         timeline_position integer not null check (timeline_position > 0),
         primary key (universe_id, project_id),
@@ -35,7 +35,7 @@ create table
         id bigint generated always as identity primary key,
         alias text not null,
         real_name text,
-        origin_universe_id bigint references universes (id) on delete set null
+        origin_universe_id bigint references universes (id) on delete restrict
     );
 
 create table
@@ -49,7 +49,7 @@ create table
 
 create table
     universe_characters (
-        universe_id bigint not null references universes (id) on delete cascade,
+        universe_id bigint not null references universes (id) on delete restrict,
         character_id bigint not null references characters (id) on delete cascade,
         primary key (universe_id, character_id)
     );
