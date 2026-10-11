@@ -41,6 +41,8 @@ interface TimelineCellProps {
         characterId: number,
         projectId: number
     ) => void;
+
+    saving: boolean;
 }
 
 export default function TimelineCell({
@@ -55,7 +57,8 @@ export default function TimelineCell({
     onUpdate,
     onDelete,
     onSaveEvent,
-    onDeleteEvent
+    onDeleteEvent,
+    saving
 }: TimelineCellProps) {
     const [editorOpen, setEditorOpen] = useState(false);
     const cellRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,8 @@ export default function TimelineCell({
     }, []);
 
     function handleLeftClick() {
+        if (saving) return;
+
         if (!appearance) {
             onCreate(characterId, projectId);
             return;
@@ -77,6 +82,8 @@ export default function TimelineCell({
         event: React.MouseEvent<HTMLDivElement>
     ) {
         event.preventDefault();
+
+        if (saving) return;
 
         if (appearance) {
             onDelete(characterId, projectId);
@@ -155,6 +162,7 @@ export default function TimelineCell({
         <div
             ref={cellRef}
             className="timeline-cell"
+            aria-disabled={saving}
             onClick={handleLeftClick}
             onContextMenu={handleRightClick}
         >
@@ -221,6 +229,7 @@ export default function TimelineCell({
                     {appearance ? (
                         <>
                             <button
+                                disabled={saving}
                                 className={
                                     appearance.appearance_type === "standard"
                                         ? "appearance-editor-option active"
@@ -232,6 +241,7 @@ export default function TimelineCell({
                             </button>
 
                             <button
+                                disabled={saving}
                                 className={
                                     appearance.appearance_type === "flashback"
                                         ? "appearance-editor-option active"
@@ -243,6 +253,7 @@ export default function TimelineCell({
                             </button>
 
                             <button
+                                disabled={saving}
                                 className={
                                     appearance.appearance_type === "footage"
                                         ? "appearance-editor-option active"
@@ -256,6 +267,7 @@ export default function TimelineCell({
                             <div className="appearance-editor-divider" />
 
                             <button
+                                disabled={saving}
                                 className={
                                     appearance.is_detached
                                         ? "appearance-editor-option active"
@@ -270,6 +282,7 @@ export default function TimelineCell({
                         </>
                     ) : (
                         <button
+                            disabled={saving}
                             className="appearance-editor-option"
                             onClick={() => {
                                 onCreate(characterId, projectId);
@@ -289,6 +302,7 @@ export default function TimelineCell({
                     </div>
 
                     <button
+                        disabled={saving}
                         className={
                             characterEvent?.event_type === "death"
                                 ? "appearance-editor-option active"
@@ -302,6 +316,7 @@ export default function TimelineCell({
                     </button>
 
                     <button
+                        disabled={saving}
                         className={
                             characterEvent?.event_type === "revival"
                                 ? "appearance-editor-option active"
@@ -315,6 +330,7 @@ export default function TimelineCell({
                     </button>
 
                     <button
+                        disabled={saving}
                         className={
                             characterEvent?.event_type === "blip"
                                 ? "appearance-editor-option active"
@@ -328,6 +344,7 @@ export default function TimelineCell({
                     </button>
 
                     <button
+                        disabled={saving}
                         className={
                             characterEvent?.event_type === "return"
                                 ? "appearance-editor-option active"
@@ -351,6 +368,7 @@ export default function TimelineCell({
                             </div>
 
                             <button
+                                disabled={saving}
                                 className={
                                     characterEvent.event_position === "at"
                                         ? "appearance-editor-option active"
@@ -364,6 +382,7 @@ export default function TimelineCell({
                             </button>
 
                             <button
+                                disabled={saving}
                                 className={
                                     characterEvent.event_position === "after"
                                         ? "appearance-editor-option active"
@@ -379,6 +398,7 @@ export default function TimelineCell({
                             <div className="appearance-editor-divider" />
 
                             <button
+                                disabled={saving}
                                 className="appearance-editor-option appearance-editor-danger"
                                 onClick={handleDeleteEvent}
                             >

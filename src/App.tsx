@@ -84,7 +84,10 @@ export default function App() {
 			<Sidebar
 				activeView={activeView}
 				onWorkspaceChange={() => setTimelineTarget(null)}
-				onViewChange={setActiveView}
+				onViewChange={(view) => {
+					setTimelineTarget(null);
+					setActiveView(view);
+				}}
 			/>
 
 			<main className='main-content'>

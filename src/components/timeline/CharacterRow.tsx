@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useWorkspace } from "../../context/WorkspaceContext";
 import type { Appearance, AppearanceUpdate } from "../../types/appearance";
 import type { Character } from "../../types/character";
@@ -42,8 +43,9 @@ interface CharacterRowProps {
         projectId: number
     ) => void;
 
-    onHideCharacter: (characterId: number) => void;
-    hideDisabled: boolean;
+    focused: boolean;
+    saving: boolean;
+    onOpenOrigin: (character: Character) => void;
 }
 
 export default function CharacterRow({
@@ -56,10 +58,28 @@ export default function CharacterRow({
     onDeleteAppearance,
     onSaveCharacterEvent,
     onDeleteCharacterEvent,
-    onHideCharacter,
-    hideDisabled
+    focused,
+    saving,
+    onOpenOrigin
 }: CharacterRowProps) {
     const { universes, selectedUniverseId } = useWorkspace();
+
+    const nameRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!focused) return;
+
+        nameRef.current?.scrollIntoView({
+            block: "center",
+            inline: "nearest"
+        });
+
+        nameRef.current?.focus({ preventScroll: true });
+    }, [focused]);
+
+    const originUniverse = universes.find((universe) =>
+        universe.id === character.origin_universe_id
+    );
 
     const isVisitor = character.origin_universe_id !== selectedUniverseId;
 
@@ -98,30 +118,37 @@ export default function CharacterRow({
         )
 
     return (
-        <div className="timeline-row">
-            <div className="character-column">
+        <div className={
+            focused
+                ? "timeline-row timeline-row-focused"
+                : "timeline-row"
+        }>
+            <div
+                ref={nameRef}
+                className="character-column"
+                tabIndex={-1}
+            >
                 <span>{character.alias}</span>
 
-                <small
-                    className={
-                        isVisitor
-                            ? "character-origin character-origin-visitor"
-                            : "character-origin"
-                    }
-                >
-                    {isVisitor ? originLabel : ""}
-                </small>
-
-                <button
-                    type="button"
-                    className="timeline-hide-button"
-                    disabled={hideDisabled}
-                    aria-label={`Hide ${character.alias} from this timeline`}
-                    title="Hide this row. Appearances and events stay saved."
-                    onClick={() => onHideCharacter(character.id)}
-                >
-                    Hide
-                </button>
+                {isVisitor && (
+                    <button
+                        type="button"
+                        className="character-origin-link"
+                        disabled={saving || !originUniverse}
+                        aria-label={
+                            `Open ${character.alias} in ${originUniverse?.name ?? originLabel
+                            }`
+                        }
+                        title={
+                            originUniverse
+                                ? `Open origin timeline: ${originUniverse.name} (${originLabel})`
+                                : "Origin universe is outside the current franchise."
+                        }
+                        onClick={() => onOpenOrigin(character)}
+                    >
+                        {originLabel}
+                    </button>
+                )}
             </div>
 
             {projects.map((project, index) => {
@@ -158,6 +185,7 @@ export default function CharacterRow({
                         onDelete={onDeleteAppearance}
                         onSaveEvent={onSaveCharacterEvent}
                         onDeleteEvent={onDeleteCharacterEvent}
+                        saving={saving}
                     />
                 );
             })}

@@ -2,20 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { createAppearance, deleteAppearance, getAppearancesForProjects, updateAppearance } from "../../services/appearances";
 import { deleteCharacterEvent, getCharacterEventsForProjects, saveCharacterEvent } from "../../services/characterEvents";
 import { getProjectsForUniverse } from "../../services/projects";
+import { getTimelineCharacters } from "../../services/timelineCharacters";
 import type { Appearance, AppearanceUpdate } from "../../types/appearance";
 import type { Character } from "../../types/character";
 import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from "../../types/characterEvent";
 import type { Project } from "../../types/project";
 import CharacterRow from "./CharacterRow";
 import TimelineHeader from "./TimelineHeader";
-import { getTimelineCharacters, hideCharacterFromTimeline, showCharacterOnTimeline } from "../../services/timelineCharacters";
 
 interface TimelineGridProps {
     universeId: number;
+    focusedCharacterId: number | null;
+    onOpenOrigin: (character: Character) => void;
 }
 
 export default function TimelineGrid({
-    universeId
+    universeId,
+    focusedCharacterId,
+    onOpenOrigin
 }: TimelineGridProps) {
 
     const [projects, setProjects] = useState<Project[]>([]);
@@ -29,9 +33,8 @@ export default function TimelineGrid({
     const [loadAttempt, setLoadAttempt] = useState(0);
     const [actionError, setActionError] = useState<string | null>(null);
 
-    const [hidingCharacterId, setHidingCharacterId] = useState<number | null>(null);
-    const hidingRef = useRef(false);
-    const [hiddenCharacter, setHiddenCharacter] = useState<Character | null>(null);
+    const [saving, setSaving] = useState(false);
+    const savingRef = useRef(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -51,7 +54,7 @@ export default function TimelineGrid({
                 ] = await Promise.all([
                     getAppearancesForProjects(projectIds),
                     getCharacterEventsForProjects(projectIds),
-                    getTimelineCharacters(universeId)
+                    getTimelineCharacters(universeId, focusedCharacterId)
                 ]);
 
                 if (cancelled) return;
@@ -76,12 +79,33 @@ export default function TimelineGrid({
         return () => {
             cancelled = true;
         }
-    }, [universeId, loadAttempt]);
+    }, [universeId, focusedCharacterId, loadAttempt]);
 
     function retryTimeline() {
         setError(null);
         setLoading(true);
         setLoadAttempt((current) => current + 1);
+    }
+
+    async function runTimelineChange(
+        action: () => Promise<void>,
+        failureMessage: string
+    ) {
+        if (savingRef.current) return;
+
+        savingRef.current = true;
+        setSaving(true);
+        setActionError(null);
+
+        try {
+            await action();
+        } catch (caughtError) {
+            console.error(caughtError);
+            setActionError(failureMessage);
+        } finally {
+            savingRef.current = false;
+            setSaving(false);
+        }
     }
 
     // Appearance handlers
@@ -90,9 +114,7 @@ export default function TimelineGrid({
         characterId: number,
         projectId: number
     ) {
-        setActionError(null);
-
-        try {
+        await runTimelineChange(async () => {
             const newAppearance = await createAppearance(
                 characterId,
                 projectId
@@ -102,10 +124,7 @@ export default function TimelineGrid({
                 ...current,
                 newAppearance
             ]);
-        } catch (error) {
-            console.error(error);
-            setActionError("Could not add the appearance. Please try again.");
-        }
+        }, "Could not add the appearance. Please try again.");
     }
 
     async function handleUpdateAppearance(
@@ -113,15 +132,12 @@ export default function TimelineGrid({
         projectId: number,
         updates: AppearanceUpdate
     ) {
-        setActionError(null);
-
-        try {
-            const updatedAppearance =
-                await updateAppearance(
-                    characterId,
-                    projectId,
-                    updates
-                )
+        await runTimelineChange(async () => {
+            const updatedAppearance = await updateAppearance(
+                characterId,
+                projectId,
+                updates
+            );
 
             setAppearances((current) =>
                 current.map((appearance) =>
@@ -131,19 +147,14 @@ export default function TimelineGrid({
                         : appearance
                 )
             );
-        } catch (error) {
-            console.error(error);
-            setActionError("Could not update the appearance. Please try again.");
-        }
+        }, "Could not update the appearance. Please try again.");
     }
 
     async function handleDeleteAppearance(
         characterId: number,
         projectId: number
     ) {
-        setActionError(null);
-
-        try {
+        await runTimelineChange(async () => {
             await deleteAppearance(characterId, projectId);
 
             setAppearances((current) =>
@@ -154,10 +165,7 @@ export default function TimelineGrid({
                     )
                 )
             );
-        } catch (error) {
-            console.error(error);
-            setActionError("Could not remove the appearance. Please try again.");
-        }
+        }, "Could not remove the appearance. Please try again.");
     }
 
     // Event handlers
@@ -168,9 +176,7 @@ export default function TimelineGrid({
         eventType: CharacterEventType,
         eventPosition: CharacterEventPosition
     ) {
-        setActionError(null);
-
-        try {
+        await runTimelineChange(async () => {
             const savedEvent = await saveCharacterEvent(
                 characterId,
                 projectId,
@@ -192,98 +198,27 @@ export default function TimelineGrid({
                         event.project_id === projectId
                         ? savedEvent
                         : event
-                )
-            })
-        } catch (error) {
-            console.log(error);
-            setActionError("Could not save the event. Please try again.");
-        }
+                );
+            });
+        }, "Could not save the event. Please try again.");
     }
 
     async function handleDeleteCharacterEvent(
         characterId: number,
         projectId: number
     ) {
-        setActionError(null);
-
-        try {
-            await deleteCharacterEvent(
-                characterId,
-                projectId
-            );
+        await runTimelineChange(async () => {
+            await deleteCharacterEvent(characterId, projectId);
 
             setCharacterEvents((current) =>
-                current.filter(
-                    (event) =>
-                        !(
-                            event.character_id === characterId &&
-                            event.project_id === projectId
-                        )
+                current.filter((event) =>
+                    !(
+                        event.character_id === characterId &&
+                        event.project_id === projectId
+                    )
                 )
             );
-        } catch (error) {
-            console.log(error);
-            setActionError("Could not remove the event. Please try again.");
-        }
-    }
-
-    // Character handler
-
-    async function handleHideCharacter(characterId: number) {
-        if (hidingRef.current) return;
-
-        const character = characters.find((item) => item.id === characterId);
-        if (!character) return;
-
-        hidingRef.current = true;
-        setHidingCharacterId(characterId);
-        setActionError(null);
-
-        try {
-            await hideCharacterFromTimeline(universeId, characterId);
-
-            setCharacters((current) =>
-                current.filter((item) => item.id !== characterId)
-            );
-
-            setHiddenCharacter(character);
-        } catch (caughtError) {
-            console.error(caughtError);
-            setActionError("Could not hide the character. Please try again.")
-        } finally {
-            hidingRef.current = false;
-            setHidingCharacterId(null);
-        }
-    }
-
-    async function handleUndoHide() {
-        if (!hiddenCharacter || hidingRef.current) return;
-
-        const character = hiddenCharacter;
-
-        hidingRef.current = true;
-        setHidingCharacterId(character.id);
-        setActionError(null);
-
-        try {
-            await showCharacterOnTimeline(universeId, character.id);
-
-            setCharacters((current) =>
-                [...current.filter((item) => item.id !== character.id), character]
-                    .sort((first, second) =>
-                        first.alias.localeCompare(second.alias) ||
-                        first.id - second.id
-                    )
-            );
-
-            setHiddenCharacter(null);
-        } catch (caughtError) {
-            console.error(caughtError);
-            setActionError("Could not restore the character. Please try again.")
-        } finally {
-            hidingRef.current = false;
-            setHidingCharacterId(null);
-        }
+        }, "Could not remove the event. Please try again.");
     }
 
     if (loading) {
@@ -313,30 +248,13 @@ export default function TimelineGrid({
     if (projects.length === 0) {
         return (
             <p className="status-message">
-                No projects have been added to this universe.
+                No projects have been added to this universe. Open Projects to add one.
             </p>
         );
     }
 
     return (
         <>
-            {hiddenCharacter && (
-                <div className="management-toolbar">
-                    <p className="management-notice" role="status">
-                        {hiddenCharacter.alias} hidden. Their appearances and events are saved.
-                    </p>
-
-                    <button
-                        type="button"
-                        className="utility-button"
-                        disabled={hidingCharacterId !== null}
-                        onClick={handleUndoHide}
-                    >
-                        Undo
-                    </button>
-                </div>
-            )}
-
             {actionError && (
                 <div className="status-message status-error" role="alert">
                     <p>{actionError}</p>
@@ -358,7 +276,11 @@ export default function TimelineGrid({
                 </p>
             )}
 
-            <section className="timeline-container" aria-label="Character timeline">
+            <section
+                className="timeline-container"
+                aria-label="Character timeline"
+                aria-busy={saving}
+            >
                 <div className="timeline-grid">
                     <TimelineHeader projects={projects} />
 
@@ -374,8 +296,9 @@ export default function TimelineGrid({
                             onDeleteAppearance={handleDeleteAppearance}
                             onSaveCharacterEvent={handleSaveCharacterEvent}
                             onDeleteCharacterEvent={handleDeleteCharacterEvent}
-                            onHideCharacter={handleHideCharacter}
-                            hideDisabled={hidingCharacterId !== null}
+                            focused={character.id === focusedCharacterId}
+                            saving={saving}
+                            onOpenOrigin={onOpenOrigin}
                         />
                     ))}
                 </div>
