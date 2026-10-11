@@ -3,11 +3,13 @@ import type { WorkspaceView } from "../../types/workspace";
 
 interface SidebarProps {
     activeView: WorkspaceView;
+    onWorkspaceChange: () => void;
     onViewChange: (view: WorkspaceView) => void;
 }
 
 export default function Sidebar({
     activeView,
+    onWorkspaceChange,
     onViewChange
 }: SidebarProps) {
     const {
@@ -40,9 +42,10 @@ export default function Sidebar({
                             savingWorkspace ||
                             franchises.length === 0
                         }
-                        onChange={(event) =>
+                        onChange={(event) => {
+                            onWorkspaceChange();
                             setSelectedFranchiseId(Number(event.target.value))
-                        }
+                        }}
                     >
                         {franchises.length === 0 && (
                             <option value="" disabled>
@@ -68,9 +71,10 @@ export default function Sidebar({
                             savingWorkspace ||
                             universes.length === 0
                         }
-                        onChange={(event) =>
+                        onChange={(event) => {
+                            onWorkspaceChange();
                             setSelectedUniverseId(Number(event.target.value))
-                        }
+                        }}
                     >
                         {universes.length === 0 && (
                             <option value="" disabled>

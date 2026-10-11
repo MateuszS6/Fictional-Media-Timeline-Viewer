@@ -6,9 +6,14 @@ import type { WorkspaceView } from './types/workspace';
 import CharactersPage from './pages/CharactersPage';
 import ProjectsPage from './pages/ProjectsPage';
 import WorkspacesPage from './pages/WorkspacesPage';
+import type { Character } from './types/character';
 
 export default function App() {
 	const [activeView, setActiveView] = useState<WorkspaceView>("timeline");
+	const [timelineTarget, setTimelineTarget] = useState<{
+		universeId: number;
+		characterId: number;
+	} | null>(null);
 
 	const {
 		franchises,
@@ -17,8 +22,27 @@ export default function App() {
 		selectedUniverseId,
 		loading,
 		error,
+		setSelectedUniverseId,
 		retryWorkspace
 	} = useWorkspace();
+
+	const focusedCharacterId =
+		timelineTarget?.universeId === selectedUniverseId
+			? timelineTarget.characterId
+			: null;
+
+	function openCharacterOrigin(character: Character) {
+		const originId = character.origin_universe_id;
+
+		if (!universes.some((universe) => universe.id === originId)) return;
+
+		setSelectedUniverseId(originId);
+		setTimelineTarget({
+			universeId: originId,
+			characterId: character.id
+		});
+		setActiveView("timeline");
+	}
 
 	const selectedFranchise = franchises.find(
 		(franchise) => franchise.id === selectedFranchiseId
@@ -59,6 +83,7 @@ export default function App() {
 		<div className='app-layout'>
 			<Sidebar
 				activeView={activeView}
+				onWorkspaceChange={() => setTimelineTarget(null)}
 				onViewChange={setActiveView}
 			/>
 
@@ -96,8 +121,10 @@ export default function App() {
 					</p>
 				) : activeView === "timeline" ? (
 					<TimelinePage
-						key={selectedUniverseId}
+						key={selectedUniverseId + ":" + (focusedCharacterId ?? "all")}
 						universeId={selectedUniverseId}
+						focusedCharacterId={focusedCharacterId}
+						onOpenOrigin={openCharacterOrigin}
 					/>
 				) : activeView === "characters" ? (
 					<CharactersPage

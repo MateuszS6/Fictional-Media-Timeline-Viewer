@@ -16,9 +16,17 @@ export async function getTimelineCharactersIds(
 }
 
 export async function getTimelineCharacters(
-    universeId: number
+    universeId: number,
+    focusedCharacterId: number | null = null
 ): Promise<Character[]> {
     const ids = await getTimelineCharactersIds(universeId);
+
+    if (
+        focusedCharacterId !== null &&
+        !ids.includes(focusedCharacterId)
+    ) {
+        ids.push(focusedCharacterId);
+    }
 
     return getCharactersByIds(ids);
 }
