@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createAppearance, deleteAppearance, getAppearancesForProjects, updateAppearance } from "../../services/appearances";
 import { deleteCharacterEvent, getCharacterEventsForProjects, saveCharacterEvent } from "../../services/characterEvents";
+import { getCharactersByIds } from "../../services/characters";
 import { getProjectsForUniverse } from "../../services/projects";
-import { getTimelineCharacters } from "../../services/timelineCharacters";
+import { collectCharacterIds } from "../../services/timelineCharacters";
 import type { Appearance, AppearanceUpdate } from "../../types/appearance";
 import type { Character } from "../../types/character";
 import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from "../../types/characterEvent";
@@ -36,6 +37,17 @@ export default function TimelineGrid({
     const [saving, setSaving] = useState(false);
     const savingRef = useRef(false);
 
+    const participatingIds = new Set(collectCharacterIds(appearances, characterEvents));
+
+    const visibleCharacters = characters.filter((character) =>
+        participatingIds.has(character.id) ||
+        character.id === focusedCharacterId
+    );
+
+    const focusedCharacter = characters.find(
+        (character) => character.id === focusedCharacterId
+    );
+
     useEffect(() => {
         let cancelled = false;
 
@@ -47,15 +59,18 @@ export default function TimelineGrid({
 
                 const projectIds = projectsData.map((project) => project.id);
 
-                const [
-                    appearancesData,
-                    characterEventsData,
-                    charactersData
-                ] = await Promise.all([
+                const [appearancesData, characterEventsData] = await Promise.all([
                     getAppearancesForProjects(projectIds),
-                    getCharacterEventsForProjects(projectIds),
-                    getTimelineCharacters(universeId, focusedCharacterId)
+                    getCharacterEventsForProjects(projectIds)
                 ]);
+
+                if (cancelled) return;
+
+                const characterIds = new Set(collectCharacterIds(appearancesData, characterEventsData));
+
+                if (focusedCharacterId !== null) characterIds.add(focusedCharacterId);
+
+                const charactersData = await getCharactersByIds([...characterIds]);
 
                 if (cancelled) return;
 
@@ -269,10 +284,18 @@ export default function TimelineGrid({
                 </div>
             )}
 
-            {characters.length === 0 && (
+            {visibleCharacters.length === 0 && (
                 <p className="status-message">
-                    No characters are shown on this timeline.
-                    Open Characters and choose "Show on timeline".
+                    No characters have appearances or events in this timeline yet.
+                    Open Characters and choose "Edit on timeline" to add the first entry.
+                </p>
+            )}
+
+            {focusedCharacter && !participatingIds.has(focusedCharacter.id) && (
+                <p className="management-notice" role="status">
+                    {focusedCharacter.alias} has no entries here yet.
+                    Click an empty cell to add an appearance, or right-click to add an event.
+                    This empty row stays open only for this visit.
                 </p>
             )}
 
@@ -284,7 +307,7 @@ export default function TimelineGrid({
                 <div className="timeline-grid">
                     <TimelineHeader projects={projects} />
 
-                    {characters.map((character) => (
+                    {visibleCharacters.map((character) => (
                         <CharacterRow
                             key={character.id}
                             character={character}

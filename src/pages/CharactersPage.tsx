@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import type { Character, CharacterInput } from "../types/character";
-import { createCharacter, deleteCharacter, getCharactersForUniverses, updateCharacter } from "../services/characters";
-import { useWorkspace } from "../context/WorkspaceContext";
 import CharacterForm from "../components/characters/CharacterForm";
-import { getTimelineCharactersIds, hideCharacterFromTimeline, showCharacterOnTimeline } from "../services/timelineCharacters";
+import { useWorkspace } from "../context/WorkspaceContext";
+import { createCharacter, deleteCharacter, getCharactersForUniverses, updateCharacter } from "../services/characters";
+import { getTimelineCharacterIds } from "../services/timelineCharacters";
+import type { Character, CharacterInput } from "../types/character";
 import { formatUniverseLabel } from "../utils/formatUniverseLabel";
 
 interface CharactersPageProps {
     universeId: number;
+    onEditTimeline: (character: Character) => void;
 }
 
 function sortCharacters(characters: Character[]): Character[] {
@@ -19,7 +20,8 @@ function sortCharacters(characters: Character[]): Character[] {
 }
 
 export default function CharactersPage({
-    universeId
+    universeId,
+    onEditTimeline
 }: CharactersPageProps) {
     const { universes } = useWorkspace();
 
@@ -55,7 +57,7 @@ export default function CharactersPage({
                     getCharactersForUniverses(
                         universes.map((universe) => universe.id)
                     ),
-                    getTimelineCharactersIds(universeId)
+                    getTimelineCharacterIds(universeId)
                 ]);
 
                 if (cancelled) return;
@@ -94,51 +96,6 @@ export default function CharactersPage({
         setEditor(value);
     }
 
-    async function handleTimelineToggle(character: Character) {
-        if (changingRef.current) return;
-
-        const isShown = timelineCharacterIds.includes(character.id);
-
-        changingRef.current = true;
-        setChangingCharacterId(character.id);
-        setActionError(null);
-        setNotice(null);
-
-        try {
-            if (isShown) {
-                await hideCharacterFromTimeline(universeId, character.id);
-
-                setTimelineCharacterIds((current: number[]) =>
-                    current.filter((id) => id !== character.id)
-                );
-
-                setNotice(
-                    `${character.alias} hidden from this timeline. ` +
-                    "Their appearances and events are still saved."
-                );
-            } else {
-                await showCharacterOnTimeline(universeId, character.id);
-
-                setTimelineCharacterIds((current: number[]) =>
-                    current.includes(character.id)
-                        ? current
-                        : [...current, character.id]
-                );
-
-                setNotice(
-                    `${character.alias} shown on this timeline. ` +
-                    "Open Timeline to edit their appearances and events."
-                );
-            }
-        } catch (caughtError) {
-            console.error(caughtError);
-            setActionError("Could not change timeline visibility. Please try again.")
-        } finally {
-            changingRef.current = false;
-            setChangingCharacterId(null);
-        }
-    }
-
     async function handleSave(input: CharacterInput): Promise<void> {
         if (editor === null) {
             throw new Error("No character editor is open.")
@@ -166,8 +123,8 @@ export default function CharactersPage({
 
         const confirmed = window.confirm(
             `Permanently delete "${character.alias}"?\n\n` +
-            "This also deletes all their appearances, events, and timeline " +
-            "selections across every universe. \n\n" +
+            "This also deletes all their appearances and events " +
+            "across every universe.\n\n" +
             "This cannot be undone."
         )
 
@@ -293,7 +250,7 @@ export default function CharactersPage({
 
                         <tbody>
                             {visibleCharacters.map((character) => {
-                                const isShown = timelineCharacterIds.includes(character.id);
+                                const isParticipating = timelineCharacterIds.includes(character.id);
                                 const isChanging = changingCharacterId === character.id;
 
                                 return (
@@ -303,7 +260,7 @@ export default function CharactersPage({
                                         <td>
                                             {formatUniverseLabel(character.origin_universe_id, universes)}
                                         </td>
-                                        <td>{isShown ? "Shown" : "Hidden"}</td>
+                                        <td>{isParticipating ? "On timeline" : "No entries"}</td>
 
                                         <td>
                                             <div className="management-row-actions">
@@ -321,13 +278,10 @@ export default function CharactersPage({
                                                     type="button"
                                                     className="utility-button"
                                                     disabled={controlsDisabled}
-                                                    onClick={() => handleTimelineToggle(character)}
+                                                    aria-label={`Edit ${character.alias} on this timeline`}
+                                                    onClick={() => onEditTimeline(character)}
                                                 >
-                                                    {isChanging
-                                                        ? "Saving..."
-                                                        : isShown
-                                                            ? "Hide from timeline"
-                                                            : "Show on timeline"}
+                                                    Edit on timeline
                                                 </button>
 
                                                 <button
@@ -337,7 +291,7 @@ export default function CharactersPage({
                                                     aria-label={`Delete ${character.alias}`}
                                                     onClick={() => handleDeleteCharacter(character)}
                                                 >
-                                                    Delete
+                                                    {isChanging ? "Deleting..." : "Delete"}
                                                 </button>
                                             </div>
                                         </td>

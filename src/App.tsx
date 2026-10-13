@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import { useWorkspace } from './context/WorkspaceContext';
-import TimelinePage from './pages/TimelinePage';
-import type { WorkspaceView } from './types/workspace';
 import CharactersPage from './pages/CharactersPage';
 import ProjectsPage from './pages/ProjectsPage';
+import TimelinePage from './pages/TimelinePage';
 import WorkspacesPage from './pages/WorkspacesPage';
 import type { Character } from './types/character';
+import type { WorkspaceView } from './types/workspace';
 
 export default function App() {
 	const [activeView, setActiveView] = useState<WorkspaceView>("timeline");
@@ -31,14 +31,15 @@ export default function App() {
 			? timelineTarget.characterId
 			: null;
 
-	function openCharacterOrigin(character: Character) {
-		const originId = character.origin_universe_id;
+	function openCharacterTimeline(
+		universeId: number,
+		character: Character
+	) {
+		if (!universes.some((universe) => universe.id === universeId)) return;
 
-		if (!universes.some((universe) => universe.id === originId)) return;
-
-		setSelectedUniverseId(originId);
+		setSelectedUniverseId(universeId);
 		setTimelineTarget({
-			universeId: originId,
+			universeId,
 			characterId: character.id
 		});
 		setActiveView("timeline");
@@ -67,7 +68,7 @@ export default function App() {
 	if (activeView === "workspaces") {
 		description = "Manage franchises and their universes.";
 	} else if (activeView === "characters") {
-		description = `Manage characters and their visibility on ${universeName}`;
+		description = `Manage characters for ${universeName}`;
 	} else if (activeView === "projects") {
 		description = `Projects in the chronology of ${universeName}`;
 	} else if (
@@ -127,12 +128,20 @@ export default function App() {
 						key={selectedUniverseId + ":" + (focusedCharacterId ?? "all")}
 						universeId={selectedUniverseId}
 						focusedCharacterId={focusedCharacterId}
-						onOpenOrigin={openCharacterOrigin}
+						onOpenOrigin={(character) =>
+							openCharacterTimeline(
+								character.origin_universe_id,
+								character
+							)
+						}
 					/>
 				) : activeView === "characters" ? (
 					<CharactersPage
 						key={selectedUniverseId}
 						universeId={selectedUniverseId}
+						onEditTimeline={(character) =>
+							openCharacterTimeline(selectedUniverseId, character)
+						}
 					/>
 				) : (
 					<ProjectsPage

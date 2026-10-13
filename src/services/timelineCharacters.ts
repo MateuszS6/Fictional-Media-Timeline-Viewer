@@ -1,65 +1,29 @@
-import { supabase } from "../config/supabase";
-import type { Character } from "../types/character";
-import { getCharactersByIds } from "./characters";
+import type { Appearance } from "../types/appearance";
+import type { CharacterEvent } from "../types/characterEvent";
+import { getAppearancesForProjects } from "./appearances";
+import { getCharacterEventsForProjects } from "./characterEvents";
+import { getProjectsForUniverse } from "./projects";
 
-export async function getTimelineCharactersIds(
+export function collectCharacterIds(
+    appearances: Appearance[],
+    events: CharacterEvent[]
+): number[] {
+    return [...new Set([
+        ...appearances.map((appearance) => appearance.character_id),
+        ...events.map((event) => event.character_id)
+    ])];
+}
+
+export async function getTimelineCharacterIds(
     universeId: number
 ): Promise<number[]> {
-    const { data, error } = await supabase
-        .from("universe_characters")
-        .select("character_id")
-        .eq("universe_id", universeId)
+    const projects = await getProjectsForUniverse(universeId);
+    const projectIds = projects.map((project) => project.id);
 
-    if (error) throw error;
+    const [appearances, events] = await Promise.all([
+        getAppearancesForProjects(projectIds),
+        getCharacterEventsForProjects(projectIds)
+    ]);
 
-    return (data ?? []).map((row) => row.character_id);
-}
-
-export async function getTimelineCharacters(
-    universeId: number,
-    focusedCharacterId: number | null = null
-): Promise<Character[]> {
-    const ids = await getTimelineCharactersIds(universeId);
-
-    if (
-        focusedCharacterId !== null &&
-        !ids.includes(focusedCharacterId)
-    ) {
-        ids.push(focusedCharacterId);
-    }
-
-    return getCharactersByIds(ids);
-}
-
-export async function showCharacterOnTimeline(
-    universeId: number,
-    characterId: number
-): Promise<void> {
-    const { error } = await supabase
-        .from("universe_characters")
-        .upsert(
-            {
-                universe_id: universeId,
-                character_id: characterId
-            },
-            {
-                onConflict: "universe_id,character_id",
-                ignoreDuplicates: true
-            }
-        );
-
-    if (error) throw error;
-}
-
-export async function hideCharacterFromTimeline(
-    universeId: number,
-    characterId: number
-): Promise<void> {
-    const { error } = await supabase
-        .from("universe_characters")
-        .delete()
-        .eq("universe_id", universeId)
-        .eq("character_id", characterId);
-
-    if (error) throw error;
+    return collectCharacterIds(appearances, events);
 }
