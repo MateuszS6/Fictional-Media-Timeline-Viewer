@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 11 October 2026 after reviewing the origin-navigation implementation and receiving approval for automatic character participation. Application code and SQL are supplied in chat for the user to apply; proposed changes are not recorded as completed.
+Updated 14 October 2026 after reviewing the user's implemented automatic participation. The user reports that the app is working. Application functionality is complete for this pass, with two minor copy corrections noted below; live database state has not been independently inspected.
 
 ## Working agreement
 
@@ -13,12 +13,14 @@ Updated 11 October 2026 after reviewing the origin-navigation implementation and
 ## Verified current baseline
 
 - Franchise/universe and character/project create, edit and delete controls are implemented.
-- User-supplied live DB results from 10 October confirm required character/project origins, required universe names, optional codes, RESTRICT on all four universe references, UNIQUE(title) on projects, and the deferrable universe_projects_position_key constraint.
+- User-supplied live DB results from 10 October established required character/project origins, required universe names, optional codes, universe deletion restrictions, UNIQUE(title) on projects, and the deferrable universe_projects_position_key constraint. The latest user-maintained schema snapshot now omits the obsolete universe_characters table.
 - Projects can be linked to multiple timelines, reordered independently, removed from one timeline, or deleted globally. Projects without a timeline membership remain accessible through the existing-project picker within their primary universe's franchise.
 - Compact visitor-origin links, temporary target rows, row focus/highlighting, and a pending-write guard for timeline cells have been implemented.
-- Two corrections are included in the new chat instructions: App must clear the temporary target when changing tabs; timeline.css contains "dolif" instead of "solid" in the focus outline.
-- The Characters page still uses Show/Hide and universe_characters in the reviewed source. Automatic participation is approved and prepared, not yet implemented by the user.
-- Current source passes lint and both TypeScript configurations. Prepared source passes TypeScript and lint; isolated checks using fixture data verify participation, temporary rows and failure handling. No live database queries/writes or interactive browser tests were performed.
+- The temporary target now clears when changing tabs or workspace selectors. The focus-outline CSS typo has been fixed.
+- Automatic participation is implemented. The Characters page now uses Edit on timeline; source and schema snapshot contain no remaining references to the old visibility table or Show/Hide service functions.
+- Current source passes lint, both TypeScript configurations and a production bundle check with file output disabled. Fixture checks executed against the current participation service and row-selection code pass for project scoping, shared projects, duplicate IDs, detached footage, event-only rows, empty timelines, unlink preservation, read failures and temporary/last-entry rows.
+- Reviewed the v0.3.0 origin/focus screenshots. No live database queries/writes or interactive browser tests were performed in this review.
+- Two minor CharactersPage copy corrections remain for the user: add a space between the deletion message's concatenated "events" and "across" strings; give the ordinary Edit button its own accessible label rather than the Edit on timeline label. These do not block the participation flow.
 
 ## Agreed product rules
 
@@ -28,26 +30,25 @@ Updated 11 October 2026 after reviewing the origin-navigation implementation and
 - Variants are versions from different universes. Keep distinct character IDs; do not introduce a same-origin variant system, numerical cap or new uniqueness constraint without a concrete requirement. The supplied constraints did not establish the complete set of standalone unique indexes.
 - Franchise membership does not automatically add projects to every universe chronology. Loki belongs on TVA; MCU footage characters can appear there without adding Loki to the MCU timeline.
 - Retain one appearance and one event per character-project pair. A shared project shares those entries across its linked timelines; ordering remains specific to each timeline. No additional universe-specific appearance tables are planned.
-- Normal universe deletion stays blocked by originating characters, primary projects and project timeline links. During migration, obsolete universe_characters links also block it until the table is retired.
+- Normal universe deletion must stay blocked by originating characters, primary projects and project timeline links. The retired character-visibility table is no longer part of the model.
 - Force deletion remains deferred. If introduced, agree on its scope and effects on other timelines; visiting characters must not be deleted merely because the visited universe is removed.
 
-## Current pass: automatic participation
+## Completed application pass: automatic participation
 
-Approved by the user on 11 October:
+Approved on 11 October; implementation reviewed on 14 October:
 
 - Ordinary timeline rows are derived from appearances OR character events in that timeline's projects. Include event-only characters, footage and detached appearances.
 - Origin does not filter a participating visitor out. Origin alone does not put a nonparticipating character on a timeline.
-- Replace Characters-page Show/Hide with Edit on timeline. It opens a temporary row on the currently selected timeline, including for a character from another universe.
+- Characters-page Edit on timeline opens a temporary row on the currently selected timeline, including for a character from another universe.
 - An origin link opens the same character on their origin timeline. Both navigation paths reuse the existing temporary target, without creating appearances or saving visibility.
 - Saving a first appearance/event makes the character an ordinary participant. Removing their last entry removes the ordinary row; an explicitly focused editing row stays until leaving that visit.
 - The Characters page continues to show originating characters and current participants, with the existing checkbox to include other characters in the franchise.
-- Keep row inclusion derived from current appearance/event state, so it updates immediately after edits without a separate visibility write or refresh.
-- Remove obsolete visibility service functions and UI wording. Apply and verify the application changes before retiring public.universe_characters.
-- The provided DROP TABLE statement removes only the old visibility selections, not characters, projects, appearances or events. Use it without CASCADE; unexpected dependencies should stop the operation.
-- The DB statement has not been run. Keep the universe_characters block in the reference snapshot until the user successfully applies the removal, then remove that block too.
+- Row inclusion is derived from current appearance/event state, so it updates immediately after edits without a separate visibility write or refresh.
+- Obsolete visibility methods, controls and schema-snapshot declarations have been removed. Do not restore them from older instructions.
+- The user's snapshot records removal of public.universe_characters; this review did not independently query the live catalog. The application no longer reads or writes that table. Its former selections are unnecessary because actual appearances/events determine participation.
 - No new table, RPC, default appearance, grouping/filter system or appearance type is part of this pass.
 
-Acceptance checks:
+Regression checks to retain:
 
 1. A fresh character does not appear in an ordinary timeline; Edit on timeline opens a temporary blank row on the selected universe.
 2. Save one appearance, leave and return: the row remains. Leave without saving: it does not remain.

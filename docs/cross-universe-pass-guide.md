@@ -1,5 +1,7 @@
 # Cross-universe management: historical implementation guide
 
+Current status (14 October 2026): automatic participation has replaced explicit character membership. The current app no longer uses `universe_characters` or Show/Hide controls, and visitor-origin navigation is implemented. Sections below describe an earlier design and include SQL for the retired table. Refer to [the development plan](development-plan.md) and current source for the implemented behaviour.
+
 Historical instructions prepared on 8 October 2026. The user has since implemented a modified version. Keep new implementation steps in chat; use the current source and development plan for current behaviour. Do not reapply this guide wholesale.
 
 The original proposed source was checked using temporary copies. The 9 October review also checked the current user implementation with lint and both TypeScript configurations. Supabase metadata has not been inspected directly; the user-maintained snapshots now live under docs/supabase and need the verification described in the development plan.
@@ -804,3 +806,4 @@ Run the normal lint and build checks after typing the changes. Then use temporar
 8. A universe with no code still displays its name.
 
 After this foundation is verified, address the existing overlapping cell-save issue and agree on universe-specific appearance/event behaviour before changing that data model. A character's origin is not automatically their current status: later status icons must handle death/revival and footage correctly.
+
