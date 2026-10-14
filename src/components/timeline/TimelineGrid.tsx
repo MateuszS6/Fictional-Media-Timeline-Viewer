@@ -60,8 +60,8 @@ export default function TimelineGrid({
                 const projectIds = projectsData.map((project) => project.id);
 
                 const [appearancesData, characterEventsData] = await Promise.all([
-                    getAppearancesForProjects(projectIds),
-                    getCharacterEventsForProjects(projectIds)
+                    getAppearancesForProjects(universeId, projectIds),
+                    getCharacterEventsForProjects(universeId, projectIds)
                 ]);
 
                 if (cancelled) return;
@@ -131,6 +131,7 @@ export default function TimelineGrid({
     ) {
         await runTimelineChange(async () => {
             const newAppearance = await createAppearance(
+                universeId,
                 characterId,
                 projectId
             );
@@ -149,6 +150,7 @@ export default function TimelineGrid({
     ) {
         await runTimelineChange(async () => {
             const updatedAppearance = await updateAppearance(
+                universeId,
                 characterId,
                 projectId,
                 updates
@@ -170,7 +172,7 @@ export default function TimelineGrid({
         projectId: number
     ) {
         await runTimelineChange(async () => {
-            await deleteAppearance(characterId, projectId);
+            await deleteAppearance(universeId, characterId, projectId);
 
             setAppearances((current) =>
                 current.filter((appearance) =>
@@ -193,6 +195,7 @@ export default function TimelineGrid({
     ) {
         await runTimelineChange(async () => {
             const savedEvent = await saveCharacterEvent(
+                universeId,
                 characterId,
                 projectId,
                 eventType,
@@ -223,7 +226,7 @@ export default function TimelineGrid({
         projectId: number
     ) {
         await runTimelineChange(async () => {
-            await deleteCharacterEvent(characterId, projectId);
+            await deleteCharacterEvent(universeId, characterId, projectId);
 
             setCharacterEvents((current) =>
                 current.filter((event) =>

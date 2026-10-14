@@ -200,8 +200,10 @@ export default function ProjectsPage({
 
         const confirmed = window.confirm(
             `Remove "${project.title}" from this timeline?\n\n` +
-            "The project, appearances and events stay saved. " +
-            "Other timelines are unchanged. You can add the project again later."
+            "This deletes its appearances and events on this timeline.\n\n" +
+            "The project and its entries on other timelines stay saved. " +
+            "Adding it here again starts with empty cells.\n\n" +
+            "The deleted entries cannot be recovered."
         );
 
         if (!confirmed) return;
@@ -343,7 +345,7 @@ export default function ProjectsPage({
                         </select>
 
                         <small>
-                            Adds it at the end. Use Edit to change its timeline position.
+                            Adds it at the end with empty cells. Use Edit to change its timeline position.
                         </small>
                     </label>
 

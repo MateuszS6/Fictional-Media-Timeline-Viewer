@@ -21,8 +21,8 @@ export async function getTimelineCharacterIds(
     const projectIds = projects.map((project) => project.id);
 
     const [appearances, events] = await Promise.all([
-        getAppearancesForProjects(projectIds),
-        getCharacterEventsForProjects(projectIds)
+        getAppearancesForProjects(universeId, projectIds),
+        getCharacterEventsForProjects(universeId, projectIds)
     ]);
 
     return collectCharacterIds(appearances, events);

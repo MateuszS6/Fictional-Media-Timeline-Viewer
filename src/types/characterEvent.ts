@@ -10,6 +10,7 @@ export type CharacterEventPosition =
 
 export interface CharacterEvent {
     id: number;
+    universe_id: number;
     character_id: number;
     project_id: number;
     event_type: CharacterEventType;

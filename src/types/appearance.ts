@@ -4,6 +4,7 @@ export type AppearanceType =
     | "footage";
 
 export interface Appearance {
+    universe_id: number;
     character_id: number;
     project_id: number;
     appearance_type: AppearanceType;
