@@ -1,94 +1,113 @@
 # Timeline Studio development plan
 
-Updated 14 October 2026 after reviewing the user's implemented automatic participation. The user reports that the app is working. Application functionality is complete for this pass, with two minor copy corrections noted below; live database state has not been independently inspected.
+Updated 14 October 2026 for v0.3.2. The user has implemented universe-specific appearances/events and reports that the pass works as intended. The application source has been reviewed and passes TypeScript and lint checks. Direct verification of the live database is pending an MCP connection.
 
 ## Working agreement
 
 - Keep implementation instructions, code and concise learning explanations in chat. The user applies application and database changes. Documentation may be updated directly.
-- Ask clarification questions in the final chat response, allowing the user to answer in a later message. Avoid disappearing question prompts.
+- Ask clarification questions in the final chat response so the user can answer in a later message. Avoid disappearing question prompts.
 - Finish required functionality before extras. Clarify new behaviour or scope when it is not already agreed.
-- Supabase is the source of truth. The files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
+- Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Verified current baseline
+## Current baseline: v0.3.2
 
 - Franchise/universe and character/project create, edit and delete controls are implemented.
-- User-supplied live DB results from 10 October established required character/project origins, required universe names, optional codes, universe deletion restrictions, UNIQUE(title) on projects, and the deferrable universe_projects_position_key constraint. The latest user-maintained schema snapshot now omits the obsolete universe_characters table.
-- Projects can be linked to multiple timelines, reordered independently, removed from one timeline, or deleted globally. Projects without a timeline membership remain accessible through the existing-project picker within their primary universe's franchise.
-- Compact visitor-origin links, temporary target rows, row focus/highlighting, and a pending-write guard for timeline cells have been implemented.
-- The temporary target now clears when changing tabs or workspace selectors. The focus-outline CSS typo has been fixed.
-- Automatic participation is implemented. The Characters page now uses Edit on timeline; source and schema snapshot contain no remaining references to the old visibility table or Show/Hide service functions.
-- Current source passes lint, both TypeScript configurations and a production bundle check with file output disabled. Fixture checks executed against the current participation service and row-selection code pass for project scoping, shared projects, duplicate IDs, detached footage, event-only rows, empty timelines, unlink preservation, read failures and temporary/last-entry rows.
-- Reviewed the v0.3.0 origin/focus screenshots. No live database queries/writes or interactive browser tests were performed in this review.
-- Two minor CharactersPage copy corrections remain for the user: add a space between the deletion message's concatenated "events" and "across" strings; give the ordinary Edit button its own accessible label rather than the Edit on timeline label. These do not block the participation flow.
+- Characters and projects require origin/primary universes; universes require a local name and can optionally have a code.
+- Projects can be linked to multiple timelines, reordered independently, removed from one timeline, or deleted globally. Projects without a timeline link remain accessible through the existing-project picker within their primary universe's franchise.
+- Each appearance and event belongs to one timeline universe. All entry-service reads, creates, updates, deletes and event upserts include that universe.
+- Automatic participation, visitor-origin navigation, temporary editing rows, focus/highlighting and the pending-write guard remain implemented.
+- Application types, services, TimelineGrid calls and participation queries reflect the new scope. Project-removal confirmation explains that the selected timeline's entries are deleted and relinking starts empty.
+- Both TypeScript configurations and lint pass on the implemented source. Earlier tests of the proposed service changes covered universe/project isolation, event upsert identity, event-only participation, last-entry removal and error propagation.
+- The user reports successful behaviour after applying the pass. This is distinct from an independent check of live constraints: the assistant has not yet queried the database or interactively tested the app.
+- docs/supabase/schema.sql is explicitly marked outdated. Do not use its old character/project-only entry keys as the current design.
 
-## Agreed product rules
+## Product rules
 
-- Every character and project has an origin universe, even when that universe has no official designation or is destroyed in the story.
-- Keep a required local universe name and optional code. Main Continuity is acceptable for a franchise with one continuity; a code can be used as the local name if there is no official name.
+- Every character and project has an origin universe, including universes without an official designation or universes destroyed in the story.
+- Keep a required local universe name and optional code. Main Continuity is acceptable for a franchise with one continuity; a code can be the local name if there is no official name.
 - Compact visitor labels prefer a nonblank code, then name, then a readable fallback. Headings/selectors can retain the local name. Origin navigation currently stays within the selected franchise.
 - Variants are versions from different universes. Keep distinct character IDs; do not introduce a same-origin variant system, numerical cap or new uniqueness constraint without a concrete requirement. The supplied constraints did not establish the complete set of standalone unique indexes.
-- Franchise membership does not automatically add projects to every universe chronology. Loki belongs on TVA; MCU footage characters can appear there without adding Loki to the MCU timeline.
-- Retain one appearance and one event per character-project pair. A shared project shares those entries across its linked timelines; ordering remains specific to each timeline. No additional universe-specific appearance tables are planned.
-- Normal universe deletion must stay blocked by originating characters, primary projects and project timeline links. The retired character-visibility table is no longer part of the model.
-- Force deletion remains deferred. If introduced, agree on its scope and effects on other timelines; visiting characters must not be deleted merely because the visited universe is removed.
+- Franchise membership does not add projects to every universe chronology. MCU footage characters can appear in Loki on TVA without adding Loki to the MCU timeline.
+- A shared project can depict different appearances/events on different timelines. Iron Man's Endgame death on MCU does not imply a death on the 2012 New York Time Heist timeline.
+- Normal universe deletion remains blocked by originating characters, primary projects and timeline project links.
+- Force deletion remains deferred. Agree on its scope before implementing it; visiting characters must not be deleted merely because a visited universe is removed.
 
-## Completed application pass: automatic participation
+## Completed pass: independent appearances and events
 
-Approved on 11 October; implementation reviewed on 14 October:
+Implemented by the user for v0.3.2:
 
-- Ordinary timeline rows are derived from appearances OR character events in that timeline's projects. Include event-only characters, footage and detached appearances.
-- Origin does not filter a participating visitor out. Origin alone does not put a nonparticipating character on a timeline.
-- Characters-page Edit on timeline opens a temporary row on the currently selected timeline, including for a character from another universe.
-- An origin link opens the same character on their origin timeline. Both navigation paths reuse the existing temporary target, without creating appearances or saving visibility.
-- Saving a first appearance/event makes the character an ordinary participant. Removing their last entry removes the ordinary row; an explicitly focused editing row stays until leaving that visit.
-- The Characters page continues to show originating characters and current participants, with the existing checkbox to include other characters in the franchise.
-- Row inclusion is derived from current appearance/event state, so it updates immediately after edits without a separate visibility write or refresh.
-- Obsolete visibility methods, controls and schema-snapshot declarations have been removed. Do not restore them from older instructions.
-- The user's snapshot records removal of public.universe_characters; this review did not independently query the live catalog. The application no longer reads or writes that table. Its former selections are unnecessary because actual appearances/events determine participation.
-- No new table, RPC, default appearance, grouping/filter system or appearance type is part of this pass.
+- Add required universe_id to appearances and character_events. Entry location and character origin are separate concepts.
+- Appearance identity is (universe_id, character_id, project_id).
+- Events retain their existing id primary key and use a unique (universe_id, character_id, project_id) constraint. There is still at most one event per cell.
+- Each entry table references universe_projects through (universe_id, project_id) with ON DELETE CASCADE. Entries cannot exist without a matching project link; removing that link deletes only its timeline's entries.
+- Global character/project deletion still removes related entries across timelines. Universe deletion restrictions remain.
+- Existing entries were to be retained once on each project's primary universe: Endgame -> MCU, Loki S1 -> TVA. The migration checks for missing destination links instead of silently inventing chronology columns or discarding entries.
+- The user's completion report covers the applied pass. Confirm the actual keys, nullability, foreign keys and deletion rules through read-only database inspection once connected.
+- Retain shared character/project records and the existing project RPCs. No new entry tables or cleanup RPCs are required.
+
+## Automatic participation and editing
+
+- Ordinary timeline rows come from appearances OR events belonging to that universe and its projects. Include event-only characters, footage and detached appearances.
+- Origin neither excludes a participating visitor nor adds a nonparticipating character automatically.
+- Characters-page Edit on timeline opens a temporary row on the selected timeline, including for a character from another universe.
+- Visitor-origin navigation opens the same character on their origin timeline. Both paths reuse the temporary target without creating entries or saving visibility.
+- A first appearance/event establishes participation. Removing the last entry removes an ordinary row; an explicitly focused editing row remains for that visit. Changing tabs or workspace clears the temporary target.
+- The Characters page shows originating characters and current participants, with the existing checkbox for other characters in the franchise.
+- Participation updates from current entry state. Do not restore universe_characters, Show/Hide controls, default appearances or separate visibility writes.
 
 Regression checks to retain:
 
-1. A fresh character does not appear in an ordinary timeline; Edit on timeline opens a temporary blank row on the selected universe.
-2. Save one appearance, leave and return: the row remains. Leave without saving: it does not remain.
-3. A character with only an event is included. Deleting one kind of entry must not remove a row that still has the other kind.
-4. Removing the final entry removes an ordinary row; a focused empty editing row lasts only for that visit. Changing tabs clears the temporary target.
-5. TVA footage remains on TVA without creating a Loki column on MCU. Shared projects include the same participating characters and cell data in both timelines.
-6. Unlinking a project removes its contribution to that timeline's rows while preserving the project and its entries for other timelines.
-7. Save/read failures show errors and do not become successful empty results. The pending-write guard continues to block overlapping cell actions.
-8. After visibility-table cleanup, its old selections cannot block deletion of an otherwise empty universe. Real origin/project references still block deletion.
+1. A fresh character has no ordinary row; Edit on timeline opens a temporary blank row. Leaving without saving does not establish participation.
+2. Saving a first appearance or event retains the row after navigation. Removing one kind of entry preserves the row if the other remains.
+3. Removing the last entry removes an ordinary row, while a focused editing row lasts only for the current visit.
+4. A shared project starts blank when linked to another universe. Creating, editing or deleting a cell there does not affect another universe.
+5. Visitors remain valid. TVA footage does not require a Loki column on MCU.
+6. Removing a project deletes only the selected timeline's entries. Relinking starts blank; other timelines and the project record remain intact.
+7. Global character/project deletion removes its related entries. A universe with origin records or timeline project links remains protected.
+8. Read/save failures show errors; overlapping cell mutations remain blocked.
 
-## Following passes, in order
+## Next passes, in order
 
-### 1. Appearance/event types and lifeline/status behaviour
+### 1. Additional appearance and event types
 
-- The user will specify additional types after automatic participation works.
-- Update TypeScript values, editor options, database accepted values and marker visuals together.
-- Decide which appearance properties may coexist before changing the single type field.
-- Agree on connector and status semantics. Footage, flashbacks and missing appearances must not be treated as proof that a character is alive.
-- Add the requested name-side status indicator: cross for deceased, question mark for unknown, nothing otherwise.
-- Revisit presumed ongoing continuity and extending the final connector after status/event semantics are settled.
+- Wait for the user's list, especially multiverse-related cases, before deciding the implementation.
+- For each proposed type, establish its meaning, an example, whether it is an appearance or event, and whether it changes continuity or only the marker.
+- Determine which properties need to coexist. The current model allows one appearance and one event per cell; revisit that only if the supplied examples require it.
+- Update TypeScript values, editor choices, database constraints where applicable, and visuals together.
+- Preserve universe-specific entries, automatic participation and visitor-origin navigation. Do not add variant or travel tables without a concrete need.
 
-### 2. Functional and visual refinement
+### 2. Character status and continuing lifelines — deferred until agreed
+
+- The user wants a visible status indication beside the name and/or a continuing lifeline for characters who have not died by the relevant point in chronology.
+- Earlier requested symbols: a cross for deceased, a question mark for unknown, and no mark otherwise. Final visual treatment remains open.
+- Agree how death, revival, blip, return, footage and flashbacks influence status. Missing appearances are not proof of death, and footage is not proof of current survival.
+- Settle how status follows chronological order and how it behaves across universe timelines. A timeline-local event must not accidentally change every timeline's status.
+- Revisit extending the final connector towards the latest project only after those rules are clear.
+- This work may be deferred while appearance/event types are implemented; it is not a prerequisite for discussing that list.
+
+### 3. Functional and visual refinement
 
 - Refine icons, shapes, colours, spacing, focus/hover feedback, editor positioning and narrow-screen behaviour.
-- Check keyboard access and loading/empty/error cases.
-- Revisit grouping, sorting and filtering for hundreds of characters when the user defines the controls. These are presentation choices, separate from canonical participation data.
+- Check keyboard access and loading/empty/error states.
+- Revisit grouping, sorting and filtering for hundreds of characters when the user defines the controls. These are presentation choices, separate from participation data.
 - Validate representative timelines before bulk population.
 
-### 3. People, crew and credits
+### 4. People, crew and credits
 
-- Keep the previously requested contributor/role/project work after the timeline functionality and refinements. Use the smallest useful model when that pass begins.
+- Keep the previously requested contributor/role/project work after timeline functionality and refinements. Use the smallest useful model when that pass begins.
+
+## Live database access and reference maintenance
+
+- The user now wants to connect Supabase through MCP for reading the live database. Setup instructions have been researched; authentication and connection are not yet confirmed.
+- Prefer a connection restricted to this project with read_only=true. Keep database modifications in the existing user-applied workflow.
+- Once connected, inspect table definitions, keys, foreign keys, indexes, nullability, functions and policies; reconcile docs/supabase/schema.sql and functions.sql with observed metadata.
+- Retain a versioned schema reference. Prefer a schema-only database export over hand-maintaining an incomplete reconstruction; a snapshot does not need to be executed by the app to be useful.
+- Keep the current outdated label until the reference has been reconciled. Do not claim that inferred definitions are a live export.
+- A migration history can be introduced separately when useful; no CLI/Docker setup or migration-framework conversion is required for this pass.
+- cross-universe-pass-guide.md is historical. Current source, this plan and the latest chat decisions take precedence.
 
 ## Population and public release
 
-- The aim is to finish multiverse support, appearance/event behaviour and functional/visual refinement before bulk timeline population and outreach.
+- Finish multiverse support, appearance/event behaviour and functional/visual refinements before bulk timeline population and outreach.
 - Before public deployment/outreach, replace public write policies with suitable editor/viewer access and verify table/RPC permissions.
-
-## Reference maintenance
-
-- Keep schema/function references under docs/supabase. Prefer a schema export over manually reconstructing all constraints, indexes, functions and policies.
-- A read-only Supabase MCP connection is optional later; the user explicitly deferred connecting it.
-- cross-universe-pass-guide.md is historical material. Current source, this plan and the latest chat decisions take precedence.
-

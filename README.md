@@ -7,19 +7,16 @@ Inspired by an Excel workflow, Timeline Studio places characters in rows
 and projects in chronological columns, with appearance markers and
 automatically calculated character lifelines.
 
-## Current version — `0.3.1`
+## Current version — `0.3.2`
 
-Timeline character origin navigation and focus. Derive timeline rows from character entries.
+Appearances and character events are now independent for each universe timeline.
 
-Characters appear on a timeline when they have an appearance or event in
-one of its projects. **Edit on timeline** on the Characters page opens a
-temporary row for adding a first entry. Visitor origin labels open the same
-character on their origin timeline.
+Projects and characters retain shared identities, while appearance types,
+detached appearances, character events and project order belong to the selected
+timeline. Editing Iron Man's Endgame cell on a Time Heist timeline no longer
+changes his MCU appearance or death.
 
-Projects can belong to more than one universe chronology. Their appearances
-and events are shared, while project order is specific to each timeline.
-See the [development plan](docs/development-plan.md) for current behaviour
-and the next passes.
+See the [development plan](docs/development-plan.md) for the agreed order and scope.
 
 > ![Origins](docs/images/timeline-studio-v0.3.0-character-origins.png)
 
@@ -41,3 +38,9 @@ See the [progress screenshots](docs/images).
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-1d232a?style=for-the-badge&logo=supabase&logoColor=3FCF8E)
 
+## Database
+
+Supabase is the source of truth. Files in [docs/supabase](docs/supabase) are
+database references, not files the app runs to create its database. The schema
+snapshot is currently marked outdated and will be refreshed after checking the
+live database.

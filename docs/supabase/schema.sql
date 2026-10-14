@@ -2,6 +2,8 @@
 -- Selected constraints/nullability reconciled with user-supplied live results
 -- on 10 October 2026. Policies, indexes and other metadata are not fully exported.
 
+-- OUTDATED as of 14/10/2026
+
 create table
     franchises (
         id bigint generated always as identity primary key,
