@@ -41,6 +41,7 @@ See the [progress screenshots](docs/images).
 ## Database
 
 Supabase is the source of truth. Files in [docs/supabase](docs/supabase) are
-database references, not files the app runs to create its database. The schema
-snapshot is currently marked outdated and will be refreshed after checking the
-live database.
+database references, not files the app runs to create its database. They were
+refreshed from read-only live metadata on 15 October 2026 and include the
+universe-specific entry constraints, current policies and application functions.
+They are reference snapshots rather than complete database backups.

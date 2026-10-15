@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 14 October 2026 for v0.3.2. The user has implemented universe-specific appearances/events and reports that the pass works as intended. The application source has been reviewed and passes TypeScript and lint checks. Direct verification of the live database is pending an MCP connection.
+Updated 15 October 2026 for v0.3.2 after the Supabase connection became available. Read-only inspection confirms the universe-specific keys, foreign keys and deletion rules in the live database. Schema and function references have been refreshed from its catalog. The application passed TypeScript and lint checks during the 14 October review.
 
 ## Working agreement
 
@@ -19,15 +19,15 @@ Updated 14 October 2026 for v0.3.2. The user has implemented universe-specific a
 - Automatic participation, visitor-origin navigation, temporary editing rows, focus/highlighting and the pending-write guard remain implemented.
 - Application types, services, TimelineGrid calls and participation queries reflect the new scope. Project-removal confirmation explains that the selected timeline's entries are deleted and relinking starts empty.
 - Both TypeScript configurations and lint pass on the implemented source. Earlier tests of the proposed service changes covered universe/project isolation, event upsert identity, event-only participation, last-entry removal and error propagation.
-- The user reports successful behaviour after applying the pass. This is distinct from an independent check of live constraints: the assistant has not yet queried the database or interactively tested the app.
-- docs/supabase/schema.sql is explicitly marked outdated. Do not use its old character/project-only entry keys as the current design.
+- Live inspection on 15 October confirms 7 public application tables, 26 named table constraints, 7 RLS policies and 2 application functions. Both entry tables have required universe_id, the intended keys and validated composite foreign keys with ON DELETE CASCADE. No entries lack a matching universe-project link.
+- docs/supabase/schema.sql and functions.sql now reflect the live metadata. They are documented reference snapshots, not full pg_dump backups or migrations. No database changes or destructive runtime tests were performed.
 
 ## Product rules
 
 - Every character and project has an origin universe, including universes without an official designation or universes destroyed in the story.
 - Keep a required local universe name and optional code. Main Continuity is acceptable for a franchise with one continuity; a code can be the local name if there is no official name.
 - Compact visitor labels prefer a nonblank code, then name, then a readable fallback. Headings/selectors can retain the local name. Origin navigation currently stays within the selected franchise.
-- Variants are versions from different universes. Keep distinct character IDs; do not introduce a same-origin variant system, numerical cap or new uniqueness constraint without a concrete requirement. The supplied constraints did not establish the complete set of standalone unique indexes.
+- Variants are versions from different universes. Keep distinct character IDs; do not introduce a same-origin variant system, numerical cap or new uniqueness constraint without a concrete requirement. The live characters table has no alias/origin unique constraint or standalone unique index beyond its id primary key.
 - Franchise membership does not add projects to every universe chronology. MCU footage characters can appear in Loki on TVA without adding Loki to the MCU timeline.
 - A shared project can depict different appearances/events on different timelines. Iron Man's Endgame death on MCU does not imply a death on the 2012 New York Time Heist timeline.
 - Normal universe deletion remains blocked by originating characters, primary projects and timeline project links.
@@ -43,7 +43,7 @@ Implemented by the user for v0.3.2:
 - Each entry table references universe_projects through (universe_id, project_id) with ON DELETE CASCADE. Entries cannot exist without a matching project link; removing that link deletes only its timeline's entries.
 - Global character/project deletion still removes related entries across timelines. Universe deletion restrictions remain.
 - Existing entries were to be retained once on each project's primary universe: Endgame -> MCU, Loki S1 -> TVA. The migration checks for missing destination links instead of silently inventing chronology columns or discarding entries.
-- The user's completion report covers the applied pass. Confirm the actual keys, nullability, foreign keys and deletion rules through read-only database inspection once connected.
+- Read-only inspection now confirms the applied keys, nullability and deletion rules. There are currently character/project appearance pairs recorded in multiple universes, and neither entry table has orphaned timeline links. Cascading deletions were verified from validated constraints, not by deleting test data.
 - Retain shared character/project records and the existing project RPCs. No new entry tables or cleanup RPCs are required.
 
 ## Automatic participation and editing
@@ -69,13 +69,27 @@ Regression checks to retain:
 
 ## Next passes, in order
 
-### 1. Additional appearance and event types
+### 1. Additional appearance and event types — requirements in discussion
 
-- Wait for the user's list, especially multiverse-related cases, before deciding the implementation.
-- For each proposed type, establish its meaning, an example, whether it is an appearance or event, and whether it changes continuity or only the marker.
-- Determine which properties need to coexist. The current model allows one appearance and one event per cell; revisit that only if the supplied examples require it.
-- Update TypeScript values, editor choices, database constraints where applicable, and visuals together.
-- Preserve universe-specific entries, automatic participation and visitor-origin navigation. Do not add variant or travel tables without a concrete need.
+The user's 15 October list:
+
+- Afterlife appearances.
+- A combined statue/image/photo category to keep the editor simple; suggested label: Depiction.
+- Non-chronological appearances, including the user's Natasha/Captain Marvel post-credit example.
+- Possible multiverse travel representation, using Tony and Steve's brief Endgame visit to the Time Heist universe as the concrete case.
+
+Recommended small scope, pending clarification of continuity semantics:
+
+- Add afterlife, depiction and non_chronological to the current appearance choices and give each a distinct marker. Keep one appearance category per cell unless a concrete example requires combining categories.
+- A non-chronological marker should not anchor the character to the project's position in the chronology. Use the existing detached-from-lifeline mechanism rather than introducing scene ordering.
+- A depiction indicates an image/statue/photo, not physical participation or proof of life. It should not extend a living character's lifeline.
+- Clarify whether afterlife appearances should form their own connected continuation or be isolated from the ended living lifeline before deciding automatic detachment behaviour.
+- For the pictured Tony/Steve visits, an ordinary appearance plus the visitor-origin link already conveys participation and foreign origin. This does not record exact arrival/departure boundaries.
+- Separate arrival/departure events are only needed if the user wants those transitions explicitly recorded. The current one-event-per-cell constraint cannot store both transitions, or a transition and death, in the same cell; avoid changing that model without a concrete requirement.
+- The little arrow is currently the first non-detached appearance marker, not a travel event. Removing it is a proposed visual simplification, not an implemented change.
+- Before later extending living characters' lines, distinguish survival from presence in a particular universe. A visitor being alive does not mean they remain in the visited universe.
+- Once these rules are settled, supply the implementation in chat with short learning explanations. Update editor choices, types and marker styling together, and add or change database checks only where needed.
+- No application code, appearance types, travel events or schema constraints have been changed for this pass yet.
 
 ### 2. Character status and continuing lifelines — deferred until agreed
 
@@ -99,13 +113,20 @@ Regression checks to retain:
 
 ## Live database access and reference maintenance
 
-- The user now wants to connect Supabase through MCP for reading the live database. Setup instructions have been researched; authentication and connection are not yet confirmed.
-- Prefer a connection restricted to this project with read_only=true. Keep database modifications in the existing user-applied workflow.
-- Once connected, inspect table definitions, keys, foreign keys, indexes, nullability, functions and policies; reconcile docs/supabase/schema.sql and functions.sql with observed metadata.
-- Retain a versioned schema reference. Prefer a schema-only database export over hand-maintaining an incomplete reconstruction; a snapshot does not need to be executed by the app to be useful.
-- Keep the current outdated label until the reference has been reconciled. Do not claim that inferred definitions are a live export.
-- A migration history can be introduced separately when useful; no CLI/Docker setup or migration-framework conversion is required for this pass.
+- Supabase MCP is connected. The inspected project was matched to the application's configured Supabase URL.
+- Inspection used read-only SELECT queries. The connected plugin also exposes write-capable tools; do not confuse our read-only workflow with verified server-enforced read-only permissions. Database modifications remain in the established user-applied workflow.
+- schema.sql records the 7 public application tables, columns, defaults, identity modes, named constraints, RLS policies and table privileges. functions.sql records both live function bodies and their execution grants.
+- The references were generated from catalog metadata on 15 October, not inferred from the frontend. They omit data, sequence state/ACLs, default/schema/role ACLs, extensions, managed schemas and operational settings; they are not complete restore scripts.
+- Keep these references versioned and refresh them after relevant database changes. Prefer a schema-only pg_dump/Supabase CLI export when a full reproducible export is needed. No CLI/Docker setup or migration-framework conversion is needed for this documentation update.
+- Both application functions use SECURITY INVOKER and an empty search_path. PUBLIC has no function EXECUTE grant; postgres, anon, authenticated and service_role have explicit execution grants.
+- All 7 tables have RLS enabled, with the existing permissive prototype policies and broad grants. Record their actual state; access hardening remains a separate pre-release task.
 - cross-universe-pass-guide.md is historical. Current source, this plan and the latest chat decisions take precedence.
+
+## Verification after the default correction
+
+- Rechecked the live database on 15 October: appearances.appearance_type now defaults to lowercase 'standard'. The user has applied the correction, and schema.sql has been reconciled with it.
+- Existing appearance values remain supported lowercase values. Both entry tables still have their validated universe-specific keys and cascading link constraints, with no orphaned timeline links.
+- Both TypeScript configurations and lint pass for the current application. The review did not write to the database.
 
 ## Population and public release
 

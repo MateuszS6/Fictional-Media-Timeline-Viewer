@@ -1,17 +1,16 @@
--- Generated function
-create or replace function public.save_project_in_universe(
-    p_universe_id bigint,
-    p_project_id bigint,
-    p_title text,
-    p_release_date date,
-    p_primary_universe_id bigint,
-    p_position integer
-)
-returns setof public.projects
-language plpgsql
-security invoker
-set search_path = ''
-as $$
+-- Live reference snapshot: 15 October 2026, Timeline Viewer, PostgreSQL 17.
+-- Function bodies read with pg_get_functiondef through read-only Supabase MCP.
+-- Documentation only; no functions were created, invoked or changed by this export.
+-- Both functions use SECURITY INVOKER and an empty search_path.
+-- PUBLIC has no EXECUTE grant; the explicit grants below reflect the live ACLs.
+-- Default/role/schema privileges and Supabase-managed functions are not included.
+
+CREATE OR REPLACE FUNCTION public.save_project_in_universe(p_universe_id bigint, p_project_id bigint, p_title text, p_release_date date, p_primary_universe_id bigint, p_position integer)
+ RETURNS SETOF public.projects
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ SET search_path TO ''
+AS $function$
 declare
     v_project_id bigint;
     v_other_ids bigint[];
@@ -131,26 +130,18 @@ begin
     where up.universe_id = p_universe_id
     order by up.timeline_position;
 end;
-$$;
+$function$;
 
-revoke execute on function public.save_project_in_universe(
-    bigint, bigint, text, date, bigint, integer
-) from public;
+REVOKE EXECUTE ON FUNCTION public.save_project_in_universe(bigint, bigint, text, date, bigint, integer) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.save_project_in_universe(bigint, bigint, text, date, bigint, integer)
+    TO postgres, anon, authenticated, service_role;
 
-grant execute on function public.save_project_in_universe(
-    bigint, bigint, text, date, bigint, integer
-) to anon, authenticated;
-
--- Generated function
-create or replace function public.link_project_to_universe(
-    p_universe_id bigint,
-    p_project_id bigint
-)
-returns setof public.projects
-language plpgsql
-security invoker
-set search_path = ''
-as $$
+CREATE OR REPLACE FUNCTION public.link_project_to_universe(p_universe_id bigint, p_project_id bigint)
+ RETURNS SETOF public.projects
+ LANGUAGE plpgsql
+ SECURITY INVOKER
+ SET search_path TO ''
+AS $function$
 begin
     -- Use the same chronology lock as save_project_in_universe.
     perform 1
@@ -182,10 +173,8 @@ begin
     where up.universe_id = p_universe_id
     order by up.timeline_position;
 end;
-$$;
+$function$;
 
-revoke execute on function public.link_project_to_universe(bigint, bigint)
-    from public;
-
-grant execute on function public.link_project_to_universe(bigint, bigint)
-    to anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.link_project_to_universe(bigint, bigint) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.link_project_to_universe(bigint, bigint)
+    TO postgres, anon, authenticated, service_role;
