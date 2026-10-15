@@ -1,30 +1,25 @@
-# Fictional-Media Timeline Viewer
+# Fictional-Media Timeline Viewer & Studio
 
-_A personal tool for exploring and editing fictional-media timelines,
+_A personal tool for creating and exploring fictional timelines,
 starting with the Marvel Cinematic Universe._
 
-Inspired by an Excel workflow, Timeline Studio places characters in rows
-and projects in chronological columns, with appearance markers and
-automatically calculated character lifelines.
+Inspired by an Excel workflow, Timeline Studio uses character rows,
+chronological project columns and visual lifelines to track appearances
+and events within each universe.
 
-## Current version — `0.3.2`
+## Current version — `0.3.3`
 
-Appearances and character events are now independent for each universe timeline.
+Expanded timeline appearance and event types.
 
-Projects and characters retain shared identities, while appearance types,
-detached appearances, character events and project order belong to the selected
-timeline. Editing Iron Man's Endgame cell on a Time Heist timeline no longer
-changes his MCU appearance or death.
+See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
-See the [development plan](docs/development-plan.md) for the agreed order and scope.
+> ![Types](docs/images/timeline-studio-v0.3.3-new-types.png)
 
-> ![Origins](docs/images/timeline-studio-v0.3.0-character-origins.png)
-
-> ![Focus](docs/images/timeline-studio-v0.3.0-character-focus.png)
+> ![Focus](docs/images/timeline-studio-v0.3.3-origin-with-focus.png)
 
 ## Aim
 
-To build a feature-packed application showing various film franchise timelines with up-to-date project and character viewers and statistics.
+Make fictional universes easier to explore through timelines, character histories, project details and statistics.
 
 ## Screenshots
 

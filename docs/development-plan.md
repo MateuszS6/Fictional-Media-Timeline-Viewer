@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 15 October 2026 for v0.3.2 after the Supabase connection became available. Read-only inspection confirms the universe-specific keys, foreign keys and deletion rules in the live database. Schema and function references have been refreshed from its catalog. The application passed TypeScript and lint checks during the 14 October review.
+Updated 15 October 2026 after reviewing the implemented additional appearance/event pass. Both TypeScript configurations, lint and focused continuity checks pass on the current source. Read-only inspection confirms the live appearance/event checks, including vision and unknown, and their universe-specific keys and cascading foreign keys. The schema reference has been reconciled with those checks.
 
 ## Working agreement
 
@@ -19,7 +19,7 @@ Updated 15 October 2026 for v0.3.2 after the Supabase connection became availabl
 - Automatic participation, visitor-origin navigation, temporary editing rows, focus/highlighting and the pending-write guard remain implemented.
 - Application types, services, TimelineGrid calls and participation queries reflect the new scope. Project-removal confirmation explains that the selected timeline's entries are deleted and relinking starts empty.
 - Both TypeScript configurations and lint pass on the implemented source. Earlier tests of the proposed service changes covered universe/project isolation, event upsert identity, event-only participation, last-entry removal and error propagation.
-- Live inspection on 15 October confirms 7 public application tables, 26 named table constraints, 7 RLS policies and 2 application functions. Both entry tables have required universe_id, the intended keys and validated composite foreign keys with ON DELETE CASCADE. No entries lack a matching universe-project link.
+- The initial live inspection on 15 October confirmed 7 public application tables, 26 named table constraints, 7 RLS policies and 2 application functions. The additional-type pass below subsequently added one appearance check. Both entry tables have required universe_id, the intended keys and validated composite foreign keys with ON DELETE CASCADE. No entries lack a matching universe-project link.
 - docs/supabase/schema.sql and functions.sql now reflect the live metadata. They are documented reference snapshots, not full pg_dump backups or migrations. No database changes or destructive runtime tests were performed.
 
 ## Product rules
@@ -69,33 +69,28 @@ Regression checks to retain:
 
 ## Next passes, in order
 
-### 1. Additional appearance and event types — requirements in discussion
+### 1. Additional appearance and event types — implemented; small visual cleanup pending
 
-The user's 15 October list:
+Reviewed the user's implementation on 15 October:
 
-- Afterlife appearances.
-- A combined statue/image/photo category to keep the editor simple; suggested label: Depiction.
-- Non-chronological appearances, including the user's Natasha/Captain Marvel post-credit example.
-- Possible multiverse travel representation, using Tony and Steve's brief Endgame visit to the Time Heist universe as the concrete case.
-
-Recommended small scope, pending clarification of continuity semantics:
-
-- Add afterlife, depiction and non_chronological to the current appearance choices and give each a distinct marker. Keep one appearance category per cell unless a concrete example requires combining categories.
-- A non-chronological marker should not anchor the character to the project's position in the chronology. Use the existing detached-from-lifeline mechanism rather than introducing scene ordering.
-- A depiction indicates an image/statue/photo, not physical participation or proof of life. It should not extend a living character's lifeline.
-- Clarify whether afterlife appearances should form their own connected continuation or be isolated from the ended living lifeline before deciding automatic detachment behaviour.
-- For the pictured Tony/Steve visits, an ordinary appearance plus the visitor-origin link already conveys participation and foreign origin. This does not record exact arrival/departure boundaries.
-- Separate arrival/departure events are only needed if the user wants those transitions explicitly recorded. The current one-event-per-cell constraint cannot store both transitions, or a transition and death, in the same cell; avoid changing that model without a concrete requirement.
-- The little arrow is currently the first non-detached appearance marker, not a travel event. Removing it is a proposed visual simplification, not an implemented change.
-- Before later extending living characters' lines, distinguish survival from presence in a particular universe. A visitor being alive does not mean they remain in the visited universe.
-- Once these rules are settled, supply the implementation in chat with short learning explanations. Update editor choices, types and marker styling together, and add or change database checks only where needed.
-- No application code, appearance types, travel events or schema constraints have been changed for this pass yet.
+- The appearance union and editor now offer standard, flashback, footage, depiction, vision, afterlife and non_chronological. Depiction combines statue/image/photo. Keep one appearance category per cell.
+- The user simplified the selection rule: switching to any non-standard type detaches it by default, including flashback, footage and vision. The existing toggle can reconnect it. Selecting the already active type preserves a manual override, and switching to Standard preserves the current attachment setting.
+- This is an editor selection default. Existing rows are not rewritten and the database still defaults is_detached to false when creating a standard appearance.
+- Non-chronological appearances do not add scene ordering. Detached depictions, visions and afterlife appearances do not start or extend a continuity segment, but still establish timeline participation.
+- Unknown status is available as an explicit ? event. It ends known continuity at the selected at/after position without declaring death. A later connected appearance can resume continuity.
+- No global status inference, name-side status badge or final-line extension has been added.
+- The original first-connected-appearance arrow remains. Multiverse entry/departure events are deferred and optional; retain one event per cell.
+- Live validated database checks match all seven appearance choices and all five event choices, including vision and unknown. Universe-specific keys and cascading project-link foreign keys remain in place.
+- Both TypeScript configurations and lint pass on the user's current source. Focused checks cover detachment for all non-standard types, manual attachment, preservation when reselecting a type, unknown at/after, later resumption and existing event behaviour. No database rows were modified during review.
+- Remaining visual cleanup supplied in chat: replace Vision's tiny-square placeholder with a small eye marker and remove its invalid border-radius: none declaration; replace underscores and add spacing in appearance tooltips.
+- Two old lifeline comments still describe first-only continuity and inferred survival. Correct their wording; no algorithm change is needed for that cleanup.
+- The schema reference now records the observed checks. The assistant has updated documentation only; proposed styling and tooltip changes remain for the user to apply.
 
 ### 2. Character status and continuing lifelines — deferred until agreed
 
 - The user wants a visible status indication beside the name and/or a continuing lifeline for characters who have not died by the relevant point in chronology.
 - Earlier requested symbols: a cross for deceased, a question mark for unknown, and no mark otherwise. Final visual treatment remains open.
-- Agree how death, revival, blip, return, footage and flashbacks influence status. Missing appearances are not proof of death, and footage is not proof of current survival.
+- Agree how death, revival, blip, return, unknown, afterlife, depictions, non-chronological appearances, footage and flashbacks influence derived status. Missing appearances are not proof of death, and footage is not proof of current survival.
 - Settle how status follows chronological order and how it behaves across universe timelines. A timeline-local event must not accidentally change every timeline's status.
 - Revisit extending the final connector towards the latest project only after those rules are clear.
 - This work may be deferred while appearance/event types are implemented; it is not a prerequisite for discussing that list.
@@ -128,7 +123,12 @@ Recommended small scope, pending clarification of continuity semantics:
 - Existing appearance values remain supported lowercase values. Both entry tables still have their validated universe-specific keys and cascading link constraints, with no orphaned timeline links.
 - Both TypeScript configurations and lint pass for the current application. The review did not write to the database.
 
-## Population and public release
+## Public preview checkpoint and population
 
-- Finish multiverse support, appearance/event behaviour and functional/visual refinements before bulk timeline population and outreach.
-- Before public deployment/outreach, replace public write policies with suitable editor/viewer access and verify table/RPC permissions.
+- After this appearance/event pass, or one further focused pass, review the user's public-preview/viewer plan from the other chat. The user will bring that plan into this conversation; its details have not yet been inspected.
+- A public preview is intended before v1. Finishing all status, people/crew/credits or other v1 features is not a prerequisite for reviewing or preparing that preview.
+- Use that review to agree the smallest viewer/editor scope, remaining release blockers and deployment steps. Do not invent additional preview features now.
+- Before public access, replace the prototype public-write policies with suitable editor/viewer permissions and verify table/RPC access. This remains deferred from the current appearance pass, but is required for the public-preview preparation.
+- Validate representative timelines and the agreed appearance/event behaviour before bulk population. Coordinate outreach with the public-preview plan.
+
+

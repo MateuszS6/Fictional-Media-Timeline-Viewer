@@ -9,6 +9,8 @@
 -- There are no extra standalone indexes, user triggers, views or enums in public.
 -- Existing prototype access is recorded as observed; hardening remains planned.
 -- Rechecked appearance_type: the live default is now lowercase 'standard'.
+-- Appearance/event checks refreshed after the additional-type pass: seven
+-- appearance types (including vision) and five event types (including unknown).
 
 CREATE TABLE public.franchises (
     id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -63,6 +65,7 @@ CREATE TABLE public.appearances (
     appearance_type text DEFAULT 'standard'::text NOT NULL,
     is_detached boolean DEFAULT false NOT NULL,
     universe_id bigint NOT NULL,
+    CONSTRAINT appearances_appearance_type_check CHECK ((appearance_type = ANY (ARRAY['standard'::text, 'flashback'::text, 'footage'::text, 'afterlife'::text, 'depiction'::text, 'vision'::text, 'non_chronological'::text]))),
     CONSTRAINT appearances_character_id_fkey FOREIGN KEY (character_id) REFERENCES public.characters(id) ON DELETE CASCADE,
     CONSTRAINT appearances_pkey PRIMARY KEY (universe_id, character_id, project_id),
     CONSTRAINT appearances_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE,
@@ -78,7 +81,7 @@ CREATE TABLE public.character_events (
     universe_id bigint NOT NULL,
     CONSTRAINT character_events_character_id_fkey FOREIGN KEY (character_id) REFERENCES public.characters(id) ON DELETE CASCADE,
     CONSTRAINT character_events_event_position_check CHECK (event_position = ANY (ARRAY['at'::text, 'after'::text])),
-    CONSTRAINT character_events_event_type_check CHECK (event_type = ANY (ARRAY['death'::text, 'revival'::text, 'blip'::text, 'return'::text])),
+    CONSTRAINT character_events_event_type_check CHECK ((event_type = ANY (ARRAY['death'::text, 'revival'::text, 'blip'::text, 'return'::text, 'unknown'::text]))),
     CONSTRAINT character_events_pkey PRIMARY KEY (id),
     CONSTRAINT character_events_project_id_fkey FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE,
     CONSTRAINT character_events_universe_character_project_key UNIQUE (universe_id, character_id, project_id),
@@ -158,3 +161,4 @@ GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON
 
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.universes
     TO postgres, anon, authenticated, service_role;
+
