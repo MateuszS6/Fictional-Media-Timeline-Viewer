@@ -59,7 +59,7 @@ export function buildLifelineSegments(
             startSegment(index);
         }
 
-        // First connected appearance automatically starts character's intitial lifeline.
+        // A connected appearance starts or resumes the displayed continuity.
         if (connectedAppearance) {
             if (!isActive) {
                 startSegment(index);
@@ -105,8 +105,7 @@ export function buildLifelineSegments(
         }
     }
 
-    // Character is still alive at the end.
-    // End the visual line at the latest connected appearance rather than running indefinitely off-screen.
+    // End open continuity at the latest connected appearance.
     if (
         isActive &&
         segmentStart !== null

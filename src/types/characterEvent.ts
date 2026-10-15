@@ -2,7 +2,19 @@ export type CharacterEventType =
     | "death"
     | "revival"
     | "blip"
-    | "return";
+    | "return"
+    | "unknown";
+
+export const CHARACTER_EVENT_OPTIONS: {
+    value: CharacterEventType;
+    label: string;
+}[] = [
+        { value: "death", label: "Death" },
+        { value: "revival", label: "Revival" },
+        { value: "blip", label: "Blip" },
+        { value: "return", label: "Return" },
+        { value: "unknown", label: "Unkown status" }
+    ]
 
 export type CharacterEventPosition =
     | "at"
@@ -32,6 +44,7 @@ export function getContinuityEffect(
     switch (event_type) {
         case "death":
         case "blip":
+        case "unknown":
             return "end";
         case "revival":
         case "return":

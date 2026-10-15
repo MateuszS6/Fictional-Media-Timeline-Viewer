@@ -255,56 +255,101 @@
     transform: scale(1.2);
 }
 
+/* Appearance type */
+
 .appearance-standard::before {
     content: '';
-
     width: 12px;
     height: 12px;
-
     border: 3px solid var(--surface-alt);
     border-radius: 50%;
-
     background: var(--color-primary);
-
     box-shadow: 0 0 0 1px var(--timeline-dot);
 }
 
 .appearance-flashback::before {
     content: '';
-
     width: 9px;
     height: 9px;
-
     border: 2px solid var(--surface-alt);
-
     background: var(--color-primary);
-
     box-shadow: 0 0 0 1px var(--timeline-dot);
-
     transform: rotate(45deg);
 }
 
 .appearance-footage::before {
     content: '';
-
     width: 10px;
     height: 10px;
-
     border: 2px solid var(--color-primary);
     border-radius: var(--radius-sm);
-
     background: var(--surface-alt);
-
     box-shadow: 0 0 0 1px var(--timeline-dot);
+}
+
+.appearance-depiction::before {
+    content: '';
+    width: 11px;
+    height: 14px;
+    border: 1px solid var(--color-primary);
+    border-radius: 1px;
+    background: var(--surface-alt);
+}
+
+.appearance-depiction::after {
+    content: '';
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.appearance-vision::before {
+    content: '';
+    width: 14px;
+    height: 9px;
+    border: 1px solid var(--color-primary);
+    border-radius: 50%;
+    background: var(--surface-alt);
+}
+
+.appearance-vision::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-primary);
+}
+
+.appearance-afterlife::before {
+    content: '';
+    width: 13px;
+    height: 13px;
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+    background: var(--surface-alt);
+}
+
+.appearance-non_chronological::before {
+    content: '';
+    width: 11px;
+    height: 11px;
+    border: 1px dashed var(--color-primary);
+    background: var(--surface-alt);
+    transform: rotate(45deg);
 }
 
 .appearance-detached {
     opacity: 0.45;
 }
 
-/* Event */
-
 .timeline-event {
+    /* Event */
+
     position: absolute;
     z-index: 3;
 

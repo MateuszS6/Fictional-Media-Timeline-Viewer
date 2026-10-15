@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import type { Appearance, AppearanceType, AppearanceUpdate } from "../../types/appearance";
-import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from "../../types/characterEvent";
+import { APPEARANCE_OPTIONS, type Appearance, type AppearanceType, type AppearanceUpdate } from "../../types/appearance";
+import { CHARACTER_EVENT_OPTIONS, type CharacterEvent, type CharacterEventPosition, type CharacterEventType } from "../../types/characterEvent";
 import AppearanceEditor from "./AppearanceEditor";
 
 interface TimelineCellProps {
@@ -96,13 +96,18 @@ export default function TimelineCell({
     }
 
     function handleAppearanceTypeChange(type: AppearanceType) {
-        onUpdate(
-            characterId,
-            projectId,
-            {
-                appearance_type: type
-            }
-        );
+        if (!appearance || saving) return;
+
+        // Selecting the current type keeps any manual detachment choice.
+        if (appearance.appearance_type === type) {
+            setEditorOpen(false);
+            return;
+        }
+
+        onUpdate(characterId, projectId, {
+            appearance_type: type,
+            is_detached: type !== "standard" || appearance.is_detached
+        });
 
         setEditorOpen(false);
     }
@@ -193,9 +198,8 @@ export default function TimelineCell({
                         ${appearance.is_detached ? "appearance-detached" : ""}
                     `}
                     title={
-                        appearance.is_detached
-                            ? `${appearance.appearance_type} - detached`
-                            : appearance.appearance_type
+                        appearance.appearance_type.replaceAll("_", " ") +
+                        (appearance.is_detached ? " — detached" : "")
                     }
                 />
             )}
@@ -208,12 +212,16 @@ export default function TimelineCell({
                         timeline-event-${characterEvent.event_position}
                         ${appearance ? "timeline-event-with-appearance" : ""}
                     `}
-                    title={characterEvent.event_type}
+                    title={characterEvent.event_type === "unknown"
+                        ? "Unknown status"
+                        : characterEvent.event_type
+                    }
                 >
                     {characterEvent.event_type === "death" && "×"}
                     {characterEvent.event_type === "revival" && "↻"}
                     {characterEvent.event_type === "blip" && "✦"}
                     {characterEvent.event_type === "return" && "↺"}
+                    {characterEvent.event_type === "unknown" && "?"}
                 </span>
             )}
 
@@ -228,41 +236,20 @@ export default function TimelineCell({
 
                     {appearance ? (
                         <>
-                            <button
-                                disabled={saving}
-                                className={
-                                    appearance.appearance_type === "standard"
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={() => handleAppearanceTypeChange("standard")}
-                            >
-                                Standard
-                            </button>
-
-                            <button
-                                disabled={saving}
-                                className={
-                                    appearance.appearance_type === "flashback"
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={() => handleAppearanceTypeChange("flashback")}
-                            >
-                                Flashback
-                            </button>
-
-                            <button
-                                disabled={saving}
-                                className={
-                                    appearance.appearance_type === "footage"
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={() => handleAppearanceTypeChange("footage")}
-                            >
-                                Footage
-                            </button>
+                            {APPEARANCE_OPTIONS.map((option) => (
+                                <button
+                                    key={option.value}
+                                    disabled={saving}
+                                    className={
+                                        appearance.appearance_type === option.value
+                                            ? "appearance-editor-option active"
+                                            : "appearance-editor-option"
+                                    }
+                                    onClick={() => handleAppearanceTypeChange(option.value)}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
 
                             <div className="appearance-editor-divider" />
 
@@ -301,61 +288,20 @@ export default function TimelineCell({
                         Timeline event
                     </div>
 
-                    <button
-                        disabled={saving}
-                        className={
-                            characterEvent?.event_type === "death"
-                                ? "appearance-editor-option active"
-                                : "appearance-editor-option"
-                        }
-                        onClick={() =>
-                            handleEventTypeChange("death")
-                        }
-                    >
-                        Death
-                    </button>
-
-                    <button
-                        disabled={saving}
-                        className={
-                            characterEvent?.event_type === "revival"
-                                ? "appearance-editor-option active"
-                                : "appearance-editor-option"
-                        }
-                        onClick={() =>
-                            handleEventTypeChange("revival")
-                        }
-                    >
-                        Revival
-                    </button>
-
-                    <button
-                        disabled={saving}
-                        className={
-                            characterEvent?.event_type === "blip"
-                                ? "appearance-editor-option active"
-                                : "appearance-editor-option"
-                        }
-                        onClick={() =>
-                            handleEventTypeChange("blip")
-                        }
-                    >
-                        Blip
-                    </button>
-
-                    <button
-                        disabled={saving}
-                        className={
-                            characterEvent?.event_type === "return"
-                                ? "appearance-editor-option active"
-                                : "appearance-editor-option"
-                        }
-                        onClick={() =>
-                            handleEventTypeChange("return")
-                        }
-                    >
-                        Return
-                    </button>
+                    {CHARACTER_EVENT_OPTIONS.map((option) => (
+                        <button
+                            key={option.value}
+                            disabled={saving}
+                            className={
+                                characterEvent?.event_type === option.value
+                                    ? "appearance-editor-option active"
+                                    : "appearance-editor-option"
+                            }
+                            onClick={() => handleEventTypeChange(option.value)}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
 
                     {/* EVENT OPTIONS */}
 
