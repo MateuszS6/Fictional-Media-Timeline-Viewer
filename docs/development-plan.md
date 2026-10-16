@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 15 October 2026 after reviewing the implemented additional appearance/event pass. Both TypeScript configurations, lint and focused continuity checks pass on the current source. Read-only inspection confirms the live appearance/event checks, including vision and unknown, and their universe-specific keys and cascading foreign keys. The schema reference has been reconciled with those checks.
+Updated 16 October 2026 after reviewing the public-preview/viewer proposal against v0.3.3, the current source and live database permissions. TypeScript, lint, focused continuity checks and a Vite production build pass. The latest Vision styling, tooltip and comment cleanup is implemented. This review changes documentation only.
 
 ## Working agreement
 
@@ -10,7 +10,7 @@ Updated 15 October 2026 after reviewing the implemented additional appearance/ev
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.3.2
+## Current baseline: v0.3.3
 
 - Franchise/universe and character/project create, edit and delete controls are implemented.
 - Characters and projects require origin/primary universes; universes require a local name and can optionally have a code.
@@ -67,9 +67,9 @@ Regression checks to retain:
 7. Global character/project deletion removes its related entries. A universe with origin records or timeline project links remains protected.
 8. Read/save failures show errors; overlapping cell mutations remain blocked.
 
-## Next passes, in order
+## Feature roadmap retained alongside public-preview preparation
 
-### 1. Additional appearance and event types — implemented; small visual cleanup pending
+### 1. Additional appearance and event types — completed in v0.3.3
 
 Reviewed the user's implementation on 15 October:
 
@@ -82,9 +82,9 @@ Reviewed the user's implementation on 15 October:
 - The original first-connected-appearance arrow remains. Multiverse entry/departure events are deferred and optional; retain one event per cell.
 - Live validated database checks match all seven appearance choices and all five event choices, including vision and unknown. Universe-specific keys and cascading project-link foreign keys remain in place.
 - Both TypeScript configurations and lint pass on the user's current source. Focused checks cover detachment for all non-standard types, manual attachment, preservation when reselecting a type, unknown at/after, later resumption and existing event behaviour. No database rows were modified during review.
-- Remaining visual cleanup supplied in chat: replace Vision's tiny-square placeholder with a small eye marker and remove its invalid border-radius: none declaration; replace underscores and add spacing in appearance tooltips.
-- Two old lifeline comments still describe first-only continuity and inferred survival. Correct their wording; no algorithm change is needed for that cleanup.
-- The schema reference now records the observed checks. The assistant has updated documentation only; proposed styling and tooltip changes remain for the user to apply.
+- Visual cleanup confirmed on 16 October: Vision uses a small eye marker, appearance tooltips replace underscores and separate the detached label, and the invalid radius declaration has been removed.
+- Lifeline comments now describe displayed continuity without inferring survival or claiming that only the first appearance can start a segment.
+- The schema reference records the observed checks. The user has applied the code and database changes; the assistant has updated documentation only.
 
 ### 2. Character status and continuing lifelines — deferred until agreed
 
@@ -123,12 +123,52 @@ Reviewed the user's implementation on 15 October:
 - Existing appearance values remain supported lowercase values. Both entry tables still have their validated universe-specific keys and cascading link constraints, with no orphaned timeline links.
 - Both TypeScript configurations and lint pass for the current application. The review did not write to the database.
 
-## Public preview checkpoint and population
+## Public-preview proposal reviewed on 16 October
 
-- After this appearance/event pass, or one further focused pass, review the user's public-preview/viewer plan from the other chat. The user will bring that plan into this conversation; its details have not yet been inspected.
-- A public preview is intended before v1. Finishing all status, people/crew/credits or other v1 features is not a prerequisite for reviewing or preparing that preview.
-- Use that review to agree the smallest viewer/editor scope, remaining release blockers and deployment steps. Do not invent additional preview features now.
-- Before public access, replace the prototype public-write policies with suitable editor/viewer permissions and verify table/RPC access. This remains deferred from the current appearance pass, but is required for the public-preview preparation.
-- Validate representative timelines and the agreed appearance/event behaviour before bulk population. Coordinate outreach with the public-preview plan.
+Source reviewed in full: C:/Users/matbu/Documents/Projects/PUBLIC_PREVIEW_AND_VIEWER_PLAN.md. Treat it as a product proposal, not authorization to implement or publish everything it lists. The user has further requested changes to describe before the next pass is fixed.
 
+### What the review established
 
+- The Studio/viewer split fits the existing goal. Keep one React/Vite application and shared timeline data/rendering; no second database, custom backend or wiki system is needed for the first preview.
+- App.tsx currently switches views using React state. There is no router, owner sign-in or viewer permission mode. A full routing rewrite is not a prerequisite; decide URL sharing and Studio entry deliberately when needed.
+- Timeline cells currently create, edit and delete entries. Viewer mode must remove those interactions as well as management navigation, temporary editing prompts and empty-cell editing cues.
+- Origin links and row focus already exist. Public character exploration should use a separate selection from the existing editing target, whose behaviour includes opening temporary blank rows and remounting the timeline.
+- A compact character panel can derive a journey from the selected timeline's existing projects, appearances and events. Label counts and first/latest appearances as timeline-local; do not imply global character status or a complete cross-universe history.
+- The proposal calls the ordering field timeline_order; the actual field is universe_projects.timeline_position. Release-order browsing remains deferred because sorting columns also affects the current continuity calculation.
+- All seven application tables have RLS enabled but still have permissive FOR ALL prototype policies and broad anon/authenticated grants. Both project-mutating functions remain executable by anon and authenticated and run as SECURITY INVOKER.
+- Security Advisor returned no notices during this review. That does not establish the intended viewer-only access: direct catalog inspection confirms public writes remain permitted.
+- Existing narrow-screen layout rules, page title and favicon provide a starting point. Public copy, legend, keyboard/touch explanations, a deliberate initial timeline and browser checks still need attention.
+- The current TypeScript/lint checks, continuity fixtures and Vite production bundle passed. The bundle was emitted to a temporary directory; no deployment or browser-based production smoke test was performed. Git deployment connectivity was not verified.
+
+### Proposed preview sequence — subject to the user's remaining requests
+
+1. Resolve the user's additional priorities. Fit genuinely necessary editing or continuity fixes into a bounded pass; retain the rest of this feature roadmap rather than quietly dropping it.
+2. Owner access and database permissions. Recommend one manually provisioned Supabase Auth account with email/password, no public signup, and write policies restricted to that owner's user ID. Configure table grants and mutation-function execution together, and verify anonymous/non-owner denial plus owner success. Do not authorize writes merely because any user is authenticated.
+3. Viewer/Studio presentation. Default public visitors to viewing, retain the existing editor for the owner, and provide a compact introduction, complete legend and understandable marker details. Keep the current arrow and all seven appearance/five event types. Avoid a separate marketing site.
+4. Character exploration. Select/highlight a row and show alias, name, origin, timeline-local appearances and events in a small panel. Retain origin navigation with an honest empty state when no origin-timeline entries exist. Project focus is a later enhancement unless the user prioritises it.
+5. Preview readiness and deployment. Curate a coherent sample chronology and useful visitor-universe examples, verify loading/errors/universe switching and keyboard/touch access, finish preview/fan-project wording and metadata, test anonymous/owner access and any routed-page refresh, then deploy. Vercel is the default recommendation for the current static Vite setup; confirm repository access and deployment settings at that stage.
+
+Keep passes independently reviewable and continue the established chat/code/user-applies workflow. The sequence above is a recommendation, not an approved expansion into every viewer idea.
+
+### Content and release decisions still needed
+
+- What are the additional things the user wants before viewer work?
+- May all existing timeline data be publicly readable, or must incomplete/test universes remain private? Agree this before SELECT policies. Hiding a dropdown option is not a publication permission.
+- Choose the most complete initial timeline and a manageable preview dataset; the current alphabetic/code-based first selection is an editing convenience.
+- A preview frontend using the live Supabase project still changes live data through owner edits. Branch/hosting preview deployments do not create isolated database data. Use disposable or separate test data when future changes require it; do not build a large release pipeline now.
+
+### Work that remains on the broader roadmap
+
+- Character name-side status indicators and continuing lifelines, once their chronology/universe semantics are agreed.
+- Further functional and visual refinement; grouping, sorting, search and filters as data volume makes them useful.
+- People, crew and credits after the timeline work.
+- Optional multiverse entry/departure events and any force-deletion flow only when a concrete requirement is agreed.
+- Project exploration, release-order browsing and analytics remain candidates, not automatic preview prerequisites.
+- A public preview can precede these features and v1. Replace public write access before any public deployment. Keep bulk population, feedback and outreach aligned with the preview's actual readiness.
+
+References checked for this review:
+
+- [Supabase row-level security and grants](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Supabase password authentication](https://supabase.com/docs/guides/auth/passwords)
+- [Supabase signup configuration](https://supabase.com/docs/guides/auth/general-configuration)
+- [Vite static deployment guidance](https://vite.dev/guide/static-deploy.html)
