@@ -73,9 +73,11 @@ export default function TimelineCell({
         if (!appearance) {
             onCreate(characterId, projectId);
             return;
+        } else {
+            onDelete(characterId, projectId);
+            setEditorOpen(false);
+            return;
         }
-
-        setEditorOpen((open) => !open);
     }
 
     function handleRightClick(
@@ -84,12 +86,6 @@ export default function TimelineCell({
         event.preventDefault();
 
         if (saving) return;
-
-        if (appearance) {
-            onDelete(characterId, projectId);
-            setEditorOpen(false);
-            return;
-        }
 
         // Empty cell can still contain/edit a timeline event.
         setEditorOpen((open) => !open);

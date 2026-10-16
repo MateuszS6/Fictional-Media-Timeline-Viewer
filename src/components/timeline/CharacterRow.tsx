@@ -141,7 +141,7 @@ export default function CharacterRow({
                         }
                         title={
                             originUniverse
-                                ? `Open origin timeline: ${originUniverse.name} (${originLabel})`
+                                ? `Open origin timeline: ${originUniverse.name} ${originUniverse.code ? `(${originUniverse.code})` : ""}`
                                 : "Origin universe is outside the current franchise."
                         }
                         onClick={() => onOpenOrigin(character)}
