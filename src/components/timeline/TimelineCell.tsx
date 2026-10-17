@@ -195,7 +195,7 @@ export default function TimelineCell({
                     `}
                     title={
                         appearance.appearance_type.replaceAll("_", " ") +
-                        (appearance.is_detached ? " — detached" : "")
+                        (appearance.is_detached ? " - detached" : "")
                     }
                 />
             )}
