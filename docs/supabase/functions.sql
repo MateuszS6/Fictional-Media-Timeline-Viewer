@@ -1,9 +1,28 @@
--- Live reference snapshot: 15 October 2026, Timeline Viewer, PostgreSQL 17.
+-- Live reference snapshot: 18 October 2026, Timeline Viewer, PostgreSQL 17.
 -- Function bodies read with pg_get_functiondef through read-only Supabase MCP.
--- Documentation only; no functions were created, invoked or changed by this export.
--- Both functions use SECURITY INVOKER and an empty search_path.
--- PUBLIC has no EXECUTE grant; the explicit grants below reflect the live ACLs.
+-- Documentation only; no functions were created or changed by this export.
+-- Read-only role checks invoked only is_studio_owner(), not the mutation functions.
+-- All three functions use SECURITY INVOKER and an empty search_path.
+-- PUBLIC and anon have no EXECUTE grant; grants below reflect the live ACLs.
 -- Default/role/schema privileges and Supabase-managed functions are not included.
+
+-- The configured owner UUID identifies an account; it is not a credential.
+CREATE OR REPLACE FUNCTION public.is_studio_owner()
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE
+ SECURITY INVOKER
+ SET search_path TO ''
+AS $function$
+    SELECT coalesce(
+        (SELECT auth.uid()) = '9d509840-e2f9-4c71-bef1-5ee31ecaa1ac'::uuid,
+        false
+    );
+$function$;
+
+REVOKE EXECUTE ON FUNCTION public.is_studio_owner() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_studio_owner()
+    TO postgres, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.save_project_in_universe(p_universe_id bigint, p_project_id bigint, p_title text, p_release_date date, p_primary_universe_id bigint, p_position integer)
  RETURNS SETOF public.projects
@@ -132,9 +151,9 @@ begin
 end;
 $function$;
 
-REVOKE EXECUTE ON FUNCTION public.save_project_in_universe(bigint, bigint, text, date, bigint, integer) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.save_project_in_universe(bigint, bigint, text, date, bigint, integer) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.save_project_in_universe(bigint, bigint, text, date, bigint, integer)
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.link_project_to_universe(p_universe_id bigint, p_project_id bigint)
  RETURNS SETOF public.projects
@@ -175,6 +194,6 @@ begin
 end;
 $function$;
 
-REVOKE EXECUTE ON FUNCTION public.link_project_to_universe(bigint, bigint) FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.link_project_to_universe(bigint, bigint) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.link_project_to_universe(bigint, bigint)
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, authenticated, service_role;

@@ -7,9 +7,9 @@ Inspired by an Excel workflow, Timeline Studio uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.3.3`
+## Current version — `0.4.0`
 
-Expanded timeline appearance and event types.
+Owner sign-in and database-enforced private Studio access (not visible in below images).
 
 See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
@@ -37,6 +37,6 @@ See the [progress screenshots](docs/images).
 
 Supabase is the source of truth. Files in [docs/supabase](docs/supabase) are
 database references, not files the app runs to create its database. They were
-refreshed from read-only live metadata on 15 October 2026 and include the
+refreshed from read-only live metadata on 18 October 2026 and include the
 universe-specific entry constraints, current policies and application functions.
 They are reference snapshots rather than complete database backups.

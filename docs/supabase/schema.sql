@@ -1,13 +1,14 @@
--- Live reference snapshot: 15 October 2026, Timeline Viewer, PostgreSQL 17.
+-- Live reference snapshot: 18 October 2026, Timeline Viewer, PostgreSQL 17.
 -- Generated from read-only catalog queries through Supabase MCP.
 -- Documentation only: this is not a migration or a complete pg_dump backup.
 -- Includes public application tables, column defaults/identity modes, named
--- constraints (and their indexes), RLS policies, and current table privileges.
+-- constraints (and their indexes), RLS policies, and table/sequence privileges.
 -- Function definitions and function privileges are in functions.sql.
--- Excludes data, sequence state/ACLs, default/schema/role ACLs, extensions,
+-- Excludes data, sequence state, default/schema/role ACLs, extensions,
 -- Supabase-managed schemas and operational settings.
 -- There are no extra standalone indexes, user triggers, views or enums in public.
--- Existing prototype access is recorded as observed; hardening remains planned.
+-- Owner-only access is recorded as observed; public viewing is not enabled.
+-- Policies depend on is_studio_owner(), documented in functions.sql.
 -- Rechecked appearance_type: the live default is now lowercase 'standard'.
 -- Appearance/event checks refreshed after the additional-type pass: seven
 -- appearance types (including vision) and five event types (including unknown).
@@ -88,77 +89,120 @@ CREATE TABLE public.character_events (
     CONSTRAINT character_events_universe_project_fkey FOREIGN KEY (universe_id, project_id) REFERENCES public.universe_projects(universe_id, project_id) ON DELETE CASCADE
 );
 
--- Current row-level security and prototype policies.
+-- Current owner-only row-level security policies.
 
 ALTER TABLE public.appearances ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access appearances" ON public.appearances
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.appearances
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.character_events ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access character events" ON public.character_events
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.character_events
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.characters ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access characters" ON public.characters
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.characters
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.franchises ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access franchises" ON public.franchises
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.franchises
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access projects" ON public.projects
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.projects
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.universe_projects ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access timeline projects" ON public.universe_projects
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.universe_projects
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 ALTER TABLE public.universes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Prototype access universes" ON public.universes
-    AS PERMISSIVE FOR ALL TO PUBLIC
-    USING (true)
-    WITH CHECK (true);
+CREATE POLICY "Studio owner access" ON public.universes
+    AS PERMISSIVE FOR ALL TO authenticated
+    USING ((SELECT public.is_studio_owner()))
+    WITH CHECK ((SELECT public.is_studio_owner()));
 
 -- Observed table privileges (PostgreSQL 17 includes MAINTAIN).
+-- No table privileges remain for PUBLIC or anon.
 
+REVOKE ALL PRIVILEGES ON TABLE public.appearances FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.appearances
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.appearances
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.character_events FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.character_events
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.character_events
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.characters FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.characters
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.characters
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.franchises FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.franchises
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.franchises
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.projects FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.projects
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.projects
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.universe_projects FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.universe_projects
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.universe_projects
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+REVOKE ALL PRIVILEGES ON TABLE public.universes FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.universes
+    TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.universes
-    TO postgres, anon, authenticated, service_role;
+    TO postgres, service_role;
 
+-- Observed identity-sequence privileges; sequence values are not exported.
+
+REVOKE ALL PRIVILEGES ON SEQUENCE public.character_events_id_seq FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SEQUENCE public.character_events_id_seq TO authenticated;
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.character_events_id_seq TO postgres, service_role;
+
+REVOKE ALL PRIVILEGES ON SEQUENCE public.characters_id_seq FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SEQUENCE public.characters_id_seq TO authenticated;
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.characters_id_seq TO postgres, service_role;
+
+REVOKE ALL PRIVILEGES ON SEQUENCE public.franchises_id_seq FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SEQUENCE public.franchises_id_seq TO authenticated;
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.franchises_id_seq TO postgres, service_role;
+
+REVOKE ALL PRIVILEGES ON SEQUENCE public.projects_id_seq FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SEQUENCE public.projects_id_seq TO authenticated;
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.projects_id_seq TO postgres, service_role;
+
+REVOKE ALL PRIVILEGES ON SEQUENCE public.universes_id_seq FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SEQUENCE public.universes_id_seq TO authenticated;
+GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.universes_id_seq TO postgres, service_role;

@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 16 October 2026 after reviewing the public-preview/viewer proposal against v0.3.3, the current source and live database permissions. TypeScript, lint, focused continuity checks and a Vite production build pass. The latest Vision styling, tooltip and comment cleanup is implemented. This review changes documentation only.
+Updated 18 October 2026 after reviewing the user's v0.4.0 owner-access implementation and live permissions. Owner access is implemented; the auth stylesheet import and a small CSS correction remain for the user to apply. Selective universe publication and the public viewer are next.
 
 ## Working agreement
 
@@ -10,8 +10,9 @@ Updated 16 October 2026 after reviewing the public-preview/viewer proposal again
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.3.3
+## Current baseline: v0.4.0
 
+- The Studio requires a confirmed owner account. Public signup is disabled; anonymous users have no application-table access, and authenticated non-owners are excluded by row-level policies. All universes remain private until selective publication is implemented.
 - Franchise/universe and character/project create, edit and delete controls are implemented.
 - Characters and projects require origin/primary universes; universes require a local name and can optionally have a code.
 - Projects can be linked to multiple timelines, reordered independently, removed from one timeline, or deleted globally. Projects without a timeline link remain accessible through the existing-project picker within their primary universe's franchise.
@@ -110,11 +111,11 @@ Reviewed the user's implementation on 15 October:
 
 - Supabase MCP is connected. The inspected project was matched to the application's configured Supabase URL.
 - Inspection used read-only SELECT queries. The connected plugin also exposes write-capable tools; do not confuse our read-only workflow with verified server-enforced read-only permissions. Database modifications remain in the established user-applied workflow.
-- schema.sql records the 7 public application tables, columns, defaults, identity modes, named constraints, RLS policies and table privileges. functions.sql records both live function bodies and their execution grants.
-- The references were generated from catalog metadata on 15 October, not inferred from the frontend. They omit data, sequence state/ACLs, default/schema/role ACLs, extensions, managed schemas and operational settings; they are not complete restore scripts.
+- schema.sql records the 7 public application tables, columns, defaults, identity modes, named constraints, RLS policies and table/sequence privileges. functions.sql records the three live function bodies and their execution grants, including is_studio_owner().
+- The references were refreshed from catalog metadata on 18 October, not inferred from the frontend. They omit data, sequence state, default/schema/role ACLs, extensions, managed schemas and operational settings; they are not complete restore scripts.
 - Keep these references versioned and refresh them after relevant database changes. Prefer a schema-only pg_dump/Supabase CLI export when a full reproducible export is needed. No CLI/Docker setup or migration-framework conversion is needed for this documentation update.
-- Both application functions use SECURITY INVOKER and an empty search_path. PUBLIC has no function EXECUTE grant; postgres, anon, authenticated and service_role have explicit execution grants.
-- All 7 tables have RLS enabled, with the existing permissive prototype policies and broad grants. Record their actual state; access hardening remains a separate pre-release task.
+- All three application functions use SECURITY INVOKER and an empty search_path. PUBLIC and anon have no EXECUTE grant; postgres, authenticated and service_role have explicit execution grants. The two project-mutating functions still obey the caller's row-level permissions.
+- All 7 tables have RLS enabled with one Studio owner access policy each, restricted to authenticated and guarded by is_studio_owner() for both existing and new rows. Authenticated has SELECT/INSERT/UPDATE/DELETE; anon and PUBLIC have no table grants. Authenticated has only USAGE on the five identity sequences; privileged postgres/service_role access remains.
 - cross-universe-pass-guide.md is historical. Current source, this plan and the latest chat decisions take precedence.
 
 ## Verification after the default correction
@@ -125,35 +126,35 @@ Reviewed the user's implementation on 15 October:
 
 ## Public-preview proposal reviewed on 16 October
 
-Source reviewed in full: C:/Users/matbu/Documents/Projects/PUBLIC_PREVIEW_AND_VIEWER_PLAN.md. Treat it as a product proposal, not authorization to implement or publish everything it lists. The user has further requested changes to describe before the next pass is fixed.
+Source reviewed in full: C:/Users/matbu/Documents/Projects/PUBLIC_PREVIEW_AND_VIEWER_PLAN.md. Treat it as a product proposal, not authorization to implement or publish everything it lists. The user's additional priorities were clarified on 17 October: a distinctive, polished and responsive UI, custom appearance and utility icons, reorganisation of management areas outside the timeline, character status, and user-defined sorting/grouping/views.
 
 ### What the review established
 
 - The Studio/viewer split fits the existing goal. Keep one React/Vite application and shared timeline data/rendering; no second database, custom backend or wiki system is needed for the first preview.
-- App.tsx currently switches views using React state. There is no router, owner sign-in or viewer permission mode. A full routing rewrite is not a prerequisite; decide URL sharing and Studio entry deliberately when needed.
+- At the 16 October review, App.tsx switched views using React state, with no router, owner sign-in or viewer permission mode. Owner access has since been implemented; the public viewer remains next. A full routing rewrite is not a prerequisite; decide URL sharing and Studio entry deliberately when needed.
 - Timeline cells currently create, edit and delete entries. Viewer mode must remove those interactions as well as management navigation, temporary editing prompts and empty-cell editing cues.
 - Origin links and row focus already exist. Public character exploration should use a separate selection from the existing editing target, whose behaviour includes opening temporary blank rows and remounting the timeline.
 - A compact character panel can derive a journey from the selected timeline's existing projects, appearances and events. Label counts and first/latest appearances as timeline-local; do not imply global character status or a complete cross-universe history.
 - The proposal calls the ordering field timeline_order; the actual field is universe_projects.timeline_position. Release-order browsing remains deferred because sorting columns also affects the current continuity calculation.
-- All seven application tables have RLS enabled but still have permissive FOR ALL prototype policies and broad anon/authenticated grants. Both project-mutating functions remain executable by anon and authenticated and run as SECURITY INVOKER.
-- Security Advisor returned no notices during this review. That does not establish the intended viewer-only access: direct catalog inspection confirms public writes remain permitted.
+- At that review, all seven application tables had RLS enabled but permissive FOR ALL prototype policies and broad anon/authenticated grants. Both project-mutating functions were executable by anon and authenticated. The completed owner-access pass below replaces that prototype access.
+- Security Advisor returned no notices during that review despite the prototype public writes. Advisor results alone do not establish the intended access; inspect effective privileges and policies and test role-specific reads.
 - Existing narrow-screen layout rules, page title and favicon provide a starting point. Public copy, legend, keyboard/touch explanations, a deliberate initial timeline and browser checks still need attention.
 - The current TypeScript/lint checks, continuity fixtures and Vite production bundle passed. The bundle was emitted to a temporary directory; no deployment or browser-based production smoke test was performed. Git deployment connectivity was not verified.
 
-### Proposed preview sequence — subject to the user's remaining requests
+### Approved direction; work remains one focused pass at a time
 
-1. Resolve the user's additional priorities. Fit genuinely necessary editing or continuity fixes into a bounded pass; retain the rest of this feature roadmap rather than quietly dropping it.
-2. Owner access and database permissions. Recommend one manually provisioned Supabase Auth account with email/password, no public signup, and write policies restricted to that owner's user ID. Configure table grants and mutation-function execution together, and verify anonymous/non-owner denial plus owner success. Do not authorize writes merely because any user is authenticated.
-3. Viewer/Studio presentation. Default public visitors to viewing, retain the existing editor for the owner, and provide a compact introduction, complete legend and understandable marker details. Keep the current arrow and all seven appearance/five event types. Avoid a separate marketing site.
+1. Preserve the user's design and workflow priorities alongside preview preparation. Establish a coherent visual direction before final icon work or a broad management-layout redesign. Clarify the intended sorting/grouping/views and character-status rules when those passes begin; do not invent them now.
+2. Owner access and database permissions — implemented in v0.4.0 and reviewed on 18 October. One confirmed Supabase Auth account, public signup disabled, owner-only row policies, narrowed grants and no anonymous function execution. Read-only database role checks and mocked frontend auth-flow checks pass. The two CSS corrections below remain user-applied; real browser sign-in/sign-out and owner create/edit/reorder checks remain a manual smoke test.
+3. Universe publication and Viewer/Studio presentation — next pass. Add the smallest useful Public/Private control per universe, private by default, with database-enforced public reads limited to published timeline content. A participating shared character/project may require readable basic details even when its origin/primary timeline is private; private appearances, events and chronology memberships must remain hidden. Agree how to display private origin metadata without revealing its timeline. Then provide public viewing, a compact introduction, complete legend and marker details while retaining the owner editor. Keep the current arrow and all seven appearance/five event types. Split this into two passes if the policy changes need their own review.
 4. Character exploration. Select/highlight a row and show alias, name, origin, timeline-local appearances and events in a small panel. Retain origin navigation with an honest empty state when no origin-timeline entries exist. Project focus is a later enhancement unless the user prioritises it.
 5. Preview readiness and deployment. Curate a coherent sample chronology and useful visitor-universe examples, verify loading/errors/universe switching and keyboard/touch access, finish preview/fan-project wording and metadata, test anonymous/owner access and any routed-page refresh, then deploy. Vercel is the default recommendation for the current static Vite setup; confirm repository access and deployment settings at that stage.
 
-Keep passes independently reviewable and continue the established chat/code/user-applies workflow. The sequence above is a recommendation, not an approved expansion into every viewer idea.
+Keep passes independently reviewable and continue the established chat/code/user-applies workflow. The user approved starting this sequence, not implementing every viewer idea at once. Ordinary visitors do not need accounts. The owner-access pass temporarily presents sign-in at the application entry; the public viewer is introduced with selective publication afterwards.
 
 ### Content and release decisions still needed
 
-- What are the additional things the user wants before viewer work?
-- May all existing timeline data be publicly readable, or must incomplete/test universes remain private? Agree this before SELECT policies. Hiding a dropdown option is not a publication permission.
+- Confirmed priorities: aesthetic/responsive UI and consistent custom icons; reorganisation of management pages; character status; sorting/grouping/views designed with the user. These remain real work, not discarded extras.
+- Confirmed: incomplete/test universes must remain private. Publication is an explicit per-universe decision and defaults to private; hiding an option in a dropdown does not enforce privacy.
 - Choose the most complete initial timeline and a manageable preview dataset; the current alphabetic/code-based first selection is an editing convenience.
 - A preview frontend using the live Supabase project still changes live data through owner edits. Branch/hosting preview deployments do not create isolated database data. Use disposable or separate test data when future changes require it; do not build a large release pipeline now.
 
@@ -164,7 +165,7 @@ Keep passes independently reviewable and continue the established chat/code/user
 - People, crew and credits after the timeline work.
 - Optional multiverse entry/departure events and any force-deletion flow only when a concrete requirement is agreed.
 - Project exploration, release-order browsing and analytics remain candidates, not automatic preview prerequisites.
-- A public preview can precede these features and v1. Replace public write access before any public deployment. Keep bulk population, feedback and outreach aligned with the preview's actual readiness.
+- A public preview can precede these features and v1. Prototype public write access has been removed; selective public reads and viewer behaviour must still be verified before deployment. Keep bulk population, feedback and outreach aligned with the preview's actual readiness.
 
 References checked for this review:
 
@@ -172,3 +173,16 @@ References checked for this review:
 - [Supabase password authentication](https://supabase.com/docs/guides/auth/passwords)
 - [Supabase signup configuration](https://supabase.com/docs/guides/auth/general-configuration)
 - [Vite static deployment guidance](https://vite.dev/guide/static-deploy.html)
+## Owner-access pass implemented and reviewed on 18 October
+
+- One confirmed Supabase Auth account exists and matches the UUID configured in is_studio_owner(). Public Auth settings confirm email sign-in is enabled, public signup is disabled and anonymous sign-in is disabled.
+- is_studio_owner() uses SECURITY INVOKER, STABLE and an empty search_path. It compares auth.uid() with the configured owner UUID. No account/role table or SECURITY DEFINER helper was added.
+- All seven prototype policies are gone. Each application table has an authenticated-only Studio owner access policy with the owner check in both USING and WITH CHECK. Anonymous table access and execution of all three application functions are revoked. Authenticated table grants are limited to SELECT, INSERT, UPDATE and DELETE; sequence grants are limited to USAGE.
+- Read-only transactions with transaction-local authenticated claims verified that the owner sees the same row counts as the administrative baseline and a different user sees zero rows in all seven tables. The helper returned true only for the owner. Anonymous restrictions were verified from effective grants. No live mutation tests or browser sign-in were performed.
+- StudioAccess wraps WorkspaceProvider, so private data loaders mount only after the database confirms owner access. Signing out removes that workspace state. Token refreshes do not unnecessarily reset the workspace, and late ownership responses cannot unlock another account's UI.
+- Both TypeScript configurations, lint and the production bundle pass on the actual implementation. Mocked auth-flow checks covered initial/signed-out state, failed sign-in, owner/non-owner access, token refresh, local sign-out success/failure, stale responses, verification errors/retry and subscription cleanup.
+- Styling corrections supplied in chat: import ./styles/auth.css in src/main.tsx and change min-width: none to min-width: 0 on the session-bar span. The existing auth stylesheet is otherwise not loaded. A session-bar background using --surface-alt restores the intended surface treatment.
+- The only Security Advisor notice was disabled leaked-password protection. This feature requires Supabase Pro or above; it is not a failure of the owner-only policies. Reference: [password security](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
+- Live schema/function references were refreshed. The assistant changed documentation only; application corrections remain for the user to apply and no live data, accounts or permissions were changed during review.
+
+All timeline content remains private. No publication column or public viewer has been added. The next pass adds explicit per-universe publication, database-limited public reads and a viewer without editing controls; preserve visitor participation without exposing private timeline entries. Agree on the display of private origin metadata before implementing that part.
