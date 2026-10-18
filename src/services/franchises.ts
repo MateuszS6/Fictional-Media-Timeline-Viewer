@@ -1,15 +1,20 @@
 import { supabase } from "../config/supabase";
 import type { Franchise, FranchiseInput } from "../types/franchise";
 
-export async function getFranchises(): Promise<Franchise[]> {
-    const { data, error } = await supabase
-        .from("franchises")
-        .select("*")
-        .order("name");
+export async function getFranchises(
+    publicOnly = false
+): Promise<Franchise[]> {
+    const query = publicOnly
+        ? supabase.from("franchises")
+            .select("id, name, universes!inner(id)")
+            .eq("universes.is_published", true)
+        : supabase.from("franchises").select("id, name");
+
+    const { data, error } = await query.order("name");
 
     if (error) throw error;
 
-    return data ?? [];
+    return (data ?? []).map(({ id, name }) => ({ id, name }));
 }
 
 export async function createFranchise(

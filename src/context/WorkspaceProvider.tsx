@@ -23,9 +23,11 @@ function sortUniverses(items: Universe[]): Universe[] {
 }
 
 export function WorkspaceProvider({
-    children
+    children,
+    canEdit
 }: {
     children: ReactNode;
+    canEdit: boolean;
 }) {
     const [franchises, setFranchises] = useState<Franchise[]>([]);
     const [universes, setUniverses] = useState<Universe[]>([]);
@@ -48,7 +50,7 @@ export function WorkspaceProvider({
 
         async function loadFranchises() {
             try {
-                const data = sortFranchises(await getFranchises());
+                const data = sortFranchises(await getFranchises(!canEdit));
 
                 if (cancelled) return;
 
@@ -72,7 +74,7 @@ export function WorkspaceProvider({
         return () => {
             cancelled = true;
         };
-    }, [loadAttempt])
+    }, [loadAttempt, canEdit])
 
     useEffect(() => {
         if (selectedFranchiseId === null) return;
@@ -87,7 +89,11 @@ export function WorkspaceProvider({
                 if (cancelled) return;
 
                 setUniverses(data);
-                setSelectedUniverseId(data[0]?.id ?? null);
+                setSelectedUniverseId(
+                    data.find((universe) =>
+                        canEdit || universe.is_published
+                    )?.id ?? null
+                );
             } catch (error) {
                 if (cancelled) return;
 
@@ -103,7 +109,7 @@ export function WorkspaceProvider({
         return () => {
             cancelled = true;
         }
-    }, [selectedFranchiseId]);
+    }, [selectedFranchiseId, canEdit]);
 
     function activateFranchise(id: number | null) {
         setSelectedFranchiseId(id);
@@ -122,7 +128,12 @@ export function WorkspaceProvider({
     function selectUniverse(id: number) {
         if (savingRef.current) return;
 
-        setSelectedUniverseId(id);
+        const available = universes.some((universe) =>
+            universe.id === id &&
+            (canEdit || universe.is_published)
+        );
+
+        if (available) setSelectedUniverseId(id);
     }
 
     function retryWorkspace() {
@@ -138,6 +149,10 @@ export function WorkspaceProvider({
     async function runWorkspaceAction(
         action: () => Promise<void>
     ) {
+        if (!canEdit) {
+            throw new Error("Studio access is required.")
+        }
+
         if (savingRef.current) {
             throw new Error("A workspace change is already being saved.");
         }
@@ -234,6 +249,7 @@ export function WorkspaceProvider({
                 universes,
                 selectedFranchiseId,
                 selectedUniverseId,
+                canEdit,
                 loading: franchisesLoading || universesLoading,
                 savingWorkspace,
                 error: franchisesError || universesError,

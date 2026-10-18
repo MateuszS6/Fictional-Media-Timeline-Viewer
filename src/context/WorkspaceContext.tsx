@@ -7,6 +7,7 @@ interface WorkspaceContextValue {
     universes: Universe[];
     selectedFranchiseId: number | null;
     selectedUniverseId: number | null;
+    canEdit: boolean;
     loading: boolean;
     savingWorkspace: boolean;
     error: string | null;
