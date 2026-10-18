@@ -3,11 +3,13 @@ export interface Universe {
     franchise_id: number;
     name: string;
     code: string | null;
+    is_published: boolean;
 }
 
 export interface UniverseInput {
     name: string;
     code: string | null;
+    is_published: boolean;
 }
 
 export interface UniverseProjects {

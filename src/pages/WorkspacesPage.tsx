@@ -1,9 +1,9 @@
 import { useState } from "react";
+import type { WorkspaceFormValues } from "../components/workspaces/WorkspaceForm";
+import WorkspaceForm from "../components/workspaces/WorkspaceForm";
 import { useWorkspace } from "../context/WorkspaceContext";
 import type { Franchise } from "../types/franchise";
 import type { Universe } from "../types/universe";
-import type { WorkspaceFormValues } from "../components/workspaces/WorkspaceForm";
-import WorkspaceForm from "../components/workspaces/WorkspaceForm";
 
 type Editor =
     | { kind: "franchise"; record: Franchise | null; }
@@ -197,7 +197,10 @@ export default function WorkspacesPage() {
                         name: editor.record?.name ?? "",
                         code: editor.kind === "universe"
                             ? editor.record?.code ?? null
-                            : null
+                            : null,
+                        is_published: editor.kind === "universe"
+                            ? editor.record?.is_published ?? false
+                            : false
                     }}
                     saving={savingWorkspace}
                     onSave={handleSave}
@@ -238,6 +241,7 @@ export default function WorkspacesPage() {
                             <tr>
                                 <th scope="col">Universe</th>
                                 <th scope="col">Code</th>
+                                <th scope="col">Visibility</th>
                                 <th scope="col">Actions</th>
                             </tr>
                         </thead>
@@ -247,6 +251,7 @@ export default function WorkspacesPage() {
                                 <tr key={universe.id}>
                                     <td>{universe.name}</td>
                                     <td>{universe.code ?? "Not set"}</td>
+                                    <td>{universe.is_published ? "Public" : "Private"}</td>
 
                                     <td>
                                         <div className="management-row-actions">

@@ -3,6 +3,7 @@ import { useRef, useState, type SubmitEvent } from "react";
 export interface WorkspaceFormValues {
     name: string;
     code: string | null;
+    is_published: boolean;
 }
 
 interface WorkspaceFormProps {
@@ -24,6 +25,7 @@ export default function WorkspaceForm({
 }: WorkspaceFormProps) {
     const [name, setName] = useState(initialValues.name);
     const [code, setCode] = useState(initialValues.code ?? "");
+    const [isPublished, setIsPublished] = useState(initialValues.is_published);
     const [error, setError] = useState<string | null>(null);
     const submittingRef = useRef(false);
 
@@ -49,7 +51,8 @@ export default function WorkspaceForm({
                 name: trimmedName,
                 code: kind === "universe"
                     ? code.trim() || null
-                    : null
+                    : null,
+                is_published: kind === "universe" && isPublished
             });
         } catch (caughtError) {
             console.error(caughtError);
@@ -113,6 +116,19 @@ export default function WorkspaceForm({
                         </label>
                     )}
                 </div>
+
+                {kind === "universe" && (
+                    <label className="publication-option">
+                        <input
+                            type="checkbox"
+                            checked={isPublished}
+                            onChange={(event) =>
+                                setIsPublished(event.target.checked)
+                            }
+                        />
+                        Publish this timeline
+                    </label>
+                )}
 
                 <div className="form-actions">
                     <button
