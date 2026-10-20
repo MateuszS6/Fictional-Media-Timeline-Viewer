@@ -124,6 +124,18 @@ export default function StudioAccess({
         }
     }
 
+    const brand = (
+        <div className="session-brand">
+            <span className="session-logo" aria-hidden="true">
+                T
+            </span>
+
+            <span>
+                Timeline {studioRequested ? "Studio" : "Viewer"}
+            </span>
+        </div>
+    )
+
     const viewerButton = (
         <button
             type="button"
@@ -165,7 +177,7 @@ export default function StudioAccess({
                 key={session?.user.id ?? "guest"}
             >
                 <div className="studio-session-bar">
-                    <span>Timeline Viewer</span>
+                    <span>{brand}</span>
 
                     <button
                         type="button"
@@ -302,9 +314,13 @@ export default function StudioAccess({
             key={"studio:" + session.user.id}
         >
             <div className="studio-session-bar">
-                <span>Studio - {session.user.email}</span>
+                {brand}
 
                 <div className="studio-session-actions">
+                    <span className="studio-session-email">
+                        {session.user.email}
+                    </span>
+
                     {viewerButton}
                     {signOutButton}
                 </div>

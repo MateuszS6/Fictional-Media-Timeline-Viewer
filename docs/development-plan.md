@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 18 October 2026 after reviewing the user's v0.4.0 owner-access implementation and live permissions. Owner access and its styling corrections are implemented. Selective publication and the public viewer have been prepared and tested for the user to apply; they are not live yet.
+Updated 20 October 2026 after reviewing the user's v0.4.1 implementation and live publication permissions. Selective publication, the public viewer, Studio entry and read-only cell details are implemented. The next focused pass is viewer guidance and a complete legend, followed by the agreed exploration and preview-readiness work.
 
 ## Working agreement
 
@@ -10,9 +10,11 @@ Updated 18 October 2026 after reviewing the user's v0.4.0 owner-access implement
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.4.0
+## Current baseline: v0.4.1
 
-- The Studio requires a confirmed owner account. Public signup is disabled; anonymous users have no application-table access, and authenticated non-owners are excluded by row-level policies. All universes remain private until selective publication is implemented.
+- The app opens in read-only Viewer mode. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
+- The Studio requires the configured owner account. Public signup remains disabled. Anonymous and authenticated non-owner access is limited to published content; writes remain owner-only. The Studio button opens sign-in, and the owner can return to Viewer without signing out.
+- Clicking an occupied viewer cell opens read-only appearance/event details, including event-only cells. Empty cells do not edit. Studio click/right-click editing remains.
 - Franchise/universe and character/project create, edit and delete controls are implemented.
 - Characters and projects require origin/primary universes; universes require a local name and can optionally have a code.
 - Projects can be linked to multiple timelines, reordered independently, removed from one timeline, or deleted globally. Projects without a timeline link remain accessible through the existing-project picker within their primary universe's franchise.
@@ -111,11 +113,11 @@ Reviewed the user's implementation on 15 October:
 
 - Supabase MCP is connected. The inspected project was matched to the application's configured Supabase URL.
 - Inspection used read-only SELECT queries. The connected plugin also exposes write-capable tools; do not confuse our read-only workflow with verified server-enforced read-only permissions. Database modifications remain in the established user-applied workflow.
-- schema.sql records the 7 public application tables, columns, defaults, identity modes, named constraints, RLS policies and table/sequence privileges. functions.sql records the three live function bodies and their execution grants, including is_studio_owner().
-- The references were refreshed from catalog metadata on 18 October, not inferred from the frontend. They omit data, sequence state, default/schema/role ACLs, extensions, managed schemas and operational settings; they are not complete restore scripts.
+- schema.sql records the 7 public application tables, columns, defaults, identity modes, 27 named constraints, 14 RLS policies, table/sequence privileges and the private helper schema's usage grants. functions.sql records the three public functions plus private.can_read_timeline(bigint), with their execution grants.
+- The references were refreshed from catalog metadata on 20 October, not inferred from the frontend. They omit data, sequence state, default/role ACLs, schema ACLs other than the helper schema, extensions, managed schemas and operational settings; they are not complete restore scripts.
 - Keep these references versioned and refresh them after relevant database changes. Prefer a schema-only pg_dump/Supabase CLI export when a full reproducible export is needed. No CLI/Docker setup or migration-framework conversion is needed for this documentation update.
-- All three application functions use SECURITY INVOKER and an empty search_path. PUBLIC and anon have no EXECUTE grant; postgres, authenticated and service_role have explicit execution grants. The two project-mutating functions still obey the caller's row-level permissions.
-- All 7 tables have RLS enabled with one Studio owner access policy each, restricted to authenticated and guarded by is_studio_owner() for both existing and new rows. Authenticated has SELECT/INSERT/UPDATE/DELETE; anon and PUBLIC have no table grants. Authenticated has only USAGE on the five identity sequences; privileged postgres/service_role access remains.
+- All three public application functions use SECURITY INVOKER and an empty search_path. PUBLIC and anon have no EXECUTE grant; postgres, authenticated and service_role have explicit execution grants. The two project-mutating functions still obey the caller's row-level permissions. The private read-permission helper uses SECURITY DEFINER with an empty search_path and returns only a boolean; anon and authenticated may execute it.
+- All 7 tables have RLS enabled with an authenticated Studio owner policy and a publication-limited SELECT policy each. Authenticated has SELECT/INSERT/UPDATE/DELETE; anon has SELECT only, and PUBLIC has no table grants. Authenticated has only USAGE on the five identity sequences; privileged postgres/service_role access remains.
 - cross-universe-pass-guide.md is historical. Current source, this plan and the latest chat decisions take precedence.
 
 ## Verification after the default correction
@@ -131,8 +133,8 @@ Source reviewed in full: C:/Users/matbu/Documents/Projects/PUBLIC_PREVIEW_AND_VI
 ### What the review established
 
 - The Studio/viewer split fits the existing goal. Keep one React/Vite application and shared timeline data/rendering; no second database, custom backend or wiki system is needed for the first preview.
-- At the 16 October review, App.tsx switched views using React state, with no router, owner sign-in or viewer permission mode. Owner access has since been implemented; the public viewer remains next. A full routing rewrite is not a prerequisite; decide URL sharing and Studio entry deliberately when needed.
-- Timeline cells currently create, edit and delete entries. Viewer mode must remove those interactions as well as management navigation, temporary editing prompts and empty-cell editing cues.
+- At the 16 October review, App.tsx switched views using React state, with no router, owner sign-in or viewer permission mode. Owner access and the public viewer have since been implemented. A full routing rewrite is not a prerequisite; decide URL sharing and Studio entry deliberately when needed.
+- At that review, timeline cells created, edited and deleted entries. The implemented Viewer now removes those interactions, management navigation, temporary editing prompts and empty-cell editing cues.
 - Origin links and row focus already exist. Public character exploration should use a separate selection from the existing editing target, whose behaviour includes opening temporary blank rows and remounting the timeline.
 - A compact character panel can derive a journey from the selected timeline's existing projects, appearances and events. Label counts and first/latest appearances as timeline-local; do not imply global character status or a complete cross-universe history.
 - The proposal calls the ordering field timeline_order; the actual field is universe_projects.timeline_position. Release-order browsing remains deferred because sorting columns also affects the current continuity calculation.
@@ -145,11 +147,11 @@ Source reviewed in full: C:/Users/matbu/Documents/Projects/PUBLIC_PREVIEW_AND_VI
 
 1. Preserve the user's design and workflow priorities alongside preview preparation. Establish a coherent visual direction before final icon work or a broad management-layout redesign. Clarify the intended sorting/grouping/views and character-status rules when those passes begin; do not invent them now.
 2. Owner access and database permissions — implemented in v0.4.0 and reviewed on 18 October. One confirmed Supabase Auth account, public signup disabled, owner-only row policies, narrowed grants and no anonymous function execution. Read-only database role checks and mocked frontend auth-flow checks pass. The two CSS corrections below have now been applied; real browser sign-in/sign-out and owner create/edit/reorder checks remain a manual smoke test.
-3. Universe publication and Viewer/Studio presentation — next pass. Add the smallest useful Public/Private control per universe, private by default, with database-enforced public reads limited to published timeline content. A participating shared character/project may require readable basic details even when its origin/primary timeline is private; private appearances, events and chronology memberships must remain hidden. Confirmed: retain participating visitors' origin name/code while disabling navigation to an unpublished origin timeline. Then provide public viewing, a compact introduction, complete legend and marker details while retaining the owner editor. Keep the current arrow and all seven appearance/five event types. Split this into two passes if the policy changes need their own review.
+3. Universe publication and Viewer/Studio presentation — implemented in v0.4.1 and reviewed on 20 October. Per-universe publication defaults to private; public reads are enforced by the database. Visitors keep origin labels with disabled links to unpublished timelines. Read-only cell details reuse the shared timeline. Finish this preview stage with a compact introduction and complete legend for the arrow, connected/detached appearances, seven appearance types and five event types; include keyboard/touch guidance and narrow-screen checks. Keep final icon design and broader management redesign in the agreed visual work.
 4. Character exploration. Select/highlight a row and show alias, name, origin, timeline-local appearances and events in a small panel. Retain origin navigation with an honest empty state when no origin-timeline entries exist. Project focus is a later enhancement unless the user prioritises it.
 5. Preview readiness and deployment. Curate a coherent sample chronology and useful visitor-universe examples, verify loading/errors/universe switching and keyboard/touch access, finish preview/fan-project wording and metadata, test anonymous/owner access and any routed-page refresh, then deploy. Vercel is the default recommendation for the current static Vite setup; confirm repository access and deployment settings at that stage.
 
-Keep passes independently reviewable and continue the established chat/code/user-applies workflow. The user approved starting this sequence, not implementing every viewer idea at once. Ordinary visitors do not need accounts. The owner-access pass temporarily presents sign-in at the application entry; the public viewer is introduced with selective publication afterwards.
+Keep passes independently reviewable and continue the established chat/code/user-applies workflow. The user approved starting this sequence, not implementing every viewer idea at once. Ordinary visitors do not need accounts. The public viewer is now the default entry, with a Studio button leading to owner sign-in.
 
 ### Content and release decisions still needed
 
@@ -165,7 +167,7 @@ Keep passes independently reviewable and continue the established chat/code/user
 - People, crew and credits after the timeline work.
 - Optional multiverse entry/departure events and any force-deletion flow only when a concrete requirement is agreed.
 - Project exploration, release-order browsing and analytics remain candidates, not automatic preview prerequisites.
-- A public preview can precede these features and v1. Prototype public write access has been removed; selective public reads and viewer behaviour must still be verified before deployment. Keep bulk population, feedback and outreach aligned with the preview's actual readiness.
+- A public preview can precede these features and v1. Prototype public write access has been removed; selective public reads and focused viewer interaction checks now pass; real-browser and deployment smoke tests still remain. Keep bulk population, feedback and outreach aligned with the preview's actual readiness.
 
 References checked for this review:
 
@@ -185,10 +187,10 @@ References checked for this review:
 - The only Security Advisor notice was disabled leaked-password protection. This feature requires Supabase Pro or above; it is not a failure of the owner-only policies. Reference: [password security](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection).
 - Live schema/function references were refreshed. The assistant changed documentation only; application corrections remain for the user to apply and no live data, accounts or permissions were changed during review.
 
-All timeline content remains private. No publication column or public viewer has been added. The next pass adds explicit per-universe publication, database-limited public reads and a viewer without editing controls; preserve visitor participation without exposing private timeline entries. The user chose visible origin names/codes with disabled links for unpublished timelines.
+At the end of the 18 October owner-access pass all timeline content remained private. The subsequent v0.4.1 pass below adds publication and the public viewer. Preserve the user's choice of visible origin labels with disabled links for unpublished timelines.
 
 
-## Selective publication and viewer pass prepared on 18 October
+## Selective publication and viewer pass — v0.4.1 implemented and reviewed on 20 October
 
 - Confirmed option 1: public timelines retain a participating visitor's origin name/code even if that origin timeline is private. Only the required character/origin metadata becomes readable; unrelated test universes and private chronology memberships, appearances and events remain hidden.
 - Reuse the existing timeline interface. The viewer shows published franchise/universe choices and has a Studio entry leading to the existing owner sign-in. Owners can return to the viewer without signing out. Mode/account changes remount workspace state.
@@ -199,5 +201,9 @@ All timeline content remains private. No publication column or public viewer has
 - Reuse the existing popup for read-only cell details: character, project, appearance category, attachment and event type/position. Include event-only cells, click/touch and Enter/Space activation, Close and Escape. Empty viewer cells have no editor or add-marker hover cue.
 - Existing Studio click/right-click editing remains. Origin navigation is disabled for unpublished timelines in viewer mode; the existing within-franchise navigation boundary remains.
 - Prepared code passed both TypeScript configurations, lint, a production build and focused mocked UI/state checks. The SQL passed local PGlite/Postgres fixtures covering all-private defaults, published reads, private origin labels, event-only characters, shared-project isolation, anonymous/non-owner write denial, owner operations and unpublishing. These checks did not alter the live database.
-- The user still applies the SQL and application code from chat. After implementation, verify the live policies and use a signed-out/private browser window for public behaviour. Refresh schema/function references only after the changes are live.
+- The user applied the SQL and application code. On 20 October, both TypeScript configurations, lint, the production bundle and focused mocked UI/state checks passed against the actual source. Read-only live role checks matched the expected published data for both anon and a non-owner; owner reads matched the administrative baseline. Of 17 universes, 3 were published and 2 additional private origins were readable as required metadata, with no private chronology entries exposed.
+- The 14 live policies, publication default, helper definition, function grants, table grants, identity-sequence grants and all 27 validated constraints were inspected. Schema/function references are refreshed. No live rows, accounts, functions or permissions were changed by the review. The Security Advisor still reports only the previously documented disabled leaked-password protection notice.
+- Remaining user-applied polish from this review: move existing branding into the session bar, label the project title in cell details with a film emoji, and add an explicit viewer-cell keyboard focus style. These are proposed in chat, not recorded as implemented.
+- Browser sign-in/sign-out, mobile layout and publish/unpublish smoke tests remain manual checks. The active Data API exposed-schema list was not available through the inspected SQL settings; keep the private helper schema unexposed.
 - The complete legend, introductory copy, broader responsive/visual refinement, character exploration and deployment remain in subsequent preview work. Character status, custom icons and user-defined grouping/sorting retain their existing roadmap positions.
+

@@ -1,14 +1,16 @@
--- Live reference snapshot: 18 October 2026, Timeline Viewer, PostgreSQL 17.
+-- Live reference snapshot: 20 October 2026, Timeline Viewer, PostgreSQL 17.
 -- Generated from read-only catalog queries through Supabase MCP.
 -- Documentation only: this is not a migration or a complete pg_dump backup.
 -- Includes public application tables, column defaults/identity modes, named
 -- constraints (and their indexes), RLS policies, and table/sequence privileges.
 -- Function definitions and function privileges are in functions.sql.
--- Excludes data, sequence state, default/schema/role ACLs, extensions,
+-- Includes the private helper schema's usage grants; excludes other schema ACLs.
+-- Excludes data, sequence state, default/role ACLs, extensions,
 -- Supabase-managed schemas and operational settings.
 -- There are no extra standalone indexes, user triggers, views or enums in public.
--- Owner-only access is recorded as observed; public viewing is not enabled.
--- Policies depend on is_studio_owner(), documented in functions.sql.
+-- Published timelines are publicly readable; writes remain owner-only.
+-- Policies depend on public.is_studio_owner() and private.can_read_timeline(),
+-- documented in functions.sql. These files are references, not ordered migrations.
 -- Rechecked appearance_type: the live default is now lowercase 'standard'.
 -- Appearance/event checks refreshed after the additional-type pass: seven
 -- appearance types (including vision) and five event types (including unknown).
@@ -25,6 +27,7 @@ CREATE TABLE public.universes (
     franchise_id bigint NOT NULL,
     name text NOT NULL,
     code text,
+    is_published boolean DEFAULT false NOT NULL,
     CONSTRAINT universes_franchise_id_fkey FOREIGN KEY (franchise_id) REFERENCES public.franchises(id),
     CONSTRAINT universes_franchise_id_name_key UNIQUE (franchise_id, name),
     CONSTRAINT universes_pkey PRIMARY KEY (id)
@@ -89,7 +92,13 @@ CREATE TABLE public.character_events (
     CONSTRAINT character_events_universe_project_fkey FOREIGN KEY (universe_id, project_id) REFERENCES public.universe_projects(universe_id, project_id) ON DELETE CASCADE
 );
 
--- Current owner-only row-level security policies.
+-- Existing owner policies and publication-limited public SELECT policies.
+-- The private schema is for an internal permission helper, not a public API.
+
+CREATE SCHEMA IF NOT EXISTS private;
+REVOKE ALL ON SCHEMA private FROM PUBLIC, anon, authenticated;
+GRANT USAGE ON SCHEMA private TO anon, authenticated;
+GRANT USAGE, CREATE ON SCHEMA private TO postgres;
 
 ALTER TABLE public.appearances ENABLE ROW LEVEL SECURITY;
 
@@ -140,46 +149,91 @@ CREATE POLICY "Studio owner access" ON public.universes
     USING ((SELECT public.is_studio_owner()))
     WITH CHECK ((SELECT public.is_studio_owner()));
 
+CREATE POLICY "Readable timeline appearances" ON public.appearances
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING (private.can_read_timeline(universe_id));
+
+CREATE POLICY "Readable timeline events" ON public.character_events
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING (private.can_read_timeline(universe_id));
+
+CREATE POLICY "Participating character details" ON public.characters
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING (((EXISTS ( SELECT 1
+   FROM appearances a
+  WHERE (a.character_id = characters.id))) OR (EXISTS ( SELECT 1
+   FROM character_events e
+  WHERE (e.character_id = characters.id)))));
+
+CREATE POLICY "Published franchises" ON public.franchises
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING ((EXISTS ( SELECT 1
+   FROM universes u
+  WHERE ((u.franchise_id = franchises.id) AND u.is_published))));
+
+CREATE POLICY "Linked project details" ON public.projects
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING ((EXISTS ( SELECT 1
+   FROM universe_projects up
+  WHERE (up.project_id = projects.id))));
+
+CREATE POLICY "Readable timeline projects" ON public.universe_projects
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING (private.can_read_timeline(universe_id));
+
+CREATE POLICY "Published universes and origin labels" ON public.universes
+    AS PERMISSIVE FOR SELECT TO anon, authenticated
+    USING ((is_published OR (EXISTS ( SELECT 1
+   FROM characters c
+  WHERE (c.origin_universe_id = universes.id)))));
+
 -- Observed table privileges (PostgreSQL 17 includes MAINTAIN).
--- No table privileges remain for PUBLIC or anon.
+-- PUBLIC has no table privileges. Anon can SELECT only, subject to RLS.
 
 REVOKE ALL PRIVILEGES ON TABLE public.appearances FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.appearances TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.appearances
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.appearances
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.character_events FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.character_events TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.character_events
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.character_events
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.characters FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.characters TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.characters
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.characters
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.franchises FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.franchises TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.franchises
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.franchises
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.projects FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.projects TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.projects
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.projects
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.universe_projects FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.universe_projects TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.universe_projects
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.universe_projects
     TO postgres, service_role;
 
 REVOKE ALL PRIVILEGES ON TABLE public.universes FROM PUBLIC, anon, authenticated;
+GRANT SELECT ON TABLE public.universes TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.universes
     TO authenticated;
 GRANT DELETE, INSERT, MAINTAIN, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON TABLE public.universes
@@ -206,3 +260,4 @@ GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.projects_id_seq TO postgres, serv
 REVOKE ALL PRIVILEGES ON SEQUENCE public.universes_id_seq FROM PUBLIC, anon, authenticated;
 GRANT USAGE ON SEQUENCE public.universes_id_seq TO authenticated;
 GRANT SELECT, UPDATE, USAGE ON SEQUENCE public.universes_id_seq TO postgres, service_role;
+

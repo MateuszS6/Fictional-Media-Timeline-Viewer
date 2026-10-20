@@ -30,11 +30,6 @@ export default function Sidebar({
 
     return (
         <aside className="sidebar">
-            <div className="sidebar-brand">
-                <span className="sidebar-logo">T</span>
-                <span>{canEdit ? "Timeline Studio" : "Timeline Viewer"}</span>
-            </div>
-
             <div className="workspace-selectors">
                 <label>
                     <span>Franchise</span>

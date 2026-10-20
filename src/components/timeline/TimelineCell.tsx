@@ -274,7 +274,10 @@ export default function TimelineCell({
                 >
                     <div className="timeline-cell-details">
                         <strong>{characterName}</strong>
-                        <p>{projectTitle}</p>
+                        <p>
+                            <span aria-hidden="true">🎬</span>{" "}
+                            {projectTitle}
+                        </p>
 
                         {appearance && (
                             <p>

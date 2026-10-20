@@ -7,13 +7,15 @@ Inspired by an Excel workflow, Timeline Studio uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.4.0`
+## Current version — `0.4.1`
 
-Owner sign-in and database-enforced private Studio access (not visible in below images).
+Published timelines with read-only cell details, alongside the private owner Studio.
 
 See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
-> ![Types](docs/images/timeline-studio-v0.3.3-new-types.png)
+> ![Viewer](docs/images/timeline-studio-v0.4.1-viewer-cell-details.png)
+
+> ![Studio](docs/images/timeline-studio-v0.4.1-studio-shell.png)
 
 > ![Focus](docs/images/timeline-studio-v0.3.3-origin-with-focus.png)
 
@@ -37,6 +39,7 @@ See the [progress screenshots](docs/images).
 
 Supabase is the source of truth. Files in [docs/supabase](docs/supabase) are
 database references, not files the app runs to create its database. They were
-refreshed from read-only live metadata on 18 October 2026 and include the
-universe-specific entry constraints, current policies and application functions.
+refreshed from read-only live metadata on 20 October 2026 and include the
+universe-specific entry constraints, publication policies and application functions.
 They are reference snapshots rather than complete database backups.
+
