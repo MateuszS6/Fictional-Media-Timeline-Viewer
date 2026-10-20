@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { useWorkspace } from "../../context/WorkspaceContext";
 import { APPEARANCE_OPTIONS, type Appearance, type AppearanceType, type AppearanceUpdate } from "../../types/appearance";
 import { CHARACTER_EVENT_OPTIONS, type CharacterEvent, type CharacterEventPosition, type CharacterEventType } from "../../types/characterEvent";
 import AppearanceEditor from "./AppearanceEditor";
@@ -6,6 +7,9 @@ import AppearanceEditor from "./AppearanceEditor";
 interface TimelineCellProps {
     characterId: number;
     projectId: number;
+
+    characterName: string;
+    projectTitle: string;
 
     appearance?: Appearance;
     characterEvent?: CharacterEvent;
@@ -48,6 +52,8 @@ interface TimelineCellProps {
 export default function TimelineCell({
     characterId,
     projectId,
+    characterName,
+    projectTitle,
     appearance,
     characterEvent,
     lineLeft,
@@ -60,6 +66,9 @@ export default function TimelineCell({
     onDeleteEvent,
     saving
 }: TimelineCellProps) {
+    const { canEdit } = useWorkspace();
+    const hasDetails = Boolean(appearance || characterEvent)
+
     const [editorOpen, setEditorOpen] = useState(false);
     const cellRef = useRef<HTMLDivElement>(null);
 
@@ -69,6 +78,14 @@ export default function TimelineCell({
 
     function handleLeftClick() {
         if (saving) return;
+
+        if (!canEdit) {
+            if (hasDetails) {
+                setEditorOpen((open) => !open);
+            }
+
+            return;
+        }
 
         if (!appearance) {
             onCreate(characterId, projectId);
@@ -83,6 +100,8 @@ export default function TimelineCell({
     function handleRightClick(
         event: React.MouseEvent<HTMLDivElement>
     ) {
+        if (!canEdit) return;
+
         event.preventDefault();
 
         if (saving) return;
@@ -162,10 +181,35 @@ export default function TimelineCell({
     return (
         <div
             ref={cellRef}
-            className="timeline-cell"
+            className={
+                canEdit
+                    ? "timeline-cell"
+                    : "timeline-cell timeline-cell-viewer"
+            }
+            role={!canEdit && hasDetails ? "button" : undefined}
+            tabIndex={!canEdit && hasDetails ? 0 : undefined}
+            aria-label={
+                !canEdit && hasDetails
+                    ? `Details for ${characterName} in ${projectTitle}`
+                    : undefined
+            }
+            aria-haspopup={!canEdit && hasDetails ? "dialog" : undefined}
+            aria-expanded={!canEdit && hasDetails ? editorOpen : undefined}
             aria-disabled={saving}
             onClick={handleLeftClick}
             onContextMenu={handleRightClick}
+            onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
+
+                if (
+                    !canEdit &&
+                    hasDetails &&
+                    (event.key === "Enter" || event.key === " ")
+                ) {
+                    event.preventDefault();
+                    handleLeftClick();
+                }
+            }}
         >
             {/* CONNECTORS */}
 
@@ -221,9 +265,55 @@ export default function TimelineCell({
                 </span>
             )}
 
+            {/* VIEWER */}
+
+            {editorOpen && !canEdit && hasDetails && (
+                <AppearanceEditor
+                    anchorRef={cellRef}
+                    onClose={closeEditor}
+                >
+                    <div className="timeline-cell-details">
+                        <strong>{characterName}</strong>
+                        <p>{projectTitle}</p>
+
+                        {appearance && (
+                            <p>
+                                Appearance: {APPEARANCE_OPTIONS.find((option) =>
+                                    option.value === appearance.appearance_type
+                                )?.label}
+
+                                <br />
+
+                                {appearance.is_detached
+                                    ? "Detached from the lifeline"
+                                    : "Connected to the lifeline"}
+                            </p>
+                        )}
+
+                        {characterEvent && (
+                            <p>
+                                Event: {CHARACTER_EVENT_OPTIONS.find((option) =>
+                                    option.value === characterEvent.event_type
+                                )?.label}
+
+                                <br />
+
+                                {characterEvent.event_position === "after"
+                                    ? "After this project"
+                                    : "At this project"}
+                            </p>
+                        )}
+
+                        <button type="button" onClick={closeEditor}>
+                            Close
+                        </button>
+                    </div>
+                </AppearanceEditor>
+            )}
+
             {/* EDITOR */}
 
-            {editorOpen && (
+            {editorOpen && canEdit && (
                 <AppearanceEditor
                     anchorRef={cellRef}
                     onClose={closeEditor}

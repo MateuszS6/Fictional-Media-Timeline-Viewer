@@ -175,6 +175,13 @@
     opacity: 0.7;
 }
 
+.publication-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+}
+
 @media (max-width: 700px) {
     .form-fields {
         grid-template-columns: minmax(0, 1fr);

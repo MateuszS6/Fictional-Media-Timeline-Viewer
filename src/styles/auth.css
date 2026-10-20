@@ -26,13 +26,6 @@
     grid-template-columns: 1fr;
 }
 
-.studio-shell {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    overflow: hidden;
-}
-
 .studio-session-bar {
     display: flex;
     align-items: center;
@@ -48,6 +41,19 @@
 .studio-session-bar>span {
     min-width: 0;
     overflow-wrap: anywhere;
+}
+
+.studio-session-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.studio-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    overflow: hidden;
 }
 
 .studio-shell>.app-layout {

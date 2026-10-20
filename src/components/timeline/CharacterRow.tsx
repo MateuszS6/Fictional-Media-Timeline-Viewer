@@ -179,6 +179,8 @@ export default function CharacterRow({
                         key={project.id}
                         characterId={character.id}
                         projectId={project.id}
+                        characterName={character.alias}
+                        projectTitle={project.title}
                         appearance={appearance}
                         characterEvent={characterEvent}
                         lineLeft={lineLeft}

@@ -174,8 +174,8 @@
     cursor: wait;
 }
 
-/* Hover ghost in empty cell (pseudo-child) */
-.timeline-cell:not(:has(.appearance-marker)):hover::after {
+/* Hover ghost in empty cell (pseudo-child) - only in Studio*/
+.timeline-cell:not(.timeline-cell-viewer):not(:has(.appearance-marker)):hover::after {
     content: '';
 
     position: absolute;
@@ -188,6 +188,24 @@
     border-radius: 50%;
 
     opacity: 0.5;
+}
+
+.timeline-cell-viewer:not([role="button"]) {
+    cursor: default;
+}
+
+.timeline-cell-viewer:not([role="button"]):hover {
+    background: transparent;
+}
+
+.timeline-cell-details {
+    padding: 8px;
+}
+
+.timeline-cell-details p {
+    margin: 8px 0;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 /* Horizontal character timeline */

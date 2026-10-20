@@ -13,7 +13,7 @@ export const CHARACTER_EVENT_OPTIONS: {
         { value: "revival", label: "Revival" },
         { value: "blip", label: "Blip" },
         { value: "return", label: "Return" },
-        { value: "unknown", label: "Unkown status" }
+        { value: "unknown", label: "Unknown status" }
     ]
 
 export type CharacterEventPosition =
