@@ -10,6 +10,7 @@ import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from 
 import type { Project } from "../../types/project";
 import CharacterRow from "./CharacterRow";
 import TimelineHeader from "./TimelineHeader";
+import { useWorkspace } from "../../context/WorkspaceContext";
 
 interface TimelineGridProps {
     universeId: number;
@@ -22,6 +23,7 @@ export default function TimelineGrid({
     focusedCharacterId,
     onOpenOrigin
 }: TimelineGridProps) {
+    const { canEdit } = useWorkspace();
 
     const [projects, setProjects] = useState<Project[]>([]);
     const [characters, setCharacters] = useState<Character[]>([]);
@@ -106,7 +108,7 @@ export default function TimelineGrid({
         action: () => Promise<void>,
         failureMessage: string
     ) {
-        if (savingRef.current) return;
+        if (!canEdit || savingRef.current) return;
 
         savingRef.current = true;
         setSaving(true);
@@ -266,7 +268,8 @@ export default function TimelineGrid({
     if (projects.length === 0) {
         return (
             <p className="status-message">
-                No projects have been added to this universe. Open Projects to add one.
+                No projects have been added to this universe.
+                {canEdit && " Open Projects to add one."}
             </p>
         );
     }
@@ -290,15 +293,21 @@ export default function TimelineGrid({
             {visibleCharacters.length === 0 && (
                 <p className="status-message">
                     No characters have appearances or events in this timeline yet.
-                    Open Characters and choose "Edit on timeline" to add the first entry.
+                    {canEdit &&
+                        " Open Characters and choose \"Edit on timeline\" to add the first entry."}
                 </p>
             )}
 
             {focusedCharacter && !participatingIds.has(focusedCharacter.id) && (
                 <p className="management-notice" role="status">
                     {focusedCharacter.alias} has no entries here yet.
-                    Click an empty cell to add an appearance, or right-click to add an event.
-                    This empty row stays open only for this visit.
+
+                    {canEdit && (
+                        <>
+                            {" Click an empty cell to add an appearance, or right-click to add an event."}
+                            {" This empty row stays open only for this visit."}
+                        </>
+                    )}
                 </p>
             )}
 

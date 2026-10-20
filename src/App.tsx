@@ -20,6 +20,7 @@ export default function App() {
 		universes,
 		selectedFranchiseId,
 		selectedUniverseId,
+		canEdit,
 		loading,
 		error,
 		setSelectedUniverseId,
@@ -35,7 +36,10 @@ export default function App() {
 		universeId: number,
 		character: Character
 	) {
-		if (!universes.some((universe) => universe.id === universeId)) return;
+		if (!universes.some((universe) =>
+			universe.id === universeId &&
+			(canEdit || universe.is_published)
+		)) return;
 
 		setSelectedUniverseId(universeId);
 		setTimelineTarget({
@@ -121,7 +125,7 @@ export default function App() {
 						{franchises.length === 0
 							? "No franchises are available."
 							: "No universes are available for this franchise."}
-						{" Open Workspaces to add one."}
+						{canEdit && " Open Workspaces to add one."}
 					</p>
 				) : activeView === "timeline" ? (
 					<TimelinePage

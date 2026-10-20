@@ -11,11 +11,16 @@ import './styles/sidebar.css'
 import './styles/timeline.css'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <StudioAccess>
-      <WorkspaceProvider>
-        <App />
-      </WorkspaceProvider>
-    </StudioAccess>
-  </StrictMode>,
+	<StrictMode>
+		<StudioAccess>
+			{(canEdit) => (
+				<WorkspaceProvider
+					key={canEdit ? "studio" : "viewer"}
+					canEdit={canEdit}
+				>
+					<App />
+				</WorkspaceProvider>
+			)}
+		</StudioAccess>
+	</StrictMode>,
 )

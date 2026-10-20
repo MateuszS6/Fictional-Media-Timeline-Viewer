@@ -17,21 +17,25 @@ export default function Sidebar({
         universes,
         selectedFranchiseId,
         selectedUniverseId,
+        canEdit,
         setSelectedFranchiseId,
         setSelectedUniverseId,
         loading,
         savingWorkspace
     } = useWorkspace();
 
+    const selectableUniverses = universes.filter((universe) =>
+        canEdit || universe.is_published
+    );
+
     return (
         <aside className="sidebar">
             <div className="sidebar-brand">
                 <span className="sidebar-logo">T</span>
-                <span>Timeline Studio</span>
+                <span>{canEdit ? "Timeline Studio" : "Timeline Viewer"}</span>
             </div>
 
             <div className="workspace-selectors">
-
                 <label>
                     <span>Franchise</span>
 
@@ -69,86 +73,87 @@ export default function Sidebar({
                         disabled={
                             loading ||
                             savingWorkspace ||
-                            universes.length === 0
+                            selectableUniverses.length === 0
                         }
                         onChange={(event) => {
                             onWorkspaceChange();
                             setSelectedUniverseId(Number(event.target.value))
                         }}
                     >
-                        {universes.length === 0 && (
+                        {selectableUniverses.length === 0 && (
                             <option value="" disabled>
                                 {loading ? "Loading..." : "No universes"}
                             </option>
                         )}
 
-                        {universes.map((universe) => (
+                        {selectableUniverses.map((universe) => (
                             <option key={universe.id} value={universe.id} >
                                 {universe.name}
                             </option>
                         ))}
                     </select>
                 </label>
-
             </div>
 
-            <nav className="sidebar-nav" aria-label="Workspace">
-                <button
-                    type="button"
-                    className={
-                        activeView === "timeline"
-                            ? "sidebar-item active"
-                            : "sidebar-item"
-                    }
-                    aria-current={activeView === "timeline" ? "page" : undefined}
-                    disabled={savingWorkspace}
-                    onClick={() => onViewChange("timeline")}
-                >
-                    Timeline
-                </button>
+            {canEdit && (
+                <nav className="sidebar-nav" aria-label="Workspace">
+                    <button
+                        type="button"
+                        className={
+                            activeView === "timeline"
+                                ? "sidebar-item active"
+                                : "sidebar-item"
+                        }
+                        aria-current={activeView === "timeline" ? "page" : undefined}
+                        disabled={savingWorkspace}
+                        onClick={() => onViewChange("timeline")}
+                    >
+                        Timeline
+                    </button>
 
-                <button
-                    type="button"
-                    className={
-                        activeView === "characters"
-                            ? "sidebar-item active"
-                            : "sidebar-item"
-                    }
-                    aria-current={activeView === "characters" ? "page" : undefined}
-                    disabled={savingWorkspace}
-                    onClick={() => onViewChange("characters")}
-                >
-                    Characters
-                </button>
+                    <button
+                        type="button"
+                        className={
+                            activeView === "characters"
+                                ? "sidebar-item active"
+                                : "sidebar-item"
+                        }
+                        aria-current={activeView === "characters" ? "page" : undefined}
+                        disabled={savingWorkspace}
+                        onClick={() => onViewChange("characters")}
+                    >
+                        Characters
+                    </button>
 
-                <button
-                    type="button"
-                    className={
-                        activeView === "projects"
-                            ? "sidebar-item active"
-                            : "sidebar-item"
-                    }
-                    aria-current={activeView === "projects" ? "page" : undefined}
-                    disabled={savingWorkspace}
-                    onClick={() => onViewChange("projects")}
-                >
-                    Projects
-                </button>
+                    <button
+                        type="button"
+                        className={
+                            activeView === "projects"
+                                ? "sidebar-item active"
+                                : "sidebar-item"
+                        }
+                        aria-current={activeView === "projects" ? "page" : undefined}
+                        disabled={savingWorkspace}
+                        onClick={() => onViewChange("projects")}
+                    >
+                        Projects
+                    </button>
 
-                <button
-                    type="button"
-                    className={
-                        activeView === "workspaces"
-                            ? "sidebar-item active"
-                            : "sidebar-item"
-                    }
-                    disabled={savingWorkspace}
-                    aria-current={activeView === "workspaces" ? "page" : undefined}
-                    onClick={() => onViewChange("workspaces")}
-                >
-                    Workspaces
-                </button>
-            </nav>
+                    <button
+                        type="button"
+                        className={
+                            activeView === "workspaces"
+                                ? "sidebar-item active"
+                                : "sidebar-item"
+                        }
+                        disabled={savingWorkspace}
+                        aria-current={activeView === "workspaces" ? "page" : undefined}
+                        onClick={() => onViewChange("workspaces")}
+                    >
+                        Workspaces
+                    </button>
+                </nav>
+            )}
         </aside>
     )
 }

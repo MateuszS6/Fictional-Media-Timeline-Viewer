@@ -62,7 +62,7 @@ export default function CharacterRow({
     saving,
     onOpenOrigin
 }: CharacterRowProps) {
-    const { universes, selectedUniverseId } = useWorkspace();
+    const { canEdit, universes, selectedUniverseId } = useWorkspace();
 
     const nameRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +80,8 @@ export default function CharacterRow({
     const originUniverse = universes.find((universe) =>
         universe.id === character.origin_universe_id
     );
+
+    const canOpenOrigin = originUniverse && (canEdit || originUniverse.is_published);
 
     const isVisitor = character.origin_universe_id !== selectedUniverseId;
 
@@ -134,15 +136,17 @@ export default function CharacterRow({
                     <button
                         type="button"
                         className="character-origin-link"
-                        disabled={saving || !originUniverse}
+                        disabled={saving || !canOpenOrigin}
                         aria-label={
                             `Open ${character.alias} in ${originUniverse?.name ?? originLabel
                             }`
                         }
                         title={
-                            originUniverse
-                                ? `Open origin timeline: ${originUniverse.name} ${originUniverse.code ? `(${originUniverse.code})` : ""}`
-                                : "Origin universe is outside the current franchise."
+                            originUniverse && !canEdit && !originUniverse.is_published
+                                ? `${originUniverse.name}: timeline not published.`
+                                : originUniverse
+                                    ? `Open origin timeline: ${originUniverse.name} ${originUniverse.code ? `(${originUniverse.code})` : ""}`
+                                    : "Origin universe is outside the current franchise."
                         }
                         onClick={() => onOpenOrigin(character)}
                     >

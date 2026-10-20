@@ -12,9 +12,10 @@ interface OwnerCheck {
 export default function StudioAccess({
     children
 }: {
-    children: ReactNode;
+    children: (canEdit: boolean) => ReactNode;
 }) {
     const [session, setSession] = useState<Session | null | undefined>(undefined);
+    const [studioRequested, setStudioRequested] = useState(false);
 
     const [ownerCheck, setOwnerCheck] = useState<OwnerCheck | null>(null);
     const [checkAttempt, setCheckAttempt] = useState(0);
@@ -113,13 +114,30 @@ export default function StudioAccess({
             const { error } = await supabase.auth.signOut({ scope: "local" });
 
             if (error) throw error;
+
             setPassword("");
+            setStudioRequested(false);
         } catch {
             setActionError("Could not sign out. Please try again.");
         } finally {
             setBusy(false);
         }
     }
+
+    const viewerButton = (
+        <button
+            type="button"
+            className="utility-button"
+            disabled={busy}
+            onClick={() => {
+                setStudioRequested(false);
+                setPassword("");
+                setActionError(null);
+            }}
+        >
+            Back to viewer
+        </button>
+    )
 
     const signOutButton = (
         <button
@@ -138,6 +156,29 @@ export default function StudioAccess({
                 Checking sign-in...
             </p>
         );
+    }
+
+    if (!studioRequested) {
+        return (
+            <div
+                className="studio-shell"
+                key={session?.user.id ?? "guest"}
+            >
+                <div className="studio-session-bar">
+                    <span>Timeline Viewer</span>
+
+                    <button
+                        type="button"
+                        className="utility-button"
+                        onClick={() => setStudioRequested(true)}
+                    >
+                        Studio
+                    </button>
+                </div>
+
+                {children(false)}
+            </div>
+        )
     }
 
     if (session === null) {
@@ -192,6 +233,8 @@ export default function StudioAccess({
                             >
                                 {busy ? "Signing in..." : "Sign in"}
                             </button>
+
+                            {viewerButton}
                         </div>
                     </fieldset>
                 </form>
@@ -211,6 +254,8 @@ export default function StudioAccess({
                 )}
 
                 {signOutButton}
+
+                {viewerButton}
             </main>
         );
     }
@@ -244,16 +289,25 @@ export default function StudioAccess({
                     )}
 
                     {signOutButton}
+
+                    {viewerButton}
                 </div>
             </main>
         );
     }
 
     return (
-        <div className="studio-shell">
+        <div
+            className="studio-shell"
+            key={"studio:" + session.user.id}
+        >
             <div className="studio-session-bar">
                 <span>Studio - {session.user.email}</span>
-                {signOutButton}
+
+                <div className="studio-session-actions">
+                    {viewerButton}
+                    {signOutButton}
+                </div>
             </div>
 
             {actionError && (
@@ -262,7 +316,7 @@ export default function StudioAccess({
                 </p>
             )}
 
-            {children}
+            {children(true)}
         </div>
     )
 }
