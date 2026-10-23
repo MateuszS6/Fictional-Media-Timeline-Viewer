@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 20 October 2026 after reviewing the user's v0.4.1 implementation and live publication permissions. Selective publication, the public viewer, Studio entry and read-only cell details are implemented. The next focused pass is viewer guidance and a complete legend, followed by the agreed exploration and preview-readiness work.
+Updated 23 October 2026 after agreeing the viewer-experience direction. The v0.4.1 publication/viewer baseline is implemented. The next visual pass is prepared and tested with sample data for the user to apply; it is not yet recorded as implemented.
 
 ## Working agreement
 
@@ -203,7 +203,50 @@ At the end of the 18 October owner-access pass all timeline content remained pri
 - Prepared code passed both TypeScript configurations, lint, a production build and focused mocked UI/state checks. The SQL passed local PGlite/Postgres fixtures covering all-private defaults, published reads, private origin labels, event-only characters, shared-project isolation, anonymous/non-owner write denial, owner operations and unpublishing. These checks did not alter the live database.
 - The user applied the SQL and application code. On 20 October, both TypeScript configurations, lint, the production bundle and focused mocked UI/state checks passed against the actual source. Read-only live role checks matched the expected published data for both anon and a non-owner; owner reads matched the administrative baseline. Of 17 universes, 3 were published and 2 additional private origins were readable as required metadata, with no private chronology entries exposed.
 - The 14 live policies, publication default, helper definition, function grants, table grants, identity-sequence grants and all 27 validated constraints were inspected. Schema/function references are refreshed. No live rows, accounts, functions or permissions were changed by the review. The Security Advisor still reports only the previously documented disabled leaked-password protection notice.
-- Remaining user-applied polish from this review: move existing branding into the session bar, label the project title in cell details with a film emoji, and add an explicit viewer-cell keyboard focus style. These are proposed in chat, not recorded as implemented.
+- Follow-up source review on 23 October confirms session-bar branding and the film emoji are present. The viewer focus rule was added with an unintended :not() selector; the next pass corrects it.
 - Browser sign-in/sign-out, mobile layout and publish/unpublish smoke tests remain manual checks. The active Data API exposed-schema list was not available through the inspected SQL settings; keep the private helper schema unexposed.
 - The complete legend, introductory copy, broader responsive/visual refinement, character exploration and deployment remain in subsequent preview work. Character status, custom icons and user-defined grouping/sorting retain their existing roadmap positions.
+
+
+## Viewer experience agreed on 23 October — next user-applied pass
+
+The user wants an information tool with cinematic character, rather than a generic corporate dashboard. Refinement can continue later; the timeline must remain the focus. No concrete external visual references have been selected yet. DESIGN.md records this direction and links the reference resources discussed.
+
+### Included now
+
+- Replace the left sidebar in Viewer and Studio with a compact franchise/universe bar. Keep Studio navigation as horizontal buttons. Preserve publication filtering and all current permission boundaries.
+- Rename the visible Workspaces navigation label to Franchises & universes. Hide the universe selector on that management page because its scope is the selected franchise and all of its universes. Internal workspace/view identifiers can remain unchanged.
+- Give the timeline the available page width, separated by a thin top rule instead of a rounded card frame. Keep heading, controls, instructions and help outside the scrolling grid. Future detail panels do not require a permanent empty sidebar.
+- Reduce ordinary rows from 58px to a 44px minimum; allow longer names to wrap and grow. Keep sticky character names and project headers.
+- Use horizontal, naturally wrapped project headings with 104px columns. Remove the vertical text's 90px clipping limit. Extra horizontal scrolling is an accepted tradeoff for readable titles; do not silently shorten stored project names.
+- Simplify standard appearances to filled dots, retain the first-connected-appearance arrow, and use 2px centred lifelines without changing continuity calculations.
+- Put an at-event symbol inside a connected standard appearance. Detached and other appearance categories retain both markers, so neither category nor attachment is hidden. Event-only markers remain valid. After-events stay at the project boundary and use a small square badge, distinct from appearance dots. Reserve space after the final column so the last badge is not clipped.
+- Share one small TimelineMarkers component between cells and the legend. The popup still describes both appearance and event separately; this is a display change, not a merged data model.
+- Add short mode-appropriate instructions and a Legend & help button. Its scrollable popup lists all seven appearance types and five event types, plus attachment, arrow, event position, visitor origin and keyboard/touch explanations. Reuse the existing positioning, outside-click, Escape and focus-return behaviour.
+- Correct the viewer-cell focus selector. Preserve ordinary Viewer click/keyboard details and existing Studio editing behaviour.
+
+### Validation and scope
+
+- Proposed source passed both TypeScript configurations, lint and a production build in temporary files.
+- An isolated browser fixture using the actual proposed components and sample data verified full project-title wrapping, 44px rows, merged symbols, Viewer keyboard details and focus restoration, all 16 legend entries/examples, bounded desktop/phone/landscape popups and Studio franchise-page selector scope.
+- No application source or live database data was changed by the assistant. The user applies the code from chat. Confirm real-data layout, editing and publication behaviour after application before marking the pass complete.
+- No changes to table structure, permissions, appearance/event values, continuity semantics or character status are included.
+
+### Retained design and navigation requests
+
+- Franchise cards are a valid browsing entry: choose a franchise, explore its universes/multiverse, then open a timeline. Compact selectors remain useful once inside a timeline. Record this as a navigation pass, not a rejected idea or a reason to add new database tables now.
+- Studio franchise and universe editing still needs a clearer hierarchy. The navigation rename and selector scope above are the first improvement; the deeper management layout should be designed with the franchise/universe browsing pass.
+- Franchise-specific accents are desired later. Keep appearance/event meanings and shapes consistent across franchises. A theme must not change what a symbol means.
+- The red T logo is a placeholder. Final naming/identity, logo, custom utility icons and refined appearance/event artwork remain open; avoid treating the placeholder as a final brand specification.
+- Keep the compact information-first direction. Use deliberate typography, spacing, contrast and restrained cinematic accents rather than large decorative sections competing with the timeline.
+
+### Remaining path to the public preview
+
+1. User applies this viewer-layout/legend pass; review the actual implementation and representative populated timelines.
+2. Add the planned character exploration panel with timeline-local history and counts. Keep character selection separate from the temporary editing/origin-focus target.
+3. Refine franchise/universe browsing and Studio organisation with the user, including the franchise-card entry. Agree card content and navigation before implementation; do not expand into a wiki or unrelated project catalogue.
+4. Choose the initial public timeline and a curated preview dataset, then finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks. Decide shareable URLs deliberately before any routing work.
+5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
+
+Character status and continuing lifelines, user-defined sorting/grouping/views, final custom icons/theming and management refinements remain on the roadmap. Their rules/design need agreement at their respective passes; they are not silently added as requirements for this pass. People, crew and credits remain after the timeline work. Optional multiverse entry/departure and force-deletion flows remain deferred.
 
