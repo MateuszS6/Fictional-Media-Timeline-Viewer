@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Sidebar from './components/layout/Sidebar';
+import WorkspaceBar from './components/layout/WorkspaceBar';
 import { useWorkspace } from './context/WorkspaceContext';
 import CharactersPage from './pages/CharactersPage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -60,7 +60,7 @@ export default function App() {
 	const universeName = selectedUniverse?.name ?? "Workspace";
 
 	const title = activeView === "workspaces"
-		? "Franchise & universes"
+		? "Franchises & universes"
 		: activeView === "timeline"
 			? selectedUniverse?.name ?? "Timeline"
 			: activeView === "characters"
@@ -86,7 +86,7 @@ export default function App() {
 
 	return (
 		<div className='app-layout'>
-			<Sidebar
+			<WorkspaceBar
 				activeView={activeView}
 				onWorkspaceChange={() => setTimelineTarget(null)}
 				onViewChange={(view) => {
@@ -125,7 +125,7 @@ export default function App() {
 						{franchises.length === 0
 							? "No franchises are available."
 							: "No universes are available for this franchise."}
-						{canEdit && " Open Workspaces to add one."}
+						{canEdit && " Open Franchises & universes to add one."}
 					</p>
 				) : activeView === "timeline" ? (
 					<TimelinePage

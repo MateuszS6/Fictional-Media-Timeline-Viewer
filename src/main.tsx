@@ -7,8 +7,8 @@ import './index.css'
 import './styles/auth.css'
 import './styles/layout.css'
 import './styles/management.css'
-import './styles/sidebar.css'
 import './styles/timeline.css'
+import './styles/workspace.css'
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>

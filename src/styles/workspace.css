@@ -1,0 +1,108 @@
+/* --- TOP BAR --- */
+
+.workspace-bar {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
+
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border-primary);
+    background: var(--surface-alt);
+}
+
+/* Workspace selectors (franchise and universe) */
+
+.workspace-selectors {
+    display: flex;
+    flex: 1;
+    gap: 12px;
+    min-width: 0;
+    max-width: 640px;
+}
+
+.workspace-selectors label {
+    display: grid;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+    max-width: 320px;
+}
+
+.workspace-selectors label>span {
+    color: var(--color-secondary);
+    font-size: 12px;
+}
+
+.workspace-selectors select {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    padding: 6px 10px;
+
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-sm);
+
+    background: var(--surface-elevated);
+    color: var(--color-primary);
+    font-size: 14px;
+}
+
+.workspace-selectors select:disabled {
+    opacity: 0.6;
+}
+
+/* Options */
+
+.workspace-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.workspace-tab {
+    min-height: 36px;
+    padding: 7px 10px;
+
+    border: 0;
+    border-bottom: 2px solid transparent;
+
+    background: transparent;
+    color: var(--button-text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.workspace-tab:hover:not(:disabled),
+.workspace-tab[aria-current="page"] {
+    color: var(--color-primary);
+    background: var(--button-bg-active);
+}
+
+.workspace-tab[aria-current="page"] {
+    border-bottom-color: var(--color-link);
+}
+
+.workspace-tab:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+@media (max-width: 700px) {
+    .workspace-bar {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+
+    .workspace-selectors,
+    .workspace-nav {
+        flex-basis: 100%;
+    }
+
+    .workspace-selectors select {
+        min-height: 40px;
+        font-size: 16px;
+    }
+}
