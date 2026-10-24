@@ -5,12 +5,16 @@ interface AppearanceEditorProps {
     anchorRef: RefObject<HTMLDivElement | null>;
     onClose: () => void;
     children: ReactNode;
+    label?: string;
+    className?: string;
 }
 
 export default function AppearanceEditor({
     anchorRef,
     onClose,
-    children
+    children,
+    label = "Appearance and timeline event",
+    className = ""
 }: AppearanceEditorProps) {
     const editorRef = useRef<HTMLDivElement>(null);
 
@@ -112,9 +116,9 @@ export default function AppearanceEditor({
     return createPortal(
         <div
             ref={editorRef}
-            className="appearance-editor"
+            className={`appearance-editor ${className}`}
             role="dialog"
-            aria-label="Appearance and timeline event"
+            aria-label={label}
             onClick={(event) => event.stopPropagation()}
             onContextMenu={(event) => {
                 event.preventDefault();

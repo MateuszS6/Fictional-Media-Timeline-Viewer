@@ -1,4 +1,5 @@
 import TimelineGrid from '../components/timeline/TimelineGrid';
+import TimelineGuide from '../components/timeline/TimelineGuide';
 import type { Character } from '../types/character';
 
 interface TimelinePageProps {
@@ -8,5 +9,10 @@ interface TimelinePageProps {
 }
 
 export default function TimelinePage(props: TimelinePageProps) {
-  return <TimelineGrid {...props} />;
+  return (
+    <>
+      <TimelineGuide />
+      <TimelineGrid {...props} />
+    </>
+  );
 }
