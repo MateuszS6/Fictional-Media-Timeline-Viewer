@@ -261,138 +261,122 @@
 .appearance-marker {
     position: relative;
     z-index: 2;
-
     display: grid;
     place-items: center;
-
-    width: 15px;
-    height: 15px;
-
-    transition:
-        transform var(--duration-fast) ease,
-        opacity var(--duration-fast) ease;
-}
-
-.appearance-marker:hover {
-    transform: scale(1.2);
+    width: 20px;
+    height: 20px;
 }
 
 /* Appearance type */
 
 .appearance-standard::before {
     content: '';
-    width: 12px;
-    height: 12px;
-    border: 3px solid var(--surface-alt);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     background: var(--color-primary);
-    box-shadow: 0 0 0 1px var(--timeline-dot);
 }
 
 .appearance-flashback::before {
     content: '';
-    width: 9px;
-    height: 9px;
-    border: 2px solid var(--surface-alt);
+    width: 11px;
+    height: 11px;
     background: var(--color-primary);
-    box-shadow: 0 0 0 1px var(--timeline-dot);
     transform: rotate(45deg);
 }
 
 .appearance-footage::before {
     content: '';
-    width: 10px;
-    height: 10px;
-    border: 2px solid var(--color-primary);
-    border-radius: var(--radius-sm);
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--color-primary);
+    border-radius: 3px;
     background: var(--surface-alt);
     box-shadow: 0 0 0 1px var(--timeline-dot);
 }
 
 .appearance-depiction::before {
     content: '';
-    width: 11px;
-    height: 14px;
+    width: 12px;
+    height: 15px;
     border: 1px solid var(--color-primary);
     border-radius: 1px;
     background: var(--surface-alt);
 }
 
-.appearance-depiction::after {
+.appearance-depiction::after,
+.appearance-vision::after {
     content: '';
     position: absolute;
-    width: 3px;
-    height: 3px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background: var(--color-primary);
 }
 
 .appearance-vision::before {
     content: '';
-    width: 14px;
-    height: 9px;
+    width: 16px;
+    height: 10px;
     border: 1px solid var(--color-primary);
     border-radius: 50%;
     background: var(--surface-alt);
 }
 
-.appearance-vision::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--color-primary);
-}
-
 .appearance-afterlife::before {
     content: '';
-    width: 13px;
-    height: 13px;
-    border: 2px solid var(--color-primary);
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid var(--color-primary);
     border-radius: 50%;
     background: var(--surface-alt);
 }
 
 .appearance-non_chronological::before {
     content: '';
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border: 1px dashed var(--color-primary);
     background: var(--surface-alt);
     transform: rotate(45deg);
 }
 
 .appearance-detached {
-    opacity: 0.45;
+    opacity: 0.5;
 }
 
-.timeline-event {
-    /* Event */
+.appearance-with-event::before {
+    width: 20px;
+    height: 20px;
+}
 
+.appearance-event-symbol {
+    position: absolute;
+    color: var(--surface-base);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    transform: translateY(-1px);
+}
+
+/* Event */
+
+.timeline-event {
     position: absolute;
     z-index: 3;
-
     display: grid;
     place-items: center;
-
     width: 18px;
     height: 18px;
 
     border: 1px solid var(--timeline-dot);
-    border-radius: 50%;
+    border-radius: 4px;
 
     background: var(--surface-alt);
     color: var(--color-primary);
-
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     line-height: 1;
-
-    box-shadow: 0 0 0 2px var(--surface-overlay);
-
     pointer-events: none;
 }
 
@@ -406,15 +390,24 @@
 .timeline-event-after {
     right: 0;
     top: 50%;
-
-    background: var(--surface-overlay);
-
     transform: translate(50%, -50%);
 }
 
 .timeline-event-at.timeline-event-with-appearance {
     left: calc(50% + 12px);
-    top: calc(50% - 12px);
+    top: calc(50% - 10px);
+}
+
+@media (max-width: 700px) {
+    .character-column {
+        width: 156px;
+        min-width: 156px;
+        font-size: 13px;
+    }
+
+    .character-origin-link {
+        max-width: 56px;
+    }
 }
 
 /* Editor */

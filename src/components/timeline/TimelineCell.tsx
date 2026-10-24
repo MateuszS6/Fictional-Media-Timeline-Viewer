@@ -3,6 +3,7 @@ import { useWorkspace } from "../../context/WorkspaceContext";
 import { APPEARANCE_OPTIONS, type Appearance, type AppearanceType, type AppearanceUpdate } from "../../types/appearance";
 import { CHARACTER_EVENT_OPTIONS, type CharacterEvent, type CharacterEventPosition, type CharacterEventType } from "../../types/characterEvent";
 import AppearanceEditor from "./AppearanceEditor";
+import TimelineMarkers from "./TimelineMarkers";
 
 interface TimelineCellProps {
     characterId: number;
@@ -211,7 +212,7 @@ export default function TimelineCell({
                 }
             }}
         >
-            {/* CONNECTORS */}
+            {/* CONNECTOR(S) */}
 
             {lineLeft && (
                 <span className="timeline-line timeline-line-left" />
@@ -221,49 +222,13 @@ export default function TimelineCell({
                 <span className="timeline-line timeline-line-right" />
             )}
 
-            {/* MARKER */}
+            {/* APPEARANCE AND/OR EVENT MARKER(S) */}
 
-            {isFirstConnected && (
-                <span
-                    className="timeline-start-marker"
-                    title="Start of main timeline"
-                />
-            )}
-
-            {appearance && (
-                <div
-                    className={`
-                        appearance-marker
-                        appearance-${appearance.appearance_type}
-                        ${appearance.is_detached ? "appearance-detached" : ""}
-                    `}
-                    title={
-                        appearance.appearance_type.replaceAll("_", " ") +
-                        (appearance.is_detached ? " - detached" : "")
-                    }
-                />
-            )}
-
-            {characterEvent && (
-                <span
-                    className={`
-                        timeline-event
-                        timeline-event-${characterEvent.event_type}
-                        timeline-event-${characterEvent.event_position}
-                        ${appearance ? "timeline-event-with-appearance" : ""}
-                    `}
-                    title={characterEvent.event_type === "unknown"
-                        ? "Unknown status"
-                        : characterEvent.event_type
-                    }
-                >
-                    {characterEvent.event_type === "death" && "×"}
-                    {characterEvent.event_type === "revival" && "↻"}
-                    {characterEvent.event_type === "blip" && "✦"}
-                    {characterEvent.event_type === "return" && "↺"}
-                    {characterEvent.event_type === "unknown" && "?"}
-                </span>
-            )}
+            <TimelineMarkers
+                appearance={appearance}
+                characterEvent={characterEvent}
+                isFirstConnected={isFirstConnected}
+            />
 
             {/* VIEWER */}
 
