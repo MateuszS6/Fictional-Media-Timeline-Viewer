@@ -7,17 +7,15 @@ Inspired by an Excel workflow, Timeline Studio uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.4.1`
+## Current version — `0.4.2`
 
-Published timelines with read-only cell details, alongside the private owner Studio.
+A cleaner, full-width timeline with compact navigation, readable project titles, consistent event icons and a scrolling legend. The Studio session bar is updated with owner sign-in status.
 
 See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
-> ![Viewer](docs/images/timeline-studio-v0.4.1-viewer-cell-details.png)
+> ![Viewer](docs/images/timeline-studio-v0.4.2-viewer-legend.png)
 
-> ![Studio](docs/images/timeline-studio-v0.4.1-studio-shell.png)
-
-> ![Focus](docs/images/timeline-studio-v0.3.3-origin-with-focus.png)
+> ![Studio](docs/images/timeline-studio-v0.4.2-studio-compact.png)
 
 ## Aim
 

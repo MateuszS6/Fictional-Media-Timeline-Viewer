@@ -317,8 +317,8 @@ export default function StudioAccess({
                 {brand}
 
                 <div className="studio-session-actions">
-                    <span className="studio-session-email">
-                        {session.user.email}
+                    <span className="studio-session-status">
+                        Signed in
                     </span>
 
                     {viewerButton}
