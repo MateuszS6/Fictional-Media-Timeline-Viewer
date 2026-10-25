@@ -1,17 +1,10 @@
 import type { Appearance } from "../../types/appearance";
-import type { CharacterEvent, CharacterEventType } from "../../types/characterEvent";
+import type { CharacterEvent } from "../../types/characterEvent";
+import EventIcon from "./EventIcon";
 
 type MarkerAppearance = Pick<Appearance, "appearance_type" | "is_detached">;
 
 type MarkerEvent = Pick<CharacterEvent, "event_type" | "event_position">;
-
-const eventSymbols: Record<CharacterEventType, string> = {
-	death: "×",
-	revival: "↻",
-	blip: "✦",
-	return: "↺",
-	unknown: "?"
-};
 
 interface TimelineMarkersProps {
 	appearance?: MarkerAppearance;
@@ -64,7 +57,7 @@ export default function TimelineMarkers({
 				>
 					{mergedEvent && (
 						<span className="appearance-event-symbol">
-							{eventSymbols[mergedEvent.event_type]}
+							<EventIcon type={mergedEvent.event_type} />
 						</span>
 					)}
 				</span>
@@ -80,7 +73,7 @@ export default function TimelineMarkers({
                     `}
 					title={`${eventLabel} - ${characterEvent.event_position} this project`}
 				>
-					{eventSymbols[characterEvent.event_type]}
+					<EventIcon type={characterEvent.event_type} />
 				</span>
 			)}
 		</>
