@@ -7,6 +7,7 @@ import TimelinePage from './pages/TimelinePage';
 import WorkspacesPage from './pages/WorkspacesPage';
 import type { Character } from './types/character';
 import type { WorkspaceView } from './types/workspace';
+import TimelineGuide from './components/timeline/TimelineGuide';
 
 export default function App() {
 	const [activeView, setActiveView] = useState<WorkspaceView>("timeline");
@@ -95,10 +96,16 @@ export default function App() {
 				}}
 			/>
 
-			<main className='main-content'>
-				<header className='page-header'>
-					<h1>{title}</h1>
-					<p>{description}</p>
+			<main className={`main-content ${activeView === "timeline" ? "main-content-timeline" : ""}`}>
+				<header className={`page-header ${activeView === "timeline" ? "timeline-page-header" : ""}`}>
+					<div className='page-heading'>
+						<h1>{title}</h1>
+						<p>{description}</p>
+					</div>
+
+					{activeView === "timeline" && (
+						<TimelineGuide key={selectedUniverseId ?? "empty"} />
+					)}
 				</header>
 
 				{loading ? (

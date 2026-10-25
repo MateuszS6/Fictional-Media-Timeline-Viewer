@@ -1,6 +1,6 @@
 # Timeline Viewer & Studio — design direction
 
-Agreed 23 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
+Agreed 23 October 2026; refined 25 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
 ## Purpose and character
 
@@ -12,7 +12,8 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Put branding and Studio access in the existing top bar; put franchise/universe choices in a compact bar beneath it.
 - Studio page navigation is horizontal. Use clear visible nouns: Timeline, Characters, Projects, Franchises & universes.
 - Use a thin divider for the timeline scroll area, rather than a large rounded card frame.
-- Keep headings, short instructions, navigation and help outside the grid.
+- Keep navigation outside the grid. Put the timeline title, short description and Legend & help button in one compact header; put interaction instructions inside help.
+- Let the Timeline view reach the page edges below that header. Keep ordinary management-page padding and a small allowance after the final grid column for boundary events.
 - Keep character labels and project headings sticky while the timeline scrolls.
 - Use horizontal wrapped project names for the next pass. Allow enough height for full titles; do not hide long names with ellipses.
 - Target 44px minimum rows and 104px project columns. Names may wrap and increase a row's height.
@@ -31,6 +32,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 ## Timeline symbols
 
 - Share actual marker rendering between timeline cells and the legend.
+- Use small local SVG event symbols with consistent geometry, avoiding font-baseline offsets or per-glyph CSS nudges.
 - Standard appearances are simple filled circles. Keep distinguishable shapes for other categories.
 - Show an at-event inside a connected standard appearance. Keep separate markers for detached or specially shaped appearances so neither meaning disappears.
 - Show event-only and after-event badges with a small square outline and a symbol, distinct from appearance circles.
@@ -47,7 +49,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Preserve the Studio's existing editing behaviour.
 - Provide clear focus outlines and descriptive names for controls.
 - Legend & help is available on demand. Explain every appearance/event type, attachment, arrow, chronology, visitor origins and interaction.
-- Reuse the current popup's viewport positioning, outside-click dismissal, Escape and focus return.
+- Reuse the current popup's viewport positioning, outside-click dismissal, Escape and focus return. Give the legend a separate fixed heading and scrolling body so samples cannot overlap the heading.
 - Handle long names, dense timelines, empty results, loading and failures.
 - Use text/shape alongside colour for meaning.
 
@@ -57,4 +59,5 @@ A personal tool for building fictional timelines and a public viewer for explori
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines): interaction, accessibility and responsive-quality reference.
 
 Apply relevant principles to this app. No specific third-party brand style has been selected.
+
 

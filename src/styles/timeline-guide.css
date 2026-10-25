@@ -1,17 +1,5 @@
 .timeline-tools {
-	display: flex;
 	flex-shrink: 0;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px 16px;
-}
-
-.timeline-tools>p {
-	margin: 0;
-	color: var(--color-secondary);
-	font-size: 13px;
-	line-height: 1.4;
 }
 
 .timeline-tools .utility-button {
@@ -21,25 +9,30 @@
 .appearance-editor.timeline-legend-popup {
 	width: 640px;
 	max-height: min(560px, calc(100dvh - 24px));
-	padding: 16px;
+	padding: 0px;
+	overflow: hidden;
 }
 
 .legend-heading {
-	position: sticky;
-	top: 0;
-	z-index: 1;
-
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
-
-	background: var(--surface-overlay);
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--border-primary);
 }
 
 .legend-heading h2 {
 	margin: 0;
 	font-size: 18px;
+}
+
+.timeline-legend-popup>.legend-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: 0 16px 16px;
 }
 
 .timeline-legend-popup h3 {

@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 23 October 2026 after agreeing the viewer-experience direction. The v0.4.1 publication/viewer baseline is implemented. The next visual pass is prepared and tested with sample data for the user to apply; it is not yet recorded as implemented.
+Updated 25 October 2026 after reviewing the implemented viewer-experience pass. The v0.4.1 publication/viewer baseline and compact navigation, timeline markers and legend are present. A focused spacing, legend-scroll and symbol-alignment cleanup is prepared and tested for the user to apply.
 
 ## Working agreement
 
@@ -208,7 +208,7 @@ At the end of the 18 October owner-access pass all timeline content remained pri
 - The complete legend, introductory copy, broader responsive/visual refinement, character exploration and deployment remain in subsequent preview work. Character status, custom icons and user-defined grouping/sorting retain their existing roadmap positions.
 
 
-## Viewer experience agreed on 23 October — next user-applied pass
+## Viewer experience agreed on 23 October — implemented and reviewed on 25 October
 
 The user wants an information tool with cinematic character, rather than a generic corporate dashboard. Refinement can continue later; the timeline must remain the focus. No concrete external visual references have been selected yet. DESIGN.md records this direction and links the reference resources discussed.
 
@@ -242,11 +242,25 @@ The user wants an information tool with cinematic character, rather than a gener
 
 ### Remaining path to the public preview
 
-1. User applies this viewer-layout/legend pass; review the actual implementation and representative populated timelines.
+1. Apply the focused 25 October visual cleanup below, then review it with representative populated timelines. The preceding viewer-layout/legend pass is implemented.
 2. Add the planned character exploration panel with timeline-local history and counts. Keep character selection separate from the temporary editing/origin-focus target.
 3. Refine franchise/universe browsing and Studio organisation with the user, including the franchise-card entry. Agree card content and navigation before implementation; do not expand into a wiki or unrelated project catalogue.
 4. Choose the initial public timeline and a curated preview dataset, then finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks. Decide shareable URLs deliberately before any routing work.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
 
 Character status and continuing lifelines, user-defined sorting/grouping/views, final custom icons/theming and management refinements remain on the roadmap. Their rules/design need agreement at their respective passes; they are not silently added as requirements for this pass. People, crew and credits remain after the timeline work. Optional multiverse entry/departure and force-deletion flows remain deferred.
+
+
+
+## Visual cleanup reviewed on 25 October — prepared for user application
+
+- The user's source contains the compact top navigation, horizontal wrapped project titles, shared marker renderer, merged at-events and legend. Both TypeScript configurations and lint pass.
+- Keep the user's 44px minimum row variable, 100px minimum project-header height, detached-marker opacity and current appearance shapes.
+- Remaining outer timeline space comes from main-content padding. Scope zero padding/gap to the Timeline view, keep padding on its header and status messages, and preserve the final 12px grid allowance for after-events.
+- Move Legend & help alongside the timeline title/description. Move mode-specific interaction instructions into the help popup, removing the extra toolbar row.
+- Put the legend heading outside a separately scrolling body. Remove its sticky positioning rather than adding stacking-order overrides.
+- Replace font-based event glyphs and the shared vertical nudge with one small local SVG component. Retain the cross, clockwise/counterclockwise arrows, sparkle and question-mark meanings. This alignment fix is not a final icon/branding redesign.
+- The proposed cleanup passed both TypeScript configurations, lint and a production build in temporary files. An isolated browser fixture verified desktop/phone/landscape layout, grid edges, long titles, final after-event visibility, centred SVGs, legend clipping/header stability, contents, keyboard details and focus return.
+- Application code remains user-applied from chat. Only documentation was changed by the assistant; no database changes or live edits were made. Real-data review remains after application.
+- Character exploration remains the next planned feature pass; status rules, sorting/grouping, franchise browsing, management layout and preview readiness retain their existing positions.
 

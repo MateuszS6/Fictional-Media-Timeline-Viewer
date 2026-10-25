@@ -23,12 +23,6 @@ export default function TimelineGuide() {
 
 	return (
 		<div className="timeline-tools">
-			<p>
-				{canEdit
-					? "Click a cell to add/remove an appearance. Right-click for types and events."
-					: "Read projects from left to right. Select a marker for details."}
-			</p>
-
 			<div ref={anchorRef}>
 				<button
 					type="button"
@@ -55,127 +49,135 @@ export default function TimelineGuide() {
 						</button>
 					</div>
 
-					<p className="legend-copy">
-						Each row follows a character. Projects run from left to right
-						in this universe's chronology, not release order.
-					</p>
+					<div className="legend-body">
+						<p className="legend-copy">
+							{canEdit
+								? "Click a cell to add/remove an appearance. Right-click for types and events."
+								: "Read projects from left to right. Select a marker for details."}
+						</p>
 
-					<h3>Appearances</h3>
+						<p className="legend-copy">
+							Each row follows a character. Projects run from left to right
+							in this universe's chronology, not release order.
+						</p>
 
-					<ul className="legend-list">
-						{APPEARANCE_OPTIONS.map((option) => (
-							<li key={option.value}>
-								<span
-									className="legend-sample"
-									aria-hidden="true"
-								>
-									<TimelineMarkers appearance={{
-										appearance_type: option.value,
-										is_detached: false
-									}} />
-								</span>
+						<h3>Appearances</h3>
 
-								<span>
-									<strong>{option.label}</strong>
-									<span className="legend-description">
-										{descriptions[option.value]}
+						<ul className="legend-list">
+							{APPEARANCE_OPTIONS.map((option) => (
+								<li key={option.value}>
+									<span
+										className="legend-sample"
+										aria-hidden="true"
+									>
+										<TimelineMarkers appearance={{
+											appearance_type: option.value,
+											is_detached: false
+										}} />
 									</span>
+
+									<span>
+										<strong>{option.label}</strong>
+										<span className="legend-description">
+											{descriptions[option.value]}
+										</span>
+									</span>
+								</li>
+							))}
+						</ul>
+
+						<h3>Events</h3>
+
+						<ul className="legend-list">
+							{CHARACTER_EVENT_OPTIONS.map((option) => (
+								<li key={option.value}>
+									<span
+										className="legend-sample"
+										aria-hidden="true"
+									>
+										<TimelineMarkers characterEvent={{
+											event_type: option.value,
+											event_position: "at"
+										}} />
+									</span>
+
+									<span>{option.label}</span>
+								</li>
+							))}
+						</ul>
+
+						<h3>Lines and positions</h3>
+
+						<ul className="legend-list">
+							<li>
+								<span className="legend-sample" aria-hidden="true">
+									<span className="timeline-line timeline-line-right" />
+									<TimelineMarkers
+										isFirstConnected
+										appearance={{
+											appearance_type: "standard",
+											is_detached: false
+										}}
+									/>
 								</span>
+								<span>Arrow: first connected appearance.</span>
 							</li>
-						))}
-					</ul>
 
-					<h3>Events</h3>
-
-					<ul className="legend-list">
-						{CHARACTER_EVENT_OPTIONS.map((option) => (
-							<li key={option.value}>
-								<span
-									className="legend-sample"
-									aria-hidden="true"
-								>
-									<TimelineMarkers characterEvent={{
-										event_type: option.value,
-										event_position: "at"
+							<li>
+								<span className="legend-sample" aria-hidden="true">
+									<TimelineMarkers appearance={{
+										appearance_type: "standard",
+										is_detached: true
 									}} />
 								</span>
-
-								<span>{option.label}</span>
+								<span>Faded: detached; does not start or extend a lifeline.</span>
 							</li>
-						))}
-					</ul>
 
-					<h3>Lines and positions</h3>
+							<li>
+								<span className="legend-sample" aria-hidden="true">
+									<TimelineMarkers
+										appearance={{
+											appearance_type: "standard",
+											is_detached: false
+										}}
+										characterEvent={{
+											event_type: "death",
+											event_position: "at"
+										}}
+									/>
+								</span>
+								<span>Inside a dot: an event at a connected standard appearance.</span>
+							</li>
 
-					<ul className="legend-list">
-						<li>
-							<span className="legend-sample" aria-hidden="true">
-								<span className="timeline-line timeline-line-right" />
-								<TimelineMarkers
-									isFirstConnected
-									appearance={{
-										appearance_type: "standard",
-										is_detached: false
-									}}
-								/>
-							</span>
-							<span>Arrow: first connected appearance.</span>
-						</li>
+							<li>
+								<span className="legend-sample" aria-hidden="true">
+									<span className="timeline-line timeline-line-left" />
+									<span className="timeline-line timeline-line-right" />
+									<TimelineMarkers characterEvent={{
+										event_type: "unknown",
+										event_position: "after"
+									}} />
+								</span>
+								<span>Boundary marker: an event after this project, and before the next project.</span>
+							</li>
+						</ul>
 
-						<li>
-							<span className="legend-sample" aria-hidden="true">
-								<TimelineMarkers appearance={{
-									appearance_type: "standard",
-									is_detached: true
-								}} />
-							</span>
-							<span>Faded: detached; does not start or extend a lifeline.</span>
-						</li>
+						<p className="legend-copy">
+							Other appearance/event combinations keep both symbols.
+							Lines show recorded continuity; a line ending alone
+							does not mean the character died.
+						</p>
 
-						<li>
-							<span className="legend-sample" aria-hidden="true">
-								<TimelineMarkers
-									appearance={{
-										appearance_type: "standard",
-										is_detached: false
-									}}
-									characterEvent={{
-										event_type: "death",
-										event_position: "at"
-									}}
-								/>
-							</span>
-							<span>Inside a dot: an event at a connected standard appearance.</span>
-						</li>
+						<p className="legend-copy">
+							A label beside a visiting character names their origin.
+							Select it to visit that timeline when available.
+						</p>
 
-						<li>
-							<span className="legend-sample" aria-hidden="true">
-								<span className="timeline-line timeline-line-left" />
-								<span className="timeline-line timeline-line-right" />
-								<TimelineMarkers characterEvent={{
-									event_type: "unknown",
-									event_position: "after"
-								}} />
-							</span>
-							<span>Boundary marker: an event after this project, and before the next project.</span>
-						</li>
-					</ul>
-
-					<p className="legend-copy">
-						Other appearance/event combinations keep both symbols.
-						Lines show recorded continuity; a line ending alone
-						does not mean the character died.
-					</p>
-
-					<p className="legend-copy">
-						A label beside a visiting character names their origin.
-						Select it to visit that timeline when available.
-					</p>
-
-					<p className="legend-copy">
-						Scroll sideways for more projects. In Viewer, use Tab to focus entries,
-						Enter or Space to open details, and Escape to close. You can also tap an entry.
-					</p>
+						<p className="legend-copy">
+							Scroll sideways for more projects. In Viewer, use Tab to focus entries,
+							Enter or Space to open details, and Escape to close. You can also tap an entry.
+						</p>
+					</div>
 				</AppearanceEditor>
 			)}
 		</div>
