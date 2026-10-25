@@ -11,11 +11,12 @@ A personal tool for building fictional timelines and a public viewer for explori
 - The timeline is the main surface and uses the available page width.
 - Put branding and Studio access in the existing top bar; put franchise/universe choices in a compact bar beneath it.
 - Studio page navigation is horizontal. Use clear visible nouns: Timeline, Characters, Projects, Franchises & universes.
-- Use a thin divider for the timeline scroll area, rather than a large rounded card frame.
+- Current interim timeline styling uses a thin border, 8px corners and a 12px outer gutter to relate to the management surfaces. The user is not yet satisfied with the overall visual identity; broader redesign remains open.
 - Keep navigation outside the grid. Put the timeline title, short description and Legend & help button in one compact header; put interaction instructions inside help.
-- Let the Timeline view reach the page edges below that header. Keep ordinary management-page padding and a small allowance after the final grid column for boundary events.
+- Keep the compact timeline header above the lightly framed grid. Preserve ordinary management-page padding and the small allowance after the final grid column for boundary events.
+- Use thin, restrained scrollbars on scrolling surfaces while preserving direct horizontal navigation.
 - Keep character labels and project headings sticky while the timeline scrolls.
-- Use horizontal wrapped project names for the next pass. Allow enough height for full titles; do not hide long names with ellipses.
+- Use horizontal wrapped project names. Allow enough height for full titles; do not hide long names with ellipses.
 - Target 44px minimum rows and 104px project columns. Names may wrap and increase a row's height.
 - On narrow screens, controls wrap and the timeline scrolls horizontally. Preserve legibility rather than shrinking the whole timeline to fit.
 - A future franchise-card entry can lead into universe browsing and then the timeline. It complements the compact selectors inside an opened timeline.
@@ -53,11 +54,12 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Handle long names, dense timelines, empty results, loading and failures.
 - Use text/shape alongside colour for meaning.
 
-## References
+## Character exploration\n\n- Open details from a character name in an on-demand right-side panel; use a full-width modal overlay on narrow screens. Keep this shared between Viewer and Studio.\n- Show the current timeline\'s recorded history and counts only, together with identity and origin information. Browsing must not reset the grid or edit participation.\n- Cross-universe travel, combined journeys and global status require their own agreed rules; they are deferred beyond this panel pass.\n\n## References
 
 - [VoltAgent DESIGN.md collection](https://github.com/VoltAgent/awesome-design-md): inspiration for recording a coherent visual language.
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines): interaction, accessibility and responsive-quality reference.
 
 Apply relevant principles to this app. No specific third-party brand style has been selected.
+
 
 

@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 25 October 2026 after reviewing the implemented viewer-experience pass. The v0.4.1 publication/viewer baseline and compact navigation, timeline markers and legend are present. A focused spacing, legend-scroll and symbol-alignment cleanup is prepared and tested for the user to apply.
+Updated 25 October 2026. The v0.4.2 viewer layout, legend, SVG symbols and screenshot-safe Studio label are implemented and reviewed. The current-timeline character exploration panel is prepared and tested for user application.
 
 ## Working agreement
 
@@ -10,7 +10,7 @@ Updated 25 October 2026 after reviewing the implemented viewer-experience pass. 
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.4.1
+## Current baseline: v0.4.2
 
 - The app opens in read-only Viewer mode. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
 - The Studio requires the configured owner account. Public signup remains disabled. Anonymous and authenticated non-owner access is limited to published content; writes remain owner-only. The Studio button opens sign-in, and the owner can return to Viewer without signing out.
@@ -242,8 +242,8 @@ The user wants an information tool with cinematic character, rather than a gener
 
 ### Remaining path to the public preview
 
-1. Apply the focused 25 October visual cleanup below, then review it with representative populated timelines. The preceding viewer-layout/legend pass is implemented.
-2. Add the planned character exploration panel with timeline-local history and counts. Keep character selection separate from the temporary editing/origin-focus target.
+1. Viewer layout and visual cleanup are implemented in v0.4.2, including the corrected heading rules and screenshot-safe Studio label. The subsequent light frame and thin scrollbars are also present.
+2. Apply the current-timeline character exploration panel prepared below, then review it with real timelines. Keep browsing selection separate from the temporary editing/origin-focus target.
 3. Refine franchise/universe browsing and Studio organisation with the user, including the franchise-card entry. Agree card content and navigation before implementation; do not expand into a wiki or unrelated project catalogue.
 4. Choose the initial public timeline and a curated preview dataset, then finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks. Decide shareable URLs deliberately before any routing work.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
@@ -252,7 +252,7 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 
 
 
-## Visual cleanup reviewed on 25 October — prepared for user application
+## Visual cleanup reviewed on 25 October — implemented in v0.4.2
 
 - The user's source contains the compact top navigation, horizontal wrapped project titles, shared marker renderer, merged at-events and legend. Both TypeScript configurations and lint pass.
 - Keep the user's 44px minimum row variable, 100px minimum project-header height, detached-marker opacity and current appearance shapes.
@@ -263,4 +263,24 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - The proposed cleanup passed both TypeScript configurations, lint and a production build in temporary files. An isolated browser fixture verified desktop/phone/landscape layout, grid edges, long titles, final after-event visibility, centred SVGs, legend clipping/header stability, contents, keyboard details and focus return.
 - Application code remains user-applied from chat. Only documentation was changed by the assistant; no database changes or live edits were made. Real-data review remains after application.
 - Character exploration remains the next planned feature pass; status rules, sorting/grouping, franchise browsing, management layout and preview readiness retain their existing positions.
+
+
+
+## Character exploration agreed on 25 October — prepared for user application
+
+- The user chose an on-demand side panel. It is available in Viewer and Studio, opened from a character-name button, with selected-row highlighting. Desktop keeps the timeline usable alongside it; narrow screens use a native modal dialog.
+- Scope is the currently selected universe timeline only. Show alias, optional full name, origin metadata, local appearance/event counts and project-ordered entries, including detached appearances and event-only entries. At/after labels remain explicit.
+- Reuse the loaded projects, characters, appearances and events. Filter by universe and character identity; do not combine same-name variants or invent a global event order.
+- Browse selection is local to TimelineGrid and separate from the existing focusedCharacterId. Opening/switching/closing the panel does not remount or reload the grid or create temporary rows. Workspace changes clear selection through the existing keyed grid lifecycle.
+- Reuse origin navigation and its publication/saving restrictions. Unpublished origin metadata may remain visible, but Viewer cannot open the private chronology. Counts and history update from Studio edits; deleting the last entry leaves an honest empty panel until closed, without retaining the row artificially.
+- Close and Escape restore focus to the selecting name button, or the timeline if that row was removed. The native mobile dialog blocks background interactions and manages keyboard containment.
+- Prepared source passed both TypeScript configurations, lint and a production build. Isolated browser checks with mocked service data covered timeline-specific counts/order, same-name variants, detached/event-only entries, private/public origins, no additional reads/writes from browsing, preserved grid identity/scroll, desktop switching, mobile focus/Escape, responsive transitions, Studio edits, last-entry/temporary-row empty states and universe reset.
+- Application files remain unchanged by the assistant; code is supplied in chat for the user to apply. No live database access or mutations were needed. Do not record this feature as released until applied and reviewed.
+
+### Multiversal journeys — deferred, not a preview blocker
+
+- The user raised a future combined journey with explicit travel between universes, such as Iron Man leaving his origin timeline and returning.
+- Independent per-universe project positions cannot establish that character's overall travel order. Do not infer entry/departure from visitor labels or place a timeline-local death on every universe.
+- Keep origin navigation now. A combined ordered journey and any entry/departure markers need an agreed model in a later focused pass. No travel tables, markers or chronology rules are introduced by character exploration.
+- After reviewing this panel, continue franchise/universe browsing and Studio organisation, followed by preview content/access checks and deployment as already planned.
 

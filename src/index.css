@@ -72,6 +72,15 @@ body {
   color: var(--color-primary);
 }
 
+.timeline-container,
+.management-page,
+.management-table-container,
+.appearance-editor,
+.legend-body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--timeline-dot) transparent;
+}
+
 button,
 select,
 input,
