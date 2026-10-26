@@ -10,191 +10,191 @@ import { formatUniverseLabel } from "../../utils/formatUniverseLabel";
 import TimelineCell from "./TimelineCell";
 
 interface CharacterRowProps {
-    character: Character;
-    projects: Project[];
-    appearances: Appearance[];
-    characterEvents: CharacterEvent[];
+	character: Character;
+	projects: Project[];
+	appearances: Appearance[];
+	characterEvents: CharacterEvent[];
 
-    onCreateAppearance: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onCreateAppearance: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    onUpdateAppearance: (
-        characterId: number,
-        projectId: number,
-        updates: AppearanceUpdate
-    ) => void;
+	onUpdateAppearance: (
+		characterId: number,
+		projectId: number,
+		updates: AppearanceUpdate
+	) => void;
 
-    onDeleteAppearance: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onDeleteAppearance: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    onSaveCharacterEvent: (
-        characterId: number,
-        projectId: number,
-        eventType: CharacterEventType,
-        eventPosition: CharacterEventPosition
-    ) => void;
+	onSaveCharacterEvent: (
+		characterId: number,
+		projectId: number,
+		eventType: CharacterEventType,
+		eventPosition: CharacterEventPosition
+	) => void;
 
-    onDeleteCharacterEvent: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onDeleteCharacterEvent: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    focused: boolean;
-    saving: boolean;
-    onOpenOrigin: (character: Character) => void;
+	focused: boolean;
+	saving: boolean;
+	onOpenOrigin: (character: Character) => void;
 }
 
 export default function CharacterRow({
-    character,
-    projects,
-    appearances,
-    characterEvents,
-    onCreateAppearance,
-    onUpdateAppearance,
-    onDeleteAppearance,
-    onSaveCharacterEvent,
-    onDeleteCharacterEvent,
-    focused,
-    saving,
-    onOpenOrigin
+	character,
+	projects,
+	appearances,
+	characterEvents,
+	onCreateAppearance,
+	onUpdateAppearance,
+	onDeleteAppearance,
+	onSaveCharacterEvent,
+	onDeleteCharacterEvent,
+	focused,
+	saving,
+	onOpenOrigin
 }: CharacterRowProps) {
-    const { canEdit, universes, selectedUniverseId } = useWorkspace();
+	const { canEdit, universes, selectedUniverseId } = useWorkspace();
 
-    const nameRef = useRef<HTMLDivElement>(null);
+	const nameRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (!focused) return;
+	useEffect(() => {
+		if (!focused) return;
 
-        nameRef.current?.scrollIntoView({
-            block: "center",
-            inline: "nearest"
-        });
+		nameRef.current?.scrollIntoView({
+			block: "center",
+			inline: "nearest"
+		});
 
-        nameRef.current?.focus({ preventScroll: true });
-    }, [focused]);
+		nameRef.current?.focus({ preventScroll: true });
+	}, [focused]);
 
-    const originUniverse = universes.find((universe) =>
-        universe.id === character.origin_universe_id
-    );
+	const originUniverse = universes.find((universe) =>
+		universe.id === character.origin_universe_id
+	);
 
-    const canOpenOrigin = originUniverse && (canEdit || originUniverse.is_published);
+	const canOpenOrigin = originUniverse && (canEdit || originUniverse.is_published);
 
-    const isVisitor = character.origin_universe_id !== selectedUniverseId;
+	const isVisitor = character.origin_universe_id !== selectedUniverseId;
 
-    const originLabel = formatUniverseLabel(
-        character.origin_universe_id,
-        universes
-    );
+	const originLabel = formatUniverseLabel(
+		character.origin_universe_id,
+		universes
+	);
 
-    const rowAppearances = projects.map((project) =>
-        appearances.find(
-            (appearance) =>
-                appearance.character_id === character.id &&
-                appearance.project_id === project.id
-        )
-    );
+	const rowAppearances = projects.map((project) =>
+		appearances.find(
+			(appearance) =>
+				appearance.character_id === character.id &&
+				appearance.project_id === project.id
+		)
+	);
 
-    const rowEvents = projects.map((project) =>
-        characterEvents.find(
-            (event) =>
-                event.character_id === character.id &&
-                event.project_id === project.id
-        )
-    );
+	const rowEvents = projects.map((project) =>
+		characterEvents.find(
+			(event) =>
+				event.character_id === character.id &&
+				event.project_id === project.id
+		)
+	);
 
-    const lifelineSegments =
-        buildLifelineSegments(
-            rowAppearances,
-            rowEvents
-        );
+	const lifelineSegments =
+		buildLifelineSegments(
+			rowAppearances,
+			rowEvents
+		);
 
-    const firstConnectedIndex =
-        rowAppearances.findIndex(
-            (appearance) =>
-                appearance !== undefined &&
-                !appearance.is_detached
-        )
+	const firstConnectedIndex =
+		rowAppearances.findIndex(
+			(appearance) =>
+				appearance !== undefined &&
+				!appearance.is_detached
+		)
 
-    return (
-        <div className={
-            focused
-                ? "timeline-row timeline-row-focused"
-                : "timeline-row"
-        }>
-            <div
-                ref={nameRef}
-                className="character-column"
-                tabIndex={-1}
-            >
-                <span>{character.alias}</span>
+	return (
+		<div className={
+			focused
+				? "timeline-row timeline-row-focused"
+				: "timeline-row"
+		}>
+			<div
+				ref={nameRef}
+				className="character-column"
+				tabIndex={-1}
+			>
+				<span>{character.alias}</span>
 
-                {isVisitor && (
-                    <button
-                        type="button"
-                        className="character-origin-link"
-                        disabled={saving || !canOpenOrigin}
-                        aria-label={
-                            `Open ${character.alias} in ${originUniverse?.name ?? originLabel
-                            }`
-                        }
-                        title={
-                            originUniverse && !canEdit && !originUniverse.is_published
-                                ? `${originUniverse.name}: timeline not published.`
-                                : originUniverse
-                                    ? `Open origin timeline: ${originUniverse.name} ${originUniverse.code ? `(${originUniverse.code})` : ""}`
-                                    : "Origin universe is outside the current franchise."
-                        }
-                        onClick={() => onOpenOrigin(character)}
-                    >
-                        {originLabel}
-                    </button>
-                )}
-            </div>
+				{isVisitor && (
+					<button
+						type="button"
+						className="character-origin-link"
+						disabled={saving || !canOpenOrigin}
+						aria-label={
+							`Open ${character.alias} in ${originUniverse?.name ?? originLabel
+							}`
+						}
+						title={
+							originUniverse && !canEdit && !originUniverse.is_published
+								? `${originUniverse.name}: timeline not published.`
+								: originUniverse
+									? `Open origin timeline: ${originUniverse.name} ${originUniverse.code ? `(${originUniverse.code})` : ""}`
+									: "Origin universe is outside the current franchise."
+						}
+						onClick={() => onOpenOrigin(character)}
+					>
+						{originLabel}
+					</button>
+				)}
+			</div>
 
-            {projects.map((project, index) => {
-                const appearance = rowAppearances[index];
-                const characterEvent = rowEvents[index];
+			{projects.map((project, index) => {
+				const appearance = rowAppearances[index];
+				const characterEvent = rowEvents[index];
 
-                const lineLeft = lifelineSegments.some(
-                    (segment) =>
-                        segment.start < index &&
-                        segment.end >= index
-                )
+				const lineLeft = lifelineSegments.some(
+					(segment) =>
+						segment.start < index &&
+						segment.end >= index
+				)
 
-                const lineRight = lifelineSegments.some(
-                    (segment) =>
-                        segment.start <= index &&
-                        segment.end > index
-                )
+				const lineRight = lifelineSegments.some(
+					(segment) =>
+						segment.start <= index &&
+						segment.end > index
+				)
 
-                const isFirstConnected =
-                    index === firstConnectedIndex;
+				const isFirstConnected =
+					index === firstConnectedIndex;
 
-                return (
-                    <TimelineCell
-                        key={project.id}
-                        characterId={character.id}
-                        projectId={project.id}
-                        characterName={character.alias}
-                        projectTitle={project.title}
-                        appearance={appearance}
-                        characterEvent={characterEvent}
-                        lineLeft={lineLeft}
-                        lineRight={lineRight}
-                        isFirstConnected={isFirstConnected}
-                        onCreate={onCreateAppearance}
-                        onUpdate={onUpdateAppearance}
-                        onDelete={onDeleteAppearance}
-                        onSaveEvent={onSaveCharacterEvent}
-                        onDeleteEvent={onDeleteCharacterEvent}
-                        saving={saving}
-                    />
-                );
-            })}
-        </div>
-    )
+				return (
+					<TimelineCell
+						key={project.id}
+						characterId={character.id}
+						projectId={project.id}
+						characterName={character.alias}
+						projectTitle={project.title}
+						appearance={appearance}
+						characterEvent={characterEvent}
+						lineLeft={lineLeft}
+						lineRight={lineRight}
+						isFirstConnected={isFirstConnected}
+						onCreate={onCreateAppearance}
+						onUpdate={onUpdateAppearance}
+						onDelete={onDeleteAppearance}
+						onSaveEvent={onSaveCharacterEvent}
+						onDeleteEvent={onDeleteCharacterEvent}
+						saving={saving}
+					/>
+				);
+			})}
+		</div>
+	)
 }

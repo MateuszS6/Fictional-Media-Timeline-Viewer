@@ -67,10 +67,10 @@ export default function TimelineMarkers({
 			{characterEvent && !mergedEvent && (
 				<span
 					className={`
-                        timeline-event
-                        timeline-event-${characterEvent.event_position}
-                        ${appearance ? "timeline-event-with-appearance" : ""}
-                    `}
+												timeline-event
+												timeline-event-${characterEvent.event_position}
+												${appearance ? "timeline-event-with-appearance" : ""}
+										`}
 					title={`${eventLabel} - ${characterEvent.event_position} this project`}
 				>
 					<EventIcon type={characterEvent.event_type} />

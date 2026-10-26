@@ -1,5 +1,5 @@
 export type WorkspaceView =
-    | "timeline"
-    | "characters"
-    | "projects"
-    | "workspaces";
+	| "timeline"
+	| "characters"
+	| "projects"
+	| "workspaces";

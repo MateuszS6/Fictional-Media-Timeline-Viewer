@@ -1,19 +1,19 @@
 export interface Universe {
-    id: number;
-    franchise_id: number;
-    name: string;
-    code: string | null;
-    is_published: boolean;
+	id: number;
+	franchise_id: number;
+	name: string;
+	code: string | null;
+	is_published: boolean;
 }
 
 export interface UniverseInput {
-    name: string;
-    code: string | null;
-    is_published: boolean;
+	name: string;
+	code: string | null;
+	is_published: boolean;
 }
 
 export interface UniverseProjects {
-    universe_id: number;
-    project_id: number;
-    timeline_position: number;
+	universe_id: number;
+	project_id: number;
+	timeline_position: number;
 }

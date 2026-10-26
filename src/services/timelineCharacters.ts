@@ -5,25 +5,25 @@ import { getCharacterEventsForProjects } from "./characterEvents";
 import { getProjectsForUniverse } from "./projects";
 
 export function collectCharacterIds(
-    appearances: Appearance[],
-    events: CharacterEvent[]
+	appearances: Appearance[],
+	events: CharacterEvent[]
 ): number[] {
-    return [...new Set([
-        ...appearances.map((appearance) => appearance.character_id),
-        ...events.map((event) => event.character_id)
-    ])];
+	return [...new Set([
+		...appearances.map((appearance) => appearance.character_id),
+		...events.map((event) => event.character_id)
+	])];
 }
 
 export async function getTimelineCharacterIds(
-    universeId: number
+	universeId: number
 ): Promise<number[]> {
-    const projects = await getProjectsForUniverse(universeId);
-    const projectIds = projects.map((project) => project.id);
+	const projects = await getProjectsForUniverse(universeId);
+	const projectIds = projects.map((project) => project.id);
 
-    const [appearances, events] = await Promise.all([
-        getAppearancesForProjects(universeId, projectIds),
-        getCharacterEventsForProjects(universeId, projectIds)
-    ]);
+	const [appearances, events] = await Promise.all([
+		getAppearancesForProjects(universeId, projectIds),
+		getCharacterEventsForProjects(universeId, projectIds)
+	]);
 
-    return collectCharacterIds(appearances, events);
+	return collectCharacterIds(appearances, events);
 }

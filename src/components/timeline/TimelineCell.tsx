@@ -6,408 +6,408 @@ import AppearanceEditor from "./AppearanceEditor";
 import TimelineMarkers from "./TimelineMarkers";
 
 interface TimelineCellProps {
-    characterId: number;
-    projectId: number;
+	characterId: number;
+	projectId: number;
 
-    characterName: string;
-    projectTitle: string;
+	characterName: string;
+	projectTitle: string;
 
-    appearance?: Appearance;
-    characterEvent?: CharacterEvent;
+	appearance?: Appearance;
+	characterEvent?: CharacterEvent;
 
-    lineLeft: boolean;
-    lineRight: boolean;
-    isFirstConnected: boolean;
+	lineLeft: boolean;
+	lineRight: boolean;
+	isFirstConnected: boolean;
 
-    onCreate: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onCreate: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    onUpdate: (
-        characterId: number,
-        projectId: number,
-        updates: AppearanceUpdate
-    ) => void;
+	onUpdate: (
+		characterId: number,
+		projectId: number,
+		updates: AppearanceUpdate
+	) => void;
 
-    onDelete: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onDelete: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    onSaveEvent: (
-        characterId: number,
-        projectId: number,
-        eventType: CharacterEventType,
-        eventPosition: CharacterEventPosition
-    ) => void;
+	onSaveEvent: (
+		characterId: number,
+		projectId: number,
+		eventType: CharacterEventType,
+		eventPosition: CharacterEventPosition
+	) => void;
 
-    onDeleteEvent: (
-        characterId: number,
-        projectId: number
-    ) => void;
+	onDeleteEvent: (
+		characterId: number,
+		projectId: number
+	) => void;
 
-    saving: boolean;
+	saving: boolean;
 }
 
 export default function TimelineCell({
-    characterId,
-    projectId,
-    characterName,
-    projectTitle,
-    appearance,
-    characterEvent,
-    lineLeft,
-    lineRight,
-    isFirstConnected,
-    onCreate,
-    onUpdate,
-    onDelete,
-    onSaveEvent,
-    onDeleteEvent,
-    saving
+	characterId,
+	projectId,
+	characterName,
+	projectTitle,
+	appearance,
+	characterEvent,
+	lineLeft,
+	lineRight,
+	isFirstConnected,
+	onCreate,
+	onUpdate,
+	onDelete,
+	onSaveEvent,
+	onDeleteEvent,
+	saving
 }: TimelineCellProps) {
-    const { canEdit } = useWorkspace();
-    const hasDetails = Boolean(appearance || characterEvent)
+	const { canEdit } = useWorkspace();
+	const hasDetails = Boolean(appearance || characterEvent)
 
-    const [editorOpen, setEditorOpen] = useState(false);
-    const cellRef = useRef<HTMLDivElement>(null);
+	const [editorOpen, setEditorOpen] = useState(false);
+	const cellRef = useRef<HTMLDivElement>(null);
 
-    const closeEditor = useCallback(() => {
-        setEditorOpen(false);
-    }, []);
+	const closeEditor = useCallback(() => {
+		setEditorOpen(false);
+	}, []);
 
-    function handleLeftClick() {
-        if (saving) return;
+	function handleLeftClick() {
+		if (saving) return;
 
-        if (!canEdit) {
-            if (hasDetails) {
-                setEditorOpen((open) => !open);
-            }
+		if (!canEdit) {
+			if (hasDetails) {
+				setEditorOpen((open) => !open);
+			}
 
-            return;
-        }
+			return;
+		}
 
-        if (!appearance) {
-            onCreate(characterId, projectId);
-            return;
-        } else {
-            onDelete(characterId, projectId);
-            setEditorOpen(false);
-            return;
-        }
-    }
+		if (!appearance) {
+			onCreate(characterId, projectId);
+			return;
+		} else {
+			onDelete(characterId, projectId);
+			setEditorOpen(false);
+			return;
+		}
+	}
 
-    function handleRightClick(
-        event: React.MouseEvent<HTMLDivElement>
-    ) {
-        if (!canEdit) return;
+	function handleRightClick(
+		event: React.MouseEvent<HTMLDivElement>
+	) {
+		if (!canEdit) return;
 
-        event.preventDefault();
+		event.preventDefault();
 
-        if (saving) return;
+		if (saving) return;
 
-        // Empty cell can still contain/edit a timeline event.
-        setEditorOpen((open) => !open);
-    }
+		// Empty cell can still contain/edit a timeline event.
+		setEditorOpen((open) => !open);
+	}
 
-    function handleAppearanceTypeChange(type: AppearanceType) {
-        if (!appearance || saving) return;
+	function handleAppearanceTypeChange(type: AppearanceType) {
+		if (!appearance || saving) return;
 
-        // Selecting the current type keeps any manual detachment choice.
-        if (appearance.appearance_type === type) {
-            setEditorOpen(false);
-            return;
-        }
+		// Selecting the current type keeps any manual detachment choice.
+		if (appearance.appearance_type === type) {
+			setEditorOpen(false);
+			return;
+		}
 
-        onUpdate(characterId, projectId, {
-            appearance_type: type,
-            is_detached: type !== "standard" || appearance.is_detached
-        });
+		onUpdate(characterId, projectId, {
+			appearance_type: type,
+			is_detached: type !== "standard" || appearance.is_detached
+		});
 
-        setEditorOpen(false);
-    }
+		setEditorOpen(false);
+	}
 
-    function handleDetachedToggle(
-        event: React.MouseEvent
-    ) {
-        event.stopPropagation();
+	function handleDetachedToggle(
+		event: React.MouseEvent
+	) {
+		event.stopPropagation();
 
-        if (!appearance) return;
+		if (!appearance) return;
 
-        onUpdate(
-            characterId,
-            projectId,
-            {
-                is_detached: !appearance.is_detached
-            }
-        );
-    }
+		onUpdate(
+			characterId,
+			projectId,
+			{
+				is_detached: !appearance.is_detached
+			}
+		);
+	}
 
-    function handleEventTypeChange(
-        type: CharacterEventType
-    ) {
-        onSaveEvent(
-            characterId,
-            projectId,
-            type,
-            characterEvent?.event_position ?? "at"
-        );
-    }
+	function handleEventTypeChange(
+		type: CharacterEventType
+	) {
+		onSaveEvent(
+			characterId,
+			projectId,
+			type,
+			characterEvent?.event_position ?? "at"
+		);
+	}
 
-    function handleEventPositionChange(
-        position: CharacterEventPosition
-    ) {
-        if (!characterEvent) return;
+	function handleEventPositionChange(
+		position: CharacterEventPosition
+	) {
+		if (!characterEvent) return;
 
-        onSaveEvent(
-            characterId,
-            projectId,
-            characterEvent.event_type,
-            position
-        );
-    }
+		onSaveEvent(
+			characterId,
+			projectId,
+			characterEvent.event_type,
+			position
+		);
+	}
 
-    function handleDeleteEvent(
-        event: React.MouseEvent
-    ) {
-        event.stopPropagation();
+	function handleDeleteEvent(
+		event: React.MouseEvent
+	) {
+		event.stopPropagation();
 
-        onDeleteEvent(
-            characterId,
-            projectId
-        );
-    }
+		onDeleteEvent(
+			characterId,
+			projectId
+		);
+	}
 
-    return (
-        <div
-            ref={cellRef}
-            className={
-                canEdit
-                    ? "timeline-cell"
-                    : "timeline-cell timeline-cell-viewer"
-            }
-            role={!canEdit && hasDetails ? "button" : undefined}
-            tabIndex={!canEdit && hasDetails ? 0 : undefined}
-            aria-label={
-                !canEdit && hasDetails
-                    ? `Details for ${characterName} in ${projectTitle}`
-                    : undefined
-            }
-            aria-haspopup={!canEdit && hasDetails ? "dialog" : undefined}
-            aria-expanded={!canEdit && hasDetails ? editorOpen : undefined}
-            aria-disabled={saving}
-            onClick={handleLeftClick}
-            onContextMenu={handleRightClick}
-            onKeyDown={(event) => {
-                if (event.target !== event.currentTarget) return;
+	return (
+		<div
+			ref={cellRef}
+			className={
+				canEdit
+					? "timeline-cell"
+					: "timeline-cell timeline-cell-viewer"
+			}
+			role={!canEdit && hasDetails ? "button" : undefined}
+			tabIndex={!canEdit && hasDetails ? 0 : undefined}
+			aria-label={
+				!canEdit && hasDetails
+					? `Details for ${characterName} in ${projectTitle}`
+					: undefined
+			}
+			aria-haspopup={!canEdit && hasDetails ? "dialog" : undefined}
+			aria-expanded={!canEdit && hasDetails ? editorOpen : undefined}
+			aria-disabled={saving}
+			onClick={handleLeftClick}
+			onContextMenu={handleRightClick}
+			onKeyDown={(event) => {
+				if (event.target !== event.currentTarget) return;
 
-                if (
-                    !canEdit &&
-                    hasDetails &&
-                    (event.key === "Enter" || event.key === " ")
-                ) {
-                    event.preventDefault();
-                    handleLeftClick();
-                }
-            }}
-        >
-            {/* CONNECTOR(S) */}
+				if (
+					!canEdit &&
+					hasDetails &&
+					(event.key === "Enter" || event.key === " ")
+				) {
+					event.preventDefault();
+					handleLeftClick();
+				}
+			}}
+		>
+			{/* CONNECTOR(S) */}
 
-            {lineLeft && (
-                <span className="timeline-line timeline-line-left" />
-            )}
+			{lineLeft && (
+				<span className="timeline-line timeline-line-left" />
+			)}
 
-            {lineRight && (
-                <span className="timeline-line timeline-line-right" />
-            )}
+			{lineRight && (
+				<span className="timeline-line timeline-line-right" />
+			)}
 
-            {/* APPEARANCE AND/OR EVENT MARKER(S) */}
+			{/* APPEARANCE AND/OR EVENT MARKER(S) */}
 
-            <TimelineMarkers
-                appearance={appearance}
-                characterEvent={characterEvent}
-                isFirstConnected={isFirstConnected}
-            />
+			<TimelineMarkers
+				appearance={appearance}
+				characterEvent={characterEvent}
+				isFirstConnected={isFirstConnected}
+			/>
 
-            {/* VIEWER */}
+			{/* VIEWER */}
 
-            {editorOpen && !canEdit && hasDetails && (
-                <AppearanceEditor
-                    anchorRef={cellRef}
-                    onClose={closeEditor}
-                >
-                    <div className="timeline-cell-details">
-                        <strong>{characterName}</strong>
-                        <p>
-                            <span aria-hidden="true">🎬</span>{" "}
-                            {projectTitle}
-                        </p>
+			{editorOpen && !canEdit && hasDetails && (
+				<AppearanceEditor
+					anchorRef={cellRef}
+					onClose={closeEditor}
+				>
+					<div className="timeline-cell-details">
+						<strong>{characterName}</strong>
+						<p>
+							<span aria-hidden="true">🎬</span>{" "}
+							{projectTitle}
+						</p>
 
-                        {appearance && (
-                            <p>
-                                Appearance: {APPEARANCE_OPTIONS.find((option) =>
-                                    option.value === appearance.appearance_type
-                                )?.label}
+						{appearance && (
+							<p>
+								Appearance: {APPEARANCE_OPTIONS.find((option) =>
+									option.value === appearance.appearance_type
+								)?.label}
 
-                                <br />
+								<br />
 
-                                {appearance.is_detached
-                                    ? "Detached from the lifeline"
-                                    : "Connected to the lifeline"}
-                            </p>
-                        )}
+								{appearance.is_detached
+									? "Detached from the lifeline"
+									: "Connected to the lifeline"}
+							</p>
+						)}
 
-                        {characterEvent && (
-                            <p>
-                                Event: {CHARACTER_EVENT_OPTIONS.find((option) =>
-                                    option.value === characterEvent.event_type
-                                )?.label}
+						{characterEvent && (
+							<p>
+								Event: {CHARACTER_EVENT_OPTIONS.find((option) =>
+									option.value === characterEvent.event_type
+								)?.label}
 
-                                <br />
+								<br />
 
-                                {characterEvent.event_position === "after"
-                                    ? "After this project"
-                                    : "At this project"}
-                            </p>
-                        )}
+								{characterEvent.event_position === "after"
+									? "After this project"
+									: "At this project"}
+							</p>
+						)}
 
-                        <button type="button" onClick={closeEditor}>
-                            Close
-                        </button>
-                    </div>
-                </AppearanceEditor>
-            )}
+						<button type="button" onClick={closeEditor}>
+							Close
+						</button>
+					</div>
+				</AppearanceEditor>
+			)}
 
-            {/* EDITOR */}
+			{/* EDITOR */}
 
-            {editorOpen && canEdit && (
-                <AppearanceEditor
-                    anchorRef={cellRef}
-                    onClose={closeEditor}
-                >
-                    {/* APPEARANCE SECTION */}
+			{editorOpen && canEdit && (
+				<AppearanceEditor
+					anchorRef={cellRef}
+					onClose={closeEditor}
+				>
+					{/* APPEARANCE SECTION */}
 
-                    {appearance ? (
-                        <>
-                            {APPEARANCE_OPTIONS.map((option) => (
-                                <button
-                                    key={option.value}
-                                    disabled={saving}
-                                    className={
-                                        appearance.appearance_type === option.value
-                                            ? "appearance-editor-option active"
-                                            : "appearance-editor-option"
-                                    }
-                                    onClick={() => handleAppearanceTypeChange(option.value)}
-                                >
-                                    {option.label}
-                                </button>
-                            ))}
+					{appearance ? (
+						<>
+							{APPEARANCE_OPTIONS.map((option) => (
+								<button
+									key={option.value}
+									disabled={saving}
+									className={
+										appearance.appearance_type === option.value
+											? "appearance-editor-option active"
+											: "appearance-editor-option"
+									}
+									onClick={() => handleAppearanceTypeChange(option.value)}
+								>
+									{option.label}
+								</button>
+							))}
 
-                            <div className="appearance-editor-divider" />
+							<div className="appearance-editor-divider" />
 
-                            <button
-                                disabled={saving}
-                                className={
-                                    appearance.is_detached
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={handleDetachedToggle}
-                            >
-                                {appearance.is_detached
-                                    ? "✓ Detached from lifeline"
-                                    : "Detach from lifeline"}
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            disabled={saving}
-                            className="appearance-editor-option"
-                            onClick={() => {
-                                onCreate(characterId, projectId);
-                                setEditorOpen(false);
-                            }}
-                        >
-                            Add standard appearance
-                        </button>
-                    )}
+							<button
+								disabled={saving}
+								className={
+									appearance.is_detached
+										? "appearance-editor-option active"
+										: "appearance-editor-option"
+								}
+								onClick={handleDetachedToggle}
+							>
+								{appearance.is_detached
+									? "✓ Detached from lifeline"
+									: "Detach from lifeline"}
+							</button>
+						</>
+					) : (
+						<button
+							disabled={saving}
+							className="appearance-editor-option"
+							onClick={() => {
+								onCreate(characterId, projectId);
+								setEditorOpen(false);
+							}}
+						>
+							Add standard appearance
+						</button>
+					)}
 
-                    {/* EVENT SECTION */}
+					{/* EVENT SECTION */}
 
-                    <div className="appearance-editor-divider" />
+					<div className="appearance-editor-divider" />
 
-                    <div className="appearance-editor-label">
-                        Timeline event
-                    </div>
+					<div className="appearance-editor-label">
+						Timeline event
+					</div>
 
-                    {CHARACTER_EVENT_OPTIONS.map((option) => (
-                        <button
-                            key={option.value}
-                            disabled={saving}
-                            className={
-                                characterEvent?.event_type === option.value
-                                    ? "appearance-editor-option active"
-                                    : "appearance-editor-option"
-                            }
-                            onClick={() => handleEventTypeChange(option.value)}
-                        >
-                            {option.label}
-                        </button>
-                    ))}
+					{CHARACTER_EVENT_OPTIONS.map((option) => (
+						<button
+							key={option.value}
+							disabled={saving}
+							className={
+								characterEvent?.event_type === option.value
+									? "appearance-editor-option active"
+									: "appearance-editor-option"
+							}
+							onClick={() => handleEventTypeChange(option.value)}
+						>
+							{option.label}
+						</button>
+					))}
 
-                    {/* EVENT OPTIONS */}
+					{/* EVENT OPTIONS */}
 
-                    {characterEvent && (
-                        <>
-                            <div className="appearance-editor-divider" />
+					{characterEvent && (
+						<>
+							<div className="appearance-editor-divider" />
 
-                            <div className="appearance-editor-label">
-                                Event position
-                            </div>
+							<div className="appearance-editor-label">
+								Event position
+							</div>
 
-                            <button
-                                disabled={saving}
-                                className={
-                                    characterEvent.event_position === "at"
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={() =>
-                                    handleEventPositionChange("at")
-                                }
-                            >
-                                At project
-                            </button>
+							<button
+								disabled={saving}
+								className={
+									characterEvent.event_position === "at"
+										? "appearance-editor-option active"
+										: "appearance-editor-option"
+								}
+								onClick={() =>
+									handleEventPositionChange("at")
+								}
+							>
+								At project
+							</button>
 
-                            <button
-                                disabled={saving}
-                                className={
-                                    characterEvent.event_position === "after"
-                                        ? "appearance-editor-option active"
-                                        : "appearance-editor-option"
-                                }
-                                onClick={() =>
-                                    handleEventPositionChange("after")
-                                }
-                            >
-                                After project
-                            </button>
+							<button
+								disabled={saving}
+								className={
+									characterEvent.event_position === "after"
+										? "appearance-editor-option active"
+										: "appearance-editor-option"
+								}
+								onClick={() =>
+									handleEventPositionChange("after")
+								}
+							>
+								After project
+							</button>
 
-                            <div className="appearance-editor-divider" />
+							<div className="appearance-editor-divider" />
 
-                            <button
-                                disabled={saving}
-                                className="appearance-editor-option appearance-editor-danger"
-                                onClick={handleDeleteEvent}
-                            >
-                                Remove event
-                            </button>
-                        </>
-                    )}
-                </AppearanceEditor>
-            )}
-        </div>
-    );
+							<button
+								disabled={saving}
+								className="appearance-editor-option appearance-editor-danger"
+								onClick={handleDeleteEvent}
+							>
+								Remove event
+							</button>
+						</>
+					)}
+				</AppearanceEditor>
+			)}
+		</div>
+	);
 }

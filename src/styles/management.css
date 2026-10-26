@@ -1,193 +1,193 @@
 .management-page {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 16px;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 16px;
 
-    overflow-y: auto;
+	overflow-y: auto;
 
-    min-width: 0;
-    min-height: 0;
+	min-width: 0;
+	min-height: 0;
 }
 
 .management-summary {
-    flex-shrink: 0;
-    margin: 0;
-    color: var(--color-secondary);
-    font-size: 14px;
+	flex-shrink: 0;
+	margin: 0;
+	color: var(--color-secondary);
+	font-size: 14px;
 }
 
 .management-toolbar {
-    display: flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
 }
 
 .management-section-title {
-    margin: 0;
-    font-size: 18px;
+	margin: 0;
+	font-size: 18px;
 }
 
 .management-table-container {
-    flex-shrink: 0;
-    max-width: 100%;
-    min-height: 0;
-    overflow: auto;
+	flex-shrink: 0;
+	max-width: 100%;
+	min-height: 0;
+	overflow: auto;
 
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
+	border: 1px solid var(--border-primary);
+	border-radius: var(--radius-lg);
 
-    background: var(--surface-alt);
+	background: var(--surface-alt);
 }
 
 .management-table {
-    width: 100%;
-    border-spacing: 0;
-    text-align: left;
+	width: 100%;
+	border-spacing: 0;
+	text-align: left;
 }
 
 .management-table th,
 .management-table td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--border-secondary);
-    vertical-align: top;
+	padding: 14px 16px;
+	border-bottom: 1px solid var(--border-secondary);
+	vertical-align: top;
 }
 
 .management-table th {
-    position: sticky;
-    top: 0;
+	position: sticky;
+	top: 0;
 
-    background: var(--surface-elevated);
-    color: var(--color-secondary);
+	background: var(--surface-elevated);
+	color: var(--color-secondary);
 
-    font-size: 13px;
-    font-weight: 600;
+	font-size: 13px;
+	font-weight: 600;
 }
 
 .management-table tbody tr:last-child td {
-    border-bottom: 0;
+	border-bottom: 0;
 }
 
 .management-table tbody tr:hover {
-    background: var(--timeline-hover);
+	background: var(--timeline-hover);
 }
 
 .management-row-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 
 .management-notice {
-    flex-shrink: 0;
-    margin: 0;
-    color: var(--color-primary);
-    overflow-wrap: anywhere;
+	flex-shrink: 0;
+	margin: 0;
+	color: var(--color-primary);
+	overflow-wrap: anywhere;
 }
 
 .management-form {
-    flex-shrink: 0;
-    padding: 20px;
+	flex-shrink: 0;
+	padding: 20px;
 
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-lg);
+	border: 1px solid var(--border-primary);
+	border-radius: var(--radius-lg);
 
-    background: var(--surface-alt);
+	background: var(--surface-alt);
 }
 
 .management-form h2 {
-    margin: 0 0 16px;
-    font-size: 18px;
+	margin: 0 0 16px;
+	font-size: 18px;
 }
 
 .management-form fieldset {
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    border: 0;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
 .form-fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
 }
 
 .form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	min-width: 0;
 }
 
-.form-field > span {
-    color: var(--color-primary);
-    font-size: 14px;
+.form-field>span {
+	color: var(--color-primary);
+	font-size: 14px;
 }
 
 .form-field small {
-    color: var(--color-secondary);
-    line-height: 1.4;
+	color: var(--color-secondary);
+	line-height: 1.4;
 }
 
 .form-field input,
 .form-field select {
-    width: 100%;
-    min-width: 0;
-    padding: 10px 12px;
+	width: 100%;
+	min-width: 0;
+	padding: 10px 12px;
 
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
+	border: 1px solid var(--border-primary);
+	border-radius: var(--radius-md);
 
-    background: var(--surface-elevated);
-    color: var(--color-primary);
+	background: var(--surface-elevated);
+	color: var(--color-primary);
 }
 
 .form-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 20px;
 }
 
 .form-error {
-    margin: 0 0 16px;
-    color: var(--color-danger);
+	margin: 0 0 16px;
+	color: var(--color-danger);
 }
 
 .utility-button-danger {
-    color: var(--color-danger);
+	color: var(--color-danger);
 }
 
 .utility-button:disabled {
-    opacity: 0.55;
-    cursor: default;
+	opacity: 0.55;
+	cursor: default;
 }
 
 .utility-button:disabled:hover {
-    background: var(--surface-overlay);
+	background: var(--surface-overlay);
 }
 
 .management-form fieldset:disabled {
-    opacity: 0.7;
+	opacity: 0.7;
 }
 
 .publication-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 16px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 16px;
 }
 
 @media (max-width: 700px) {
-    .form-fields {
-        grid-template-columns: minmax(0, 1fr);
-    }
+	.form-fields {
+		grid-template-columns: minmax(0, 1fr);
+	}
 
-    .management-form {
-        padding: 16px;
-    }
+	.management-form {
+		padding: 16px;
+	}
 }

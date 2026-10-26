@@ -13,331 +13,331 @@ import TimelineHeader from "./TimelineHeader";
 import { useWorkspace } from "../../context/WorkspaceContext";
 
 interface TimelineGridProps {
-    universeId: number;
-    focusedCharacterId: number | null;
-    onOpenOrigin: (character: Character) => void;
+	universeId: number;
+	focusedCharacterId: number | null;
+	onOpenOrigin: (character: Character) => void;
 }
 
 export default function TimelineGrid({
-    universeId,
-    focusedCharacterId,
-    onOpenOrigin
+	universeId,
+	focusedCharacterId,
+	onOpenOrigin
 }: TimelineGridProps) {
-    const { canEdit } = useWorkspace();
+	const { canEdit } = useWorkspace();
 
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [characters, setCharacters] = useState<Character[]>([]);
-    const [appearances, setAppearances] = useState<Appearance[]>([]);
-    const [characterEvents, setCharacterEvents] = useState<CharacterEvent[]>([]);
+	const [projects, setProjects] = useState<Project[]>([]);
+	const [characters, setCharacters] = useState<Character[]>([]);
+	const [appearances, setAppearances] = useState<Appearance[]>([]);
+	const [characterEvents, setCharacterEvents] = useState<CharacterEvent[]>([]);
 
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-    const [loadAttempt, setLoadAttempt] = useState(0);
-    const [actionError, setActionError] = useState<string | null>(null);
+	const [loadAttempt, setLoadAttempt] = useState(0);
+	const [actionError, setActionError] = useState<string | null>(null);
 
-    const [saving, setSaving] = useState(false);
-    const savingRef = useRef(false);
+	const [saving, setSaving] = useState(false);
+	const savingRef = useRef(false);
 
-    const participatingIds = new Set(collectCharacterIds(appearances, characterEvents));
+	const participatingIds = new Set(collectCharacterIds(appearances, characterEvents));
 
-    const visibleCharacters = characters.filter((character) =>
-        participatingIds.has(character.id) ||
-        character.id === focusedCharacterId
-    );
+	const visibleCharacters = characters.filter((character) =>
+		participatingIds.has(character.id) ||
+		character.id === focusedCharacterId
+	);
 
-    const focusedCharacter = characters.find(
-        (character) => character.id === focusedCharacterId
-    );
+	const focusedCharacter = characters.find(
+		(character) => character.id === focusedCharacterId
+	);
 
-    useEffect(() => {
-        let cancelled = false;
+	useEffect(() => {
+		let cancelled = false;
 
-        async function loadTimeline() {
-            try {
-                const projectsData = await getProjectsForUniverse(universeId);
+		async function loadTimeline() {
+			try {
+				const projectsData = await getProjectsForUniverse(universeId);
 
-                if (cancelled) return;
+				if (cancelled) return;
 
-                const projectIds = projectsData.map((project) => project.id);
+				const projectIds = projectsData.map((project) => project.id);
 
-                const [appearancesData, characterEventsData] = await Promise.all([
-                    getAppearancesForProjects(universeId, projectIds),
-                    getCharacterEventsForProjects(universeId, projectIds)
-                ]);
+				const [appearancesData, characterEventsData] = await Promise.all([
+					getAppearancesForProjects(universeId, projectIds),
+					getCharacterEventsForProjects(universeId, projectIds)
+				]);
 
-                if (cancelled) return;
+				if (cancelled) return;
 
-                const characterIds = new Set(collectCharacterIds(appearancesData, characterEventsData));
+				const characterIds = new Set(collectCharacterIds(appearancesData, characterEventsData));
 
-                if (focusedCharacterId !== null) characterIds.add(focusedCharacterId);
+				if (focusedCharacterId !== null) characterIds.add(focusedCharacterId);
 
-                const charactersData = await getCharactersByIds([...characterIds]);
+				const charactersData = await getCharactersByIds([...characterIds]);
 
-                if (cancelled) return;
+				if (cancelled) return;
 
-                setProjects(projectsData);
-                setCharacters(charactersData);
-                setAppearances(appearancesData);
-                setCharacterEvents(characterEventsData);
-                setError(null);
-            } catch (error) {
-                if (cancelled) return;
+				setProjects(projectsData);
+				setCharacters(charactersData);
+				setAppearances(appearancesData);
+				setCharacterEvents(characterEventsData);
+				setError(null);
+			} catch (error) {
+				if (cancelled) return;
 
-                console.error(error);
-                setError("Could not load timeline.")
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        }
+				console.error(error);
+				setError("Could not load timeline.")
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		}
 
-        void loadTimeline();
+		void loadTimeline();
 
-        return () => {
-            cancelled = true;
-        }
-    }, [universeId, focusedCharacterId, loadAttempt]);
+		return () => {
+			cancelled = true;
+		}
+	}, [universeId, focusedCharacterId, loadAttempt]);
 
-    function retryTimeline() {
-        setError(null);
-        setLoading(true);
-        setLoadAttempt((current) => current + 1);
-    }
+	function retryTimeline() {
+		setError(null);
+		setLoading(true);
+		setLoadAttempt((current) => current + 1);
+	}
 
-    async function runTimelineChange(
-        action: () => Promise<void>,
-        failureMessage: string
-    ) {
-        if (!canEdit || savingRef.current) return;
+	async function runTimelineChange(
+		action: () => Promise<void>,
+		failureMessage: string
+	) {
+		if (!canEdit || savingRef.current) return;
 
-        savingRef.current = true;
-        setSaving(true);
-        setActionError(null);
+		savingRef.current = true;
+		setSaving(true);
+		setActionError(null);
 
-        try {
-            await action();
-        } catch (caughtError) {
-            console.error(caughtError);
-            setActionError(failureMessage);
-        } finally {
-            savingRef.current = false;
-            setSaving(false);
-        }
-    }
+		try {
+			await action();
+		} catch (caughtError) {
+			console.error(caughtError);
+			setActionError(failureMessage);
+		} finally {
+			savingRef.current = false;
+			setSaving(false);
+		}
+	}
 
-    // Appearance handlers
+	// Appearance handlers
 
-    async function handleCreateAppearance(
-        characterId: number,
-        projectId: number
-    ) {
-        await runTimelineChange(async () => {
-            const newAppearance = await createAppearance(
-                universeId,
-                characterId,
-                projectId
-            );
+	async function handleCreateAppearance(
+		characterId: number,
+		projectId: number
+	) {
+		await runTimelineChange(async () => {
+			const newAppearance = await createAppearance(
+				universeId,
+				characterId,
+				projectId
+			);
 
-            setAppearances((current) => [
-                ...current,
-                newAppearance
-            ]);
-        }, "Could not add the appearance. Please try again.");
-    }
+			setAppearances((current) => [
+				...current,
+				newAppearance
+			]);
+		}, "Could not add the appearance. Please try again.");
+	}
 
-    async function handleUpdateAppearance(
-        characterId: number,
-        projectId: number,
-        updates: AppearanceUpdate
-    ) {
-        await runTimelineChange(async () => {
-            const updatedAppearance = await updateAppearance(
-                universeId,
-                characterId,
-                projectId,
-                updates
-            );
+	async function handleUpdateAppearance(
+		characterId: number,
+		projectId: number,
+		updates: AppearanceUpdate
+	) {
+		await runTimelineChange(async () => {
+			const updatedAppearance = await updateAppearance(
+				universeId,
+				characterId,
+				projectId,
+				updates
+			);
 
-            setAppearances((current) =>
-                current.map((appearance) =>
-                    appearance.character_id === characterId &&
-                        appearance.project_id === projectId
-                        ? updatedAppearance
-                        : appearance
-                )
-            );
-        }, "Could not update the appearance. Please try again.");
-    }
+			setAppearances((current) =>
+				current.map((appearance) =>
+					appearance.character_id === characterId &&
+						appearance.project_id === projectId
+						? updatedAppearance
+						: appearance
+				)
+			);
+		}, "Could not update the appearance. Please try again.");
+	}
 
-    async function handleDeleteAppearance(
-        characterId: number,
-        projectId: number
-    ) {
-        await runTimelineChange(async () => {
-            await deleteAppearance(universeId, characterId, projectId);
+	async function handleDeleteAppearance(
+		characterId: number,
+		projectId: number
+	) {
+		await runTimelineChange(async () => {
+			await deleteAppearance(universeId, characterId, projectId);
 
-            setAppearances((current) =>
-                current.filter((appearance) =>
-                    !(
-                        appearance.character_id === characterId &&
-                        appearance.project_id === projectId
-                    )
-                )
-            );
-        }, "Could not remove the appearance. Please try again.");
-    }
+			setAppearances((current) =>
+				current.filter((appearance) =>
+					!(
+						appearance.character_id === characterId &&
+						appearance.project_id === projectId
+					)
+				)
+			);
+		}, "Could not remove the appearance. Please try again.");
+	}
 
-    // Event handlers
+	// Event handlers
 
-    async function handleSaveCharacterEvent(
-        characterId: number,
-        projectId: number,
-        eventType: CharacterEventType,
-        eventPosition: CharacterEventPosition
-    ) {
-        await runTimelineChange(async () => {
-            const savedEvent = await saveCharacterEvent(
-                universeId,
-                characterId,
-                projectId,
-                eventType,
-                eventPosition
-            );
+	async function handleSaveCharacterEvent(
+		characterId: number,
+		projectId: number,
+		eventType: CharacterEventType,
+		eventPosition: CharacterEventPosition
+	) {
+		await runTimelineChange(async () => {
+			const savedEvent = await saveCharacterEvent(
+				universeId,
+				characterId,
+				projectId,
+				eventType,
+				eventPosition
+			);
 
-            setCharacterEvents((current) => {
-                const alreadyExists = current.some(
-                    (event) =>
-                        event.character_id === characterId &&
-                        event.project_id === projectId
-                );
+			setCharacterEvents((current) => {
+				const alreadyExists = current.some(
+					(event) =>
+						event.character_id === characterId &&
+						event.project_id === projectId
+				);
 
-                if (!alreadyExists) return [...current, savedEvent];
+				if (!alreadyExists) return [...current, savedEvent];
 
-                return current.map((event) =>
-                    event.character_id === characterId &&
-                        event.project_id === projectId
-                        ? savedEvent
-                        : event
-                );
-            });
-        }, "Could not save the event. Please try again.");
-    }
+				return current.map((event) =>
+					event.character_id === characterId &&
+						event.project_id === projectId
+						? savedEvent
+						: event
+				);
+			});
+		}, "Could not save the event. Please try again.");
+	}
 
-    async function handleDeleteCharacterEvent(
-        characterId: number,
-        projectId: number
-    ) {
-        await runTimelineChange(async () => {
-            await deleteCharacterEvent(universeId, characterId, projectId);
+	async function handleDeleteCharacterEvent(
+		characterId: number,
+		projectId: number
+	) {
+		await runTimelineChange(async () => {
+			await deleteCharacterEvent(universeId, characterId, projectId);
 
-            setCharacterEvents((current) =>
-                current.filter((event) =>
-                    !(
-                        event.character_id === characterId &&
-                        event.project_id === projectId
-                    )
-                )
-            );
-        }, "Could not remove the event. Please try again.");
-    }
+			setCharacterEvents((current) =>
+				current.filter((event) =>
+					!(
+						event.character_id === characterId &&
+						event.project_id === projectId
+					)
+				)
+			);
+		}, "Could not remove the event. Please try again.");
+	}
 
-    if (loading) {
-        return (
-            <p className="status-message" role="status">
-                Loading timeline...
-            </p>
-        );
-    }
+	if (loading) {
+		return (
+			<p className="status-message" role="status">
+				Loading timeline...
+			</p>
+		);
+	}
 
-    if (error) {
-        return (
-            <div className="status-message status-error" role="alert">
-                <p>{error}</p>
+	if (error) {
+		return (
+			<div className="status-message status-error" role="alert">
+				<p>{error}</p>
 
-                <button
-                    type="button"
-                    className="utility-button"
-                    onClick={retryTimeline}
-                >
-                    Try again
-                </button>
-            </div>
-        );
-    }
+				<button
+					type="button"
+					className="utility-button"
+					onClick={retryTimeline}
+				>
+					Try again
+				</button>
+			</div>
+		);
+	}
 
-    if (projects.length === 0) {
-        return (
-            <p className="status-message">
-                No projects have been added to this universe.
-                {canEdit && " Open Projects to add one."}
-            </p>
-        );
-    }
+	if (projects.length === 0) {
+		return (
+			<p className="status-message">
+				No projects have been added to this universe.
+				{canEdit && " Open Projects to add one."}
+			</p>
+		);
+	}
 
-    return (
-        <>
-            {actionError && (
-                <div className="status-message status-error" role="alert">
-                    <p>{actionError}</p>
+	return (
+		<>
+			{actionError && (
+				<div className="status-message status-error" role="alert">
+					<p>{actionError}</p>
 
-                    <button
-                        type="button"
-                        className="utility-button"
-                        onClick={() => setActionError(null)}
-                    >
-                        Dismiss
-                    </button>
-                </div>
-            )}
+					<button
+						type="button"
+						className="utility-button"
+						onClick={() => setActionError(null)}
+					>
+						Dismiss
+					</button>
+				</div>
+			)}
 
-            {visibleCharacters.length === 0 && (
-                <p className="status-message">
-                    No characters have appearances or events in this timeline yet.
-                    {canEdit &&
-                        " Open Characters and choose \"Edit on timeline\" to add the first entry."}
-                </p>
-            )}
+			{visibleCharacters.length === 0 && (
+				<p className="status-message">
+					No characters have appearances or events in this timeline yet.
+					{canEdit &&
+						" Open Characters and choose \"Edit on timeline\" to add the first entry."}
+				</p>
+			)}
 
-            {focusedCharacter && !participatingIds.has(focusedCharacter.id) && (
-                <p className="management-notice" role="status">
-                    {focusedCharacter.alias} has no entries here yet.
+			{focusedCharacter && !participatingIds.has(focusedCharacter.id) && (
+				<p className="management-notice" role="status">
+					{focusedCharacter.alias} has no entries here yet.
 
-                    {canEdit && (
-                        <>
-                            {" Click an empty cell to add an appearance, or right-click to add an event."}
-                            {" This empty row stays open only for this visit."}
-                        </>
-                    )}
-                </p>
-            )}
+					{canEdit && (
+						<>
+							{" Click an empty cell to add an appearance, or right-click to add an event."}
+							{" This empty row stays open only for this visit."}
+						</>
+					)}
+				</p>
+			)}
 
-            <section
-                className="timeline-container"
-                aria-label="Character timeline"
-                aria-busy={saving}
-            >
-                <div className="timeline-grid">
-                    <TimelineHeader projects={projects} />
+			<section
+				className="timeline-container"
+				aria-label="Character timeline"
+				aria-busy={saving}
+			>
+				<div className="timeline-grid">
+					<TimelineHeader projects={projects} />
 
-                    {visibleCharacters.map((character) => (
-                        <CharacterRow
-                            key={character.id}
-                            character={character}
-                            projects={projects}
-                            appearances={appearances}
-                            characterEvents={characterEvents}
-                            onCreateAppearance={handleCreateAppearance}
-                            onUpdateAppearance={handleUpdateAppearance}
-                            onDeleteAppearance={handleDeleteAppearance}
-                            onSaveCharacterEvent={handleSaveCharacterEvent}
-                            onDeleteCharacterEvent={handleDeleteCharacterEvent}
-                            focused={character.id === focusedCharacterId}
-                            saving={saving}
-                            onOpenOrigin={onOpenOrigin}
-                        />
-                    ))}
-                </div>
-            </section>
-        </>
-    )
+					{visibleCharacters.map((character) => (
+						<CharacterRow
+							key={character.id}
+							character={character}
+							projects={projects}
+							appearances={appearances}
+							characterEvents={characterEvents}
+							onCreateAppearance={handleCreateAppearance}
+							onUpdateAppearance={handleUpdateAppearance}
+							onDeleteAppearance={handleDeleteAppearance}
+							onSaveCharacterEvent={handleSaveCharacterEvent}
+							onDeleteCharacterEvent={handleDeleteCharacterEvent}
+							focused={character.id === focusedCharacterId}
+							saving={saving}
+							onOpenOrigin={onOpenOrigin}
+						/>
+					))}
+				</div>
+			</section>
+		</>
+	)
 }
