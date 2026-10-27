@@ -13,9 +13,9 @@ A cleaner timeline with selectable character names that reveal a character detai
 
 See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
-> ![Studio](docs/images/timeline-studio-v0.4.3-studio-panel-&-editor.png)
+> ![Studio](docs/images/v0.4.3-studio-panel-&-editor.png)
 
-> ![Viewer](docs/images/timeline-studio-v0.4.3-viewer-panel-&-details.png)
+> ![Viewer](docs/images/v0.4.3-viewer-panel-&-details.png)
 
 ## Aim
 
