@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useWorkspace } from "../../context/WorkspaceContext";
 import { createAppearance, deleteAppearance, getAppearancesForProjects, updateAppearance } from "../../services/appearances";
 import { deleteCharacterEvent, getCharacterEventsForProjects, saveCharacterEvent } from "../../services/characterEvents";
 import { getCharactersByIds } from "../../services/characters";
@@ -10,7 +11,7 @@ import type { CharacterEvent, CharacterEventPosition, CharacterEventType } from 
 import type { Project } from "../../types/project";
 import CharacterRow from "./CharacterRow";
 import TimelineHeader from "./TimelineHeader";
-import { useWorkspace } from "../../context/WorkspaceContext";
+import CharacterPanel from "./CharacterPanel";
 
 interface TimelineGridProps {
 	universeId: number;
@@ -39,6 +40,30 @@ export default function TimelineGrid({
 	const [saving, setSaving] = useState(false);
 	const savingRef = useRef(false);
 
+	// CHARACTER SELECTION / PANEL
+
+	const [selectedCharacterId, setSelectedCharacterId] =
+		useState<number | null>(null);
+
+	const selectedCharacter = characters.find(
+		(character) => character.id === selectedCharacterId
+	);
+
+	const selectionButtonRef = useRef<HTMLButtonElement | null>(null);
+	const timelineRef = useRef<HTMLElement>(null);
+
+	function closeCharacterPanel() {
+		setSelectedCharacterId(null);
+
+		const target = selectionButtonRef.current?.isConnected
+			? selectionButtonRef.current
+			: timelineRef.current
+
+		target?.focus({ preventScroll: true });
+	}
+
+	// CHARACTER UNIVERSE SCOPE
+
 	const participatingIds = new Set(collectCharacterIds(appearances, characterEvents));
 
 	const visibleCharacters = characters.filter((character) =>
@@ -46,6 +71,7 @@ export default function TimelineGrid({
 		character.id === focusedCharacterId
 	);
 
+	// ORIGIN CHARACTER HIGHLIGHT
 	const focusedCharacter = characters.find(
 		(character) => character.id === focusedCharacterId
 	);
@@ -311,33 +337,55 @@ export default function TimelineGrid({
 				</p>
 			)}
 
-			<section
-				className="timeline-container"
-				aria-label="Character timeline"
-				aria-busy={saving}
-			>
-				<div className="timeline-grid">
-					<TimelineHeader projects={projects} />
+			<div className="timeline-workspace">
+				<section
+					ref={timelineRef}
+					tabIndex={-1}
+					className="timeline-container"
+					aria-label="Character timeline"
+					aria-busy={saving}
+				>
+					<div className="timeline-grid">
+						<TimelineHeader projects={projects} />
 
-					{visibleCharacters.map((character) => (
-						<CharacterRow
-							key={character.id}
-							character={character}
-							projects={projects}
-							appearances={appearances}
-							characterEvents={characterEvents}
-							onCreateAppearance={handleCreateAppearance}
-							onUpdateAppearance={handleUpdateAppearance}
-							onDeleteAppearance={handleDeleteAppearance}
-							onSaveCharacterEvent={handleSaveCharacterEvent}
-							onDeleteCharacterEvent={handleDeleteCharacterEvent}
-							focused={character.id === focusedCharacterId}
-							saving={saving}
-							onOpenOrigin={onOpenOrigin}
-						/>
-					))}
-				</div>
-			</section>
+						{visibleCharacters.map((character) => (
+							<CharacterRow
+								key={character.id}
+								character={character}
+								projects={projects}
+								appearances={appearances}
+								characterEvents={characterEvents}
+								onCreateAppearance={handleCreateAppearance}
+								onUpdateAppearance={handleUpdateAppearance}
+								onDeleteAppearance={handleDeleteAppearance}
+								onSaveCharacterEvent={handleSaveCharacterEvent}
+								onDeleteCharacterEvent={handleDeleteCharacterEvent}
+								selected={character.id === selectedCharacterId}
+								onSelect={(button) => {
+									selectionButtonRef.current = button;
+									setSelectedCharacterId(character.id);
+								}}
+								focused={character.id === focusedCharacterId}
+								saving={saving}
+								onOpenOrigin={onOpenOrigin}
+							/>
+						))}
+					</div>
+				</section>
+
+				{selectedCharacter && (
+					<CharacterPanel
+						character={selectedCharacter}
+						universeId={universeId}
+						projects={projects}
+						appearances={appearances}
+						characterEvents={characterEvents}
+						saving={saving}
+						onClose={closeCharacterPanel}
+						onOpenOrigin={onOpenOrigin}
+					/>
+				)}
+			</div>
 		</>
 	)
 }

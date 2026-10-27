@@ -43,6 +43,9 @@ interface CharacterRowProps {
 		projectId: number
 	) => void;
 
+	selected: boolean;
+	onSelect: (button: HTMLButtonElement) => void;
+
 	focused: boolean;
 	saving: boolean;
 	onOpenOrigin: (character: Character) => void;
@@ -58,6 +61,8 @@ export default function CharacterRow({
 	onDeleteAppearance,
 	onSaveCharacterEvent,
 	onDeleteCharacterEvent,
+	selected,
+	onSelect,
 	focused,
 	saving,
 	onOpenOrigin
@@ -120,17 +125,24 @@ export default function CharacterRow({
 		)
 
 	return (
-		<div className={
-			focused
-				? "timeline-row timeline-row-focused"
-				: "timeline-row"
-		}>
+		<div className={`timeline-row ${focused ? "timeline-row-focused" : ""
+			} ${selected ? "timeline-row-selected" : ""}`}
+		>
 			<div
 				ref={nameRef}
 				className="character-column"
 				tabIndex={-1}
 			>
-				<span>{character.alias}</span>
+				<button
+					type="button"
+					className="character-name-button"
+					aria-expanded={selected}
+					aria-controls={selected ? "character-panel" : undefined}
+					aria-haspopup="dialog"
+					onClick={(event) => onSelect(event.currentTarget)}
+				>
+					{character.alias}
+				</button>
 
 				{isVisitor && (
 					<button
