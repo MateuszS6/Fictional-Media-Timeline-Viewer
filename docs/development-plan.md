@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 25 October 2026. The v0.4.2 viewer layout, legend, SVG symbols and screenshot-safe Studio label are implemented and reviewed. The current-timeline character exploration panel is prepared and tested for user application.
+Updated 27 October 2026 after reviewing the applied character exploration panel. The v0.4.2 visual baseline and timeline-local character panel are implemented. A small facts-layout/label-colour correction is prepared for the user; franchise/universe browsing is the next pass, with entry-flow choices awaiting clarification.
 
 ## Working agreement
 
@@ -243,7 +243,7 @@ The user wants an information tool with cinematic character, rather than a gener
 ### Remaining path to the public preview
 
 1. Viewer layout and visual cleanup are implemented in v0.4.2, including the corrected heading rules and screenshot-safe Studio label. The subsequent light frame and thin scrollbars are also present.
-2. Apply the current-timeline character exploration panel prepared below, then review it with real timelines. Keep browsing selection separate from the temporary editing/origin-focus target.
+2. Character exploration is applied and reviewed on 27 October. Apply the small side-by-side facts and label-colour correction; keep browsing selection separate from the editing/origin-focus target.
 3. Refine franchise/universe browsing and Studio organisation with the user, including the franchise-card entry. Agree card content and navigation before implementation; do not expand into a wiki or unrelated project catalogue.
 4. Choose the initial public timeline and a curated preview dataset, then finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks. Decide shareable URLs deliberately before any routing work.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
@@ -266,7 +266,7 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 
 
 
-## Character exploration agreed on 25 October — prepared for user application
+## Character exploration agreed on 25 October — implemented and reviewed on 27 October
 
 - The user chose an on-demand side panel. It is available in Viewer and Studio, opened from a character-name button, with selected-row highlighting. Desktop keeps the timeline usable alongside it; narrow screens use a native modal dialog.
 - Scope is the currently selected universe timeline only. Show alias, optional full name, origin metadata, local appearance/event counts and project-ordered entries, including detached appearances and event-only entries. At/after labels remain explicit.
@@ -275,7 +275,8 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Reuse origin navigation and its publication/saving restrictions. Unpublished origin metadata may remain visible, but Viewer cannot open the private chronology. Counts and history update from Studio edits; deleting the last entry leaves an honest empty panel until closed, without retaining the row artificially.
 - Close and Escape restore focus to the selecting name button, or the timeline if that row was removed. The native mobile dialog blocks background interactions and manages keyboard containment.
 - Prepared source passed both TypeScript configurations, lint and a production build. Isolated browser checks with mocked service data covered timeline-specific counts/order, same-name variants, detached/event-only entries, private/public origins, no additional reads/writes from browsing, preserved grid identity/scroll, desktop switching, mobile focus/Escape, responsive transitions, Studio edits, last-entry/temporary-row empty states and universe reset.
-- Application files remain unchanged by the assistant; code is supplied in chat for the user to apply. No live database access or mutations were needed. Do not record this feature as released until applied and reviewed.
+- The user has applied the character-panel code. Actual source passes both TypeScript configurations, lint, a production build and the isolated sample-data browser checks described above. No live database access or mutations were needed. The assistant has changed documentation only; no new release version is assigned by this review.
+- The 27 October screenshot/source review found two styling issues: undefined --border-text prevented label/helper colours, and grid-template-columns alone did not establish a grid. Prepared correction groups each label/value pair, lays the two facts side by side with wrapping on narrow widths, and uses smaller muted labels with stronger values. This small correction remains user-applied from chat.
 
 ### Multiversal journeys — deferred, not a preview blocker
 
@@ -283,4 +284,12 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Independent per-universe project positions cannot establish that character's overall travel order. Do not infer entry/departure from visitor labels or place a timeline-local death on every universe.
 - Keep origin navigation now. A combined ordered journey and any entry/departure markers need an agreed model in a later focused pass. No travel tables, markers or chronology rules are introduced by character exploration.
 - After reviewing this panel, continue franchise/universe browsing and Studio organisation, followed by preview content/access checks and deployment as already planned.
+
+
+## Next-pass choices requested on 27 October
+
+- Confirm whether Viewer should open on franchise cards or retain a default timeline with a Browse entry.
+- Confirm whether a franchise with one published universe should open that timeline directly or still show a universe-selection page.
+- Confirm whether Studio should adopt the same browsing hierarchy with its existing management actions in this pass, or retain its current entry/management layout while Viewer browsing is added first.
+- These are pending choices, not implemented behaviour. Keep the pass focused on navigation and existing management; no new multiversal chronology, status rules, people/credits or image-management system is implied.
 

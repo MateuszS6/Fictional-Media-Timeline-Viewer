@@ -134,22 +134,24 @@ export default function CharacterPanel({
 			<div ref={bodyRef} className="character-panel-body">
 				<dl className="character-facts">
 					{character.real_name && (
-						<>
+						<div>
 							<dt>Full name</dt>
 							<dd>{character.real_name}</dd>
-						</>
+						</div>
 					)}
 
-					<dt>Origin universe</dt>
-					<dd>
-						{origin?.name ?? "Origin unavailable"}
+					<div>
+						<dt>Origin universe</dt>
+						<dd>
+							{origin?.name ?? "Origin unavailable"}
 
-						{origin?.code && origin.code !== origin.name && (
-							<span className="character-origin-code">
-								{" "}({origin.code})
-							</span>
-						)}
-					</dd>
+							{origin?.code && origin.code !== origin.name && (
+								<span className="character-origin-code">
+									{" "}({origin.code})
+								</span>
+							)}
+						</dd>
+					</div>
 				</dl>
 
 				{character.origin_universe_id !== universeId && (
