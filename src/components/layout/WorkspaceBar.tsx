@@ -3,21 +3,20 @@ import type { WorkspaceView } from "../../types/workspace";
 
 interface WorkspaceBarProps {
 	activeView: WorkspaceView;
-	onWorkspaceChange: () => void;
 	onViewChange: (view: WorkspaceView) => void;
+	onWorkspaceChange: () => void;
 }
 
 const views: { value: WorkspaceView; label: string }[] = [
 	{ value: "timeline", label: "Timeline" },
 	{ value: "characters", label: "Characters" },
-	{ value: "projects", label: "Projects" },
-	{ value: "workspaces", label: "Franchises & universes" }
+	{ value: "projects", label: "Projects" }
 ];
 
 export default function WorkspaceBar({
 	activeView,
-	onWorkspaceChange,
-	onViewChange
+	onViewChange,
+	onWorkspaceChange
 }: WorkspaceBarProps) {
 	const {
 		franchises,
@@ -25,81 +24,81 @@ export default function WorkspaceBar({
 		selectedFranchiseId,
 		selectedUniverseId,
 		canEdit,
-		setSelectedFranchiseId,
 		setSelectedUniverseId,
 		loading,
 		savingWorkspace
 	} = useWorkspace();
 
-	const selectableUniverses = universes.filter(
+	const franchise = franchises.find(
+		(item) => item.id === selectedFranchiseId
+	);
+
+	const availableUniverses = universes.filter(
 		(universe) => canEdit || universe.is_published
 	);
 
+	const onUniversePage = activeView === "universes";
+
+	if (activeView === "franchises") return null;
+
 	return (
-		<aside className="workspace-bar">
-			<div className="workspace-selectors">
-				<label>
-					<span>Franchise</span>
+		<div className="workspace-bar">
+			<nav
+				className="workspace-breadcrumbs"
+				aria-label="Browse timelines"
+			>
+				<button
+					type="button"
+					className="workspace-link"
+					disabled={savingWorkspace}
+					onClick={() => onViewChange("franchises")}
+				>
+					All franchises
+				</button>
+
+				<span aria-hidden="true">/</span>
+
+				{onUniversePage ? (
+					<span aria-current="page">
+						{franchise?.name}
+					</span>
+				) : (
+					<button
+						type="button"
+						className="workspace-link"
+						disabled={savingWorkspace}
+						onClick={() => onViewChange("universes")}
+					>
+						{franchise?.name}
+					</button>
+				)}
+			</nav>
+
+			{!onUniversePage && availableUniverses.length > 1 && (
+				<label className="workspace-switcher">
+					<span>Universe</span>
 
 					<select
-						value={selectedFranchiseId ?? ""}
-						disabled={
-							loading ||
-							savingWorkspace ||
-							franchises.length === 0
-						}
+						value={selectedUniverseId ?? ""}
+						disabled={loading || savingWorkspace}
 						onChange={(event) => {
 							onWorkspaceChange();
-							setSelectedFranchiseId(Number(event.target.value))
+							setSelectedUniverseId(Number(event.target.value));
 						}}
 					>
-						{franchises.length === 0 && (
-							<option value="" disabled>
-								{loading ? "Loading..." : "No franchises"}
-							</option>
-						)}
-
-						{franchises.map((franchise) => (
-							<option key={franchise.id} value={franchise.id}>
-								{franchise.name}
+						{availableUniverses.map((universe) => (
+							<option key={universe.id} value={universe.id}>
+								{universe.name}
+								{universe.code
+									? " (" + universe.code + ")"
+									: ""}
 							</option>
 						))}
 					</select>
 				</label>
+			)}
 
-				{activeView !== "workspaces" && (
-					<label>
-						<span>Universe</span>
-
-						<select
-							value={selectedUniverseId ?? ""}
-							disabled={
-								loading ||
-								savingWorkspace ||
-								selectableUniverses.length === 0
-							}
-							onChange={(event) => {
-								onWorkspaceChange();
-								setSelectedUniverseId(Number(event.target.value))
-							}}
-						>
-							{selectableUniverses.length === 0 && (
-								<option value="" disabled>
-									{loading ? "Loading..." : "No universes"}
-								</option>
-							)}
-
-							{selectableUniverses.map((universe) => (
-								<option key={universe.id} value={universe.id} >
-									{universe.name}
-								</option>
-							))}
-						</select>
-					</label>
-				)}
-			</div>
-
-			{canEdit && (
+			{canEdit && !onUniversePage && selectedUniverseId !== null && (
 				<nav className="workspace-nav" aria-label="Studio pages">
 					{views.map((view) => (
 						<button
@@ -117,6 +116,6 @@ export default function WorkspaceBar({
 					))}
 				</nav>
 			)}
-		</aside>
+		</div>
 	)
 }

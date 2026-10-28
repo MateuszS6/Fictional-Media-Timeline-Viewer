@@ -9,11 +9,22 @@ type Editor =
 	| { kind: "franchise"; record: Franchise | null; }
 	| { kind: "universe"; record: Universe | null; };
 
-export default function WorkspacesPage() {
+interface WorkspacesPageProps {
+	level: "franchises" | "universes";
+	onOpenFranchise: (id: number) => void;
+	onOpenUniverse: (id: number) => void;
+}
+
+export default function WorkspacesPage({
+	level,
+	onOpenFranchise,
+	onOpenUniverse
+}: WorkspacesPageProps) {
 	const {
 		franchises,
 		universes,
 		selectedFranchiseId,
+		canEdit,
 		savingWorkspace,
 		saveFranchise,
 		saveUniverse,
@@ -32,13 +43,14 @@ export default function WorkspacesPage() {
 	const controlsDisabled = savingWorkspace || editor !== null;
 
 	function openEditor(next: Editor) {
+		if (!canEdit) return;
 		setNotice(null);
 		setActionError(null);
 		setEditor(next);
 	}
 
 	async function handleSave(values: WorkspaceFormValues) {
-		if (!editor) throw new Error("No editor is open.");
+		if (!canEdit || !editor) throw new Error("No editor is open.");
 
 		const id = editor.record?.id ?? null;
 
@@ -56,7 +68,7 @@ export default function WorkspacesPage() {
 		kind: "franchise" | "universe",
 		record: Franchise | Universe
 	) {
-		if (controlsDisabled) return;
+		if (!canEdit || controlsDisabled) return;
 
 		const details = kind === "franchise"
 			? "This franchise must have no universes before it can be deleted."
@@ -99,72 +111,43 @@ export default function WorkspacesPage() {
 		}
 	}
 
+	const atRoot = level === "franchises";
+
+	const kind = atRoot ? "franchise" : "universe";
+
+	const records: (Franchise | Universe)[] = atRoot
+		? franchises
+		: universes.filter(
+			(universe) => canEdit || universe.is_published
+		);
+
 	return (
 		<section
-			className="management-page"
-			aria-label="Franchise and universes"
+			className="management-page browse-page"
+			aria-label={atRoot ? "Franchises" : "Universes"}
 			aria-busy={savingWorkspace}
 		>
-			<div className="management-toolbar">
-				<h2 className="management-section-title">
-					Franchise
-				</h2>
+			{canEdit && (
+				<div className="management-toolbar">
+					<p className="management-summary">
+						{atRoot
+							? "Manage franchises here; open one to manage its universes."
+							: "Private timelines are only available in Studio."}
+					</p>
 
-				<div className="management-row-actions">
 					<button
 						type="button"
 						className="utility-button"
-						disabled={controlsDisabled}
-						onClick={() => openEditor({
-							kind: "franchise",
-							record: null
-						})}
+						disabled={
+							controlsDisabled || (!atRoot && !franchise)
+						}
+						onClick={() =>
+							openEditor({ kind, record: null })
+						}
 					>
-						Add franchise
+						Add {kind}
 					</button>
-
-					{franchise && (
-						<>
-							<button
-								type="button"
-								className="utility-button"
-								disabled={controlsDisabled}
-								onClick={() => openEditor({
-									kind: "franchise",
-									record: franchise
-								})}
-							>
-								Edit franchise
-							</button>
-
-							<button
-								type="button"
-								className="utility-button utility-button-danger"
-								disabled={
-									controlsDisabled ||
-									universes.length > 0
-								}
-								onClick={() =>
-									handleDelete("franchise", franchise)
-								}
-							>
-								Delete franchise
-							</button>
-						</>
-					)}
 				</div>
-			</div>
-
-			<p className="management-summary">
-				{franchise
-					? "Selected franchise: " + franchise.name
-					: "Add your first franchise to get started."}
-			</p>
-
-			{franchise && universes.length > 0 && (
-				<p className="management-summary">
-					A franchise can be deleted after its universes have been removed.
-				</p>
 			)}
 
 			{savingWorkspace && !editor && (
@@ -188,8 +171,7 @@ export default function WorkspacesPage() {
 			{editor && (
 				<WorkspaceForm
 					key={
-						editor.kind + "-" +
-						(editor.record?.id ?? "new")
+						editor.kind + "-" + (editor.record?.id ?? "new")
 					}
 					kind={editor.kind}
 					editing={editor.record !== null}
@@ -208,83 +190,90 @@ export default function WorkspacesPage() {
 				/>
 			)}
 
-			<div className="management-toolbar">
-				<h2 className="management-section-title">
-					Universes
-				</h2>
-
-				<button
-					type="button"
-					className="utility-button"
-					disabled={controlsDisabled || !franchise}
-					onClick={() => openEditor({
-						kind: "universe",
-						record: null
-					})}
-				>
-					Add universe
-				</button>
-			</div>
-
-			{!franchise ? (
+			{records.length === 0 ? (
 				<p className="status-message">
-					Create a franchise to add universes.
-				</p>
-			) : universes.length === 0 ? (
-				<p className="status-message">
-					This franchise has no universes yet.
+					{canEdit
+						? atRoot
+							? "Add your first franchise to get started."
+							: "Add a universe to start its timeline."
+						: atRoot
+							? "No timelines have been published yet."
+							: "No published timelines are available in this franchise."}
 				</p>
 			) : (
-				<div className="management-table-container">
-					<table className="management-table">
-						<thead>
-							<tr>
-								<th scope="col">Universe</th>
-								<th scope="col">Code</th>
-								<th scope="col">Visibility</th>
-								<th scope="col">Actions</th>
-							</tr>
-						</thead>
+				<div className="browse-grid">
+					{records.map((record) => {
+						const universe = "is_published" in record ? record : null;
 
-						<tbody>
-							{universes.map((universe) => (
-								<tr key={universe.id}>
-									<td>{universe.name}</td>
-									<td>{universe.code ?? "Not set"}</td>
-									<td>{universe.is_published ? "Public" : "Private"}</td>
+						return (
+							<article key={record.id} className="browse-card">
+								<h2>
+									<button
+										type="button"
+										className="browse-card-open"
+										disabled={controlsDisabled}
+										aria-label={
+											record.name +
+											(atRoot ? ": open franchise" : ": open timeline")
+										}
+										onClick={() => atRoot
+											? onOpenFranchise(record.id)
+											: onOpenUniverse(record.id)
+										}
+									>
+										<span>{record.name}</span>
+										<span aria-hidden="true">→</span>
+									</button>
+								</h2>
 
-									<td>
-										<div className="management-row-actions">
-											<button
-												type="button"
-												className="utility-button"
-												disabled={controlsDisabled}
-												aria-label={"Edit " + universe.name}
-												onClick={() => openEditor({
+								<p className="browse-card-meta">
+									{universe
+										? universe.code || "Timeline"
+										: "Explore timelines"}
+
+									{canEdit && universe && (
+										<span className="browse-visibility">
+											{universe.is_published
+												? "Public"
+												: "Private"}
+										</span>
+									)}
+								</p>
+
+								{canEdit && (
+									<div className="management-row-actions browse-card-actions">
+										<button
+											type="button"
+											className="utility-button"
+											disabled={controlsDisabled}
+											aria-label={"Edit" + record.name}
+											onClick={() => openEditor(
+												universe ? {
 													kind: "universe",
 													record: universe
-												})}
-											>
-												Edit
-											</button>
+												} : {
+													kind: "franchise",
+													record
+												}
+											)}
+										>
+											Edit
+										</button>
 
-											<button
-												type="button"
-												className="utility-button utility-button-danger"
-												disabled={controlsDisabled}
-												aria-label={"Delete " + universe.name}
-												onClick={() => handleDelete(
-													"universe", universe
-												)}
-											>
-												Delete
-											</button>
-										</div>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+										<button
+											type="button"
+											className="utility-button utility-button-danger"
+											disabled={controlsDisabled}
+											aria-label={"Delete " + record.name}
+											onClick={() => handleDelete(kind, record)}
+										>
+											Delete
+										</button>
+									</div>
+								)}
+							</article>
+						);
+					})}
 				</div>
 			)}
 		</section>

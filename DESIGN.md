@@ -1,6 +1,6 @@
 # Timeline Viewer & Studio — design direction
 
-Agreed 23 October 2026; refined 25 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
+Agreed 23 October 2026; refined 27 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
 ## Purpose and character
 
@@ -9,8 +9,8 @@ A personal tool for building fictional timelines and a public viewer for explori
 ## Layout
 
 - The timeline is the main surface and uses the available page width.
-- Put branding and Studio access in the existing top bar; put franchise/universe choices in a compact bar beneath it.
-- Studio page navigation is horizontal. Use clear visible nouns: Timeline, Characters, Projects, Franchises & universes.
+- Put branding and Studio access in the existing top bar. In the agreed browsing pass, use compact breadcrumbs below it inside a franchise.
+- Studio page navigation is horizontal: Timeline, Characters and Projects within an opened universe. Franchise and universe management lives beside the corresponding cards.
 - Current interim timeline styling uses a thin border, 8px corners and a 12px outer gutter to relate to the management surfaces. The user is not yet satisfied with the overall visual identity; broader redesign remains open.
 - Keep navigation outside the grid. Put the timeline title, short description and Legend & help button in one compact header; put interaction instructions inside help.
 - Keep the compact timeline header above the lightly framed grid. Preserve ordinary management-page padding and the small allowance after the final grid column for boundary events.
@@ -19,7 +19,10 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Use horizontal wrapped project names. Allow enough height for full titles; do not hide long names with ellipses.
 - Target 44px minimum rows and 104px project columns. Names may wrap and increase a row's height.
 - On narrow screens, controls wrap and the timeline scrolls horizontally. Preserve legibility rather than shrinking the whole timeline to fit.
-- A future franchise-card entry can lead into universe browsing and then the timeline. It complements the compact selectors inside an opened timeline.
+- The agreed starting page uses franchise cards. Viewer opens a single published timeline directly; otherwise it shows universe cards. Studio always shows universe cards to expose management actions.
+- Replace the franchise dropdown with All franchises and a franchise breadcrumb. Keep the universe dropdown only when multiple selectable timelines exist. Explicitly returning to universe cards must not redirect back to a single timeline.
+- Initial cards use names, optional universe codes and existing restrained styles. Studio adds visibility and management actions; artwork and franchise themes can follow later.
+- Browsing implementation is prepared and tested but remains user-applied. Reload starts at the cards; URL/history behaviour is a separate preview decision.
 
 ## Colour and typography
 
@@ -54,12 +57,19 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Handle long names, dense timelines, empty results, loading and failures.
 - Use text/shape alongside colour for meaning.
 
-## Character exploration\n\n- Open details from a character name in an on-demand right-side panel; use a full-width modal overlay on narrow screens. Keep this shared between Viewer and Studio.\n- Show the current timeline\'s recorded history and counts only, together with identity and origin information. Browsing must not reset the grid or edit participation.\n- Cross-universe travel, combined journeys and global status require their own agreed rules; they are deferred beyond this panel pass.\n\n## References
+## Character exploration
+
+- Open details from a character name in an on-demand right-side panel; use a full-width modal overlay on narrow screens. Keep this shared between Viewer and Studio.
+- Show the current timeline's recorded history and counts only, together with identity and origin information. Browsing must not reset the grid or edit participation.
+- Cross-universe travel, combined journeys and global status require their own agreed rules; they are deferred beyond this panel pass.
+
+## References
 
 - [VoltAgent DESIGN.md collection](https://github.com/VoltAgent/awesome-design-md): inspiration for recording a coherent visual language.
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines): interaction, accessibility and responsive-quality reference.
 
 Apply relevant principles to this app. No specific third-party brand style has been selected.
+
 
 
 

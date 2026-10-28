@@ -54,11 +54,7 @@ export function WorkspaceProvider({
 
 				if (cancelled) return;
 
-				const firstFranchiseId = data[0]?.id ?? null;
-
 				setFranchises(data);
-				setSelectedFranchiseId(firstFranchiseId);
-				setUniversesLoading(firstFranchiseId !== null);
 			} catch (error) {
 				if (cancelled) return;
 
@@ -109,7 +105,7 @@ export function WorkspaceProvider({
 		return () => {
 			cancelled = true;
 		}
-	}, [selectedFranchiseId, canEdit]);
+	}, [selectedFranchiseId, canEdit, loadAttempt]);
 
 	function activateFranchise(id: number | null) {
 		setSelectedFranchiseId(id);
@@ -119,7 +115,7 @@ export function WorkspaceProvider({
 		setUniversesLoading(id !== null);
 	}
 
-	function selectFranchise(id: number) {
+	function selectFranchise(id: number | null) {
 		if (savingRef.current || id === selectedFranchiseId) return;
 
 		activateFranchise(id);
@@ -139,10 +135,10 @@ export function WorkspaceProvider({
 	function retryWorkspace() {
 		if (savingRef.current) return;
 
-		setFranchises([]);
-		activateFranchise(null);
 		setFranchisesError(null);
+		setUniversesError(null);
 		setFranchisesLoading(true);
+		setUniversesLoading(selectedFranchiseId !== null);
 		setLoadAttempt((current) => current + 1);
 	}
 
@@ -181,8 +177,6 @@ export function WorkspaceProvider({
 				...current.filter((item) => item.id !== saved.id),
 				saved
 			]));
-
-			if (id === null) activateFranchise(saved.id);
 		});
 	}
 
@@ -237,7 +231,7 @@ export function WorkspaceProvider({
 			setUniverses(remaining);
 
 			if (selectedUniverseId === id) {
-				setSelectedUniverseId(remaining[0]?.id ?? null);
+				activateFranchise(null);
 			}
 		});
 	}

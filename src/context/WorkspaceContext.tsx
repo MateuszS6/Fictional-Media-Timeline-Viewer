@@ -12,7 +12,7 @@ interface WorkspaceContextValue {
 	savingWorkspace: boolean;
 	error: string | null;
 
-	setSelectedFranchiseId: (id: number) => void;
+	setSelectedFranchiseId: (id: number | null) => void;
 	setSelectedUniverseId: (id: number) => void;
 	retryWorkspace: () => void;
 
