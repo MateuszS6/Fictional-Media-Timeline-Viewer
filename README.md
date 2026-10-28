@@ -7,15 +7,15 @@ Inspired by an Excel workflow, Timeline Studio uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.4.3`
+## Current version — `0.4.4`
 
-A cleaner timeline with selectable character names that reveal a character detail panel showing facts, a summary, and a list of their chronological appearances and events.
+Clean franchise and universe browsing through cards, and improved timeline navigation with breadcrumbs and visual improvements.
 
 See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
 
-> ![Studio](docs/images/v0.4.3-studio-panel-&-editor.png)
+> ![Cards](docs/images/v0.4.4-studio-franchise-cards.png)
 
-> ![Viewer](docs/images/v0.4.3-viewer-panel-&-details.png)
+> ![Timeline](docs/images/v0.4.4-studio-timeline-universes.png)
 
 ## Aim
 

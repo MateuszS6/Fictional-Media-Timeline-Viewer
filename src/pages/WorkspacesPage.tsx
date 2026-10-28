@@ -233,6 +233,9 @@ export default function WorkspacesPage({
 
 									{canEdit && universe && (
 										<span className="browse-visibility">
+											{!universe.is_published && (
+												<span aria-hidden="true">🔒︎ </span>
+											)}
 											{universe.is_published
 												? "Public"
 												: "Private"}
@@ -246,7 +249,7 @@ export default function WorkspacesPage({
 											type="button"
 											className="utility-button"
 											disabled={controlsDisabled}
-											aria-label={"Edit" + record.name}
+											aria-label={"Edit " + record.name}
 											onClick={() => openEditor(
 												universe ? {
 													kind: "universe",

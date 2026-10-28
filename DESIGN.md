@@ -1,6 +1,6 @@
 # Timeline Viewer & Studio — design direction
 
-Agreed 23 October 2026; refined 27 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
+Agreed 23 October 2026; refined 28 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
 ## Purpose and character
 
@@ -22,7 +22,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 - The agreed starting page uses franchise cards. Viewer opens a single published timeline directly; otherwise it shows universe cards. Studio always shows universe cards to expose management actions.
 - Replace the franchise dropdown with All franchises and a franchise breadcrumb. Keep the universe dropdown only when multiple selectable timelines exist. Explicitly returning to universe cards must not redirect back to a single timeline.
 - Initial cards use names, optional universe codes and existing restrained styles. Studio adds visibility and management actions; artwork and franchise themes can follow later.
-- Browsing implementation is prepared and tested but remains user-applied. Reload starts at the cards; URL/history behaviour is a separate preview decision.
+- Browsing is applied and reviewed on 28 October, with small heading, deletion-navigation and accessibility corrections pending. Reload starts at the cards; URL/history behaviour is the recommended next preview pass.
 
 ## Colour and typography
 
@@ -56,6 +56,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Reuse the current popup's viewport positioning, outside-click dismissal, Escape and focus return. Give the legend a separate fixed heading and scrolling body so samples cannot overlap the heading.
 - Handle long names, dense timelines, empty results, loading and failures.
 - Use text/shape alongside colour for meaning.
+- A small lock beside Private identifies an unpublished timeline in Studio. Keep the card icon decorative for assistive technology, with the visible word providing its meaning. Ordinary native select options use plain text only; do not put spans or SVGs inside them. Final icon styling can be unified later.
 
 ## Character exploration
 
@@ -69,6 +70,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines): interaction, accessibility and responsive-quality reference.
 
 Apply relevant principles to this app. No specific third-party brand style has been selected.
+
 
 
 

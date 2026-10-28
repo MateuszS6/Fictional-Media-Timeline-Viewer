@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 27 October 2026 after confirming the character-facts correction and agreeing the franchise/universe browsing pass. The v0.4.2 visual baseline and timeline-local character panel are implemented. The browsing proposal is prepared and tested in temporary files; application changes remain for the user to apply from chat.
+Updated 28 October 2026 after reviewing the applied franchise/universe browsing pass and private lock indicators. The README currently records v0.4.3 for character exploration. Browsing is implemented; small heading, deletion-navigation and markup/accessibility corrections remain user-applied from this review. Shareable URLs and browser navigation are the recommended next pass.
 
 ## Working agreement
 
@@ -10,9 +10,9 @@ Updated 27 October 2026 after confirming the character-facts correction and agre
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.4.2
+## Current baseline: v0.4.3, with browsing applied for the next release
 
-- The app opens in read-only Viewer mode. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
+- The app opens in read-only Viewer mode on franchise cards. A franchise with one published universe opens directly; otherwise universe cards are shown. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
 - The Studio requires the configured owner account. Public signup remains disabled. Anonymous and authenticated non-owner access is limited to published content; writes remain owner-only. The Studio button opens sign-in, and the owner can return to Viewer without signing out.
 - Clicking an occupied viewer cell opens read-only appearance/event details, including event-only cells. Empty cells do not edit. Studio click/right-click editing remains.
 - Franchise/universe and character/project create, edit and delete controls are implemented.
@@ -244,8 +244,8 @@ The user wants an information tool with cinematic character, rather than a gener
 
 1. Viewer layout and visual cleanup are implemented in v0.4.2, including the corrected heading rules and screenshot-safe Studio label. The subsequent light frame and thin scrollbars are also present.
 2. Character exploration and the side-by-side facts/label-colour correction are applied and reviewed on 27 October; browsing selection remains separate from the editing/origin-focus target.
-3. Apply and review the agreed franchise/universe cards and Studio organisation pass below. Its proposal is tested, not yet applied. Do not expand it into a wiki or unrelated project catalogue.
-4. Choose the initial public timeline and a curated preview dataset, then finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks. Decide shareable URLs deliberately before any routing work.
+3. Franchise/universe cards and Studio organisation are applied and reviewed on 28 October. Apply the small review corrections below; then review the actual changes and add the user's new screenshots before updating the README release.
+4. Agree and implement shareable timeline URLs, refresh restoration and browser Back/Forward. Confirm hosting plans and whether the first scope includes character links. Then curate the preview dataset and finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
 
 Character status and continuing lifelines, user-defined sorting/grouping/views, final custom icons/theming and management refinements remain on the roadmap. Their rules/design need agreement at their respective passes; they are not silently added as requirements for this pass. People, crew and credits remain after the timeline work. Optional multiverse entry/departure and force-deletion flows remain deferred.
@@ -286,7 +286,7 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - After reviewing this panel, continue franchise/universe browsing and Studio organisation, followed by preview content/access checks and deployment as already planned.
 
 
-## Franchise/universe browsing agreed on 27 October — proposal prepared
+## Franchise/universe browsing agreed on 27 October — implemented and reviewed on 28 October
 
 - The user accepted the recommended franchise-card starting page, direct opening of a single published universe in Viewer, and the same franchise-to-universe hierarchy for Studio management.
 - Remove the franchise dropdown. Inside a franchise, All franchises returns to the cards; the franchise name returns to its universe cards. Keep a compact universe switcher inside a timeline/management page only when more than one selectable universe exists.
@@ -297,6 +297,23 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Start with franchise data only. Load universes when a franchise is chosen, cancel stale loads when navigating away, retry without changing the selected franchise, and block workspace navigation during saves. New franchises remain on the cards until opened.
 - Reuse the existing context, services and database. No new table, auth policy, route library, artwork system, global chronology or status rule is required.
 - The prepared source passes both TypeScript configurations, lint and a production build. Isolated browser checks using the real proposed App/provider/components and sample service data pass for entry/shortcut/back navigation, public filtering, stale loads, retries, desktop/phone layouts, keyboard focus, universe switching and panel reset, Studio CRUD, publication/default-private settings, reference rejection, retained failed forms and saving guards.
-- Only documentation was edited in the repository. The user applies application changes from chat. Review actual code and real-data behaviour after application before marking this pass complete or updating the release number.
+- The user applied the browsing pass. On 28 October, the actual source passes both TypeScript configurations, lint and a production build. Browser checks reproduced the overview-heading and universe-deletion navigation defects below. The corrected proposal passes the complete sample-data browser checks. Only documentation was edited by the assistant; application corrections remain user-applied and no live database access or mutations were performed.
 - Navigation remains in-app state for now: a reload starts at franchise cards. Browser history and shareable timeline URLs remain an explicit preview-readiness decision. Artwork, final branding, global character status, sorting/grouping, people/credits and multiversal journeys retain their existing roadmap positions.
+
+
+### Small corrections from the 28 October review
+
+- App's universe-card page title currently reads selectedUniverse.name; use selectedFranchise.name so the overview is headed by its franchise.
+- The reset change was applied to removeUniverse instead of removeFranchise. After deleting the selected franchise, activateFranchise(null). After deleting the selected universe, retain the franchise and select the first remaining universe ID (or null). The current version unexpectedly returns to all franchise cards when that selected universe is deleted.
+- A lock plus the word Private is appropriate. In the ordinary native universe selector, replace the nested span with text only, including the word Private. On cards, keep the lock in an aria-hidden span beside the readable status text. Final SVG branding/icon work remains deferred.
+- Add the missing space to the Edit button's accessible label: "Edit " + record.name.
+- The proposal preserves the user's visual tweaks. Browser verification covers single-published-universe opening, explicit return to cards, Viewer publication filtering, late-load cancellation and retry, universe switching/panel reset, Studio creation/editing/deletion, publication default/toggle, linked-record rejection, retained failed forms, saving guards and desktop/phone layouts. No claims are made about live role testing in this review.
+- README remains v0.4.3 with existing images. After the corrections are applied and reviewed, v0.4.4 is a suitable browsing-release number; the user will provide new screenshots.
+
+### Next pass: shareable links and browser navigation
+
+- Give a franchise/universe a stable address, preserve the selected destination on refresh, and make browser Back/Forward follow navigation.
+- Keep links subject to the existing published/private permissions; a missing, removed or unpublished destination needs an honest unavailable state.
+- Recommend universe-level sharing first. Whether to include character-specific links and the intended hosting service/domain remain questions for the user before choosing the routing approach.
+- This pass does not imply global character chronology, new appearance types, a visual redesign, or deployment. Preview content/copy/metadata and final access/deployment checks follow in the existing plan.
 

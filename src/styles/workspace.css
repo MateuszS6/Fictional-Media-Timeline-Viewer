@@ -1,74 +1,82 @@
-/* --- TOP BAR --- */
+/* --- NAV BAR --- */
 
 .workspace-bar {
 	display: flex;
 	flex-shrink: 0;
 	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 12px 24px;
-
+	gap: 10px 20px;
 	padding: 10px 20px;
 	border-bottom: 1px solid var(--border-primary);
 	background: var(--surface-alt);
 }
 
-/* Workspace selectors (franchise and universe) */
+/* Path */
 
-.workspace-selectors {
+.workspace-breadcrumbs {
 	display: flex;
-	flex: 1;
-	gap: 12px;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
 	min-width: 0;
-	max-width: 640px;
+	color: var(--button-text);
+	font-size: 13px;
+	overflow-wrap: anywhere;
 }
 
-.workspace-selectors label {
-	display: grid;
-	flex: 1;
-	gap: 4px;
-	min-width: 0;
-	max-width: 320px;
+.workspace-link {
+	padding: 6px 0;
+	border: 0;
+	background: transparent;
+	color: var(--color-link);
+	text-align: left;
+	cursor: pointer;
+	overflow-wrap: anywhere;
 }
 
-.workspace-selectors label>span {
-	color: var(--color-secondary);
+.workspace-link:hover:not(:disabled) {
+	text-decoration: underline;
+}
+
+/* Drop-down */
+
+.workspace-switcher {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	margin-left: auto;
+	color: var(--button-text);
 	font-size: 12px;
 }
 
-.workspace-selectors select {
-	width: 100%;
+.workspace-switcher select {
+	width: 240px;
+	max-width: 100%;
 	min-width: 0;
 	min-height: 36px;
 	padding: 6px 10px;
-
 	border: 1px solid var(--border-primary);
 	border-radius: var(--radius-sm);
-
 	background: var(--surface-elevated);
 	color: var(--color-primary);
 	font-size: 14px;
 }
 
-.workspace-selectors select:disabled {
-	opacity: 0.6;
-}
-
-/* Options */
+/* Tabs */
 
 .workspace-nav {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 4px;
+	margin-left: auto;
 }
 
 .workspace-tab {
 	min-height: 36px;
 	padding: 7px 10px;
-
 	border: 0;
-	border-bottom: 2px solid transparent;
-
+	border-bottom: 3px solid transparent;
 	background: transparent;
 	color: var(--button-text);
 	font-size: 13px;
@@ -85,9 +93,94 @@
 	border-bottom-color: var(--color-link);
 }
 
-.workspace-tab:disabled {
+.workspace-bar button:disabled,
+.workspace-switcher select:disabled {
 	opacity: 0.5;
 	cursor: default;
+}
+
+/* Browsing & cards */
+
+.browse-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+	gap: 16px;
+	padding: 4px;
+}
+
+.browse-card {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	border: 1px solid var(--border-primary);
+	border-radius: var(--radius-lg);
+	background: var(--surface-alt);
+}
+
+.browse-card h2 {
+	margin: 0;
+	font-size: 22px;
+}
+
+.browse-card-open {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	width: 100%;
+	min-height: 112px;
+	padding: 24px 20px;
+	border: 0;
+	border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+	background: transparent;
+	color: var(--color-primary);
+	text-align: left;
+	font: inherit;
+	overflow-wrap: anywhere;
+	cursor: pointer;
+}
+
+.browse-card-open span:first-child {
+	min-width: 0;
+}
+
+.browse-card-open span:last-child {
+	flex-shrink: 0;
+	color: var(--color-link);
+}
+
+.browse-card-open:hover:not(:disabled) {
+	background: var(--button-bg-active);
+}
+
+.browse-card-open:focus-visible {
+	outline-offset: -3px;
+}
+
+.browse-card-open:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.browse-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	margin: auto 0 0;
+	padding: 0 20px 20px;
+	color: var(--button-text);
+	font-size: 13px;
+}
+
+.browse-visibility {
+	margin-left: auto;
+	color: var(--color-secondary);
+}
+
+.browse-card-actions {
+	padding: 12px 20px;
+	border-top: 1px solid var(--border-secondary);
 }
 
 @media (max-width: 700px) {
@@ -96,13 +189,24 @@
 		gap: 8px;
 	}
 
-	.workspace-selectors,
+	.workspace-breadcrumbs,
+	.workspace-switcher,
 	.workspace-nav {
 		flex-basis: 100%;
 	}
 
-	.workspace-selectors select {
+	.workspace-switcher select {
+		flex: 1;
+		width: auto;
 		min-height: 40px;
 		font-size: 16px;
 	}
+
+	.browse-grid {
+		gap: 12px;
+	}
+}
+
+.page-heading h1[tabindex="-1"]:focus {
+	outline: none;
 }

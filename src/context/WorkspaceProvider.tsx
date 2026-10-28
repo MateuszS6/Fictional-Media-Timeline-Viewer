@@ -215,7 +215,7 @@ export function WorkspaceProvider({
 			setFranchises(remaining);
 
 			if (selectedFranchiseId === id) {
-				activateFranchise(remaining[0]?.id ?? null);
+				activateFranchise(null);
 			}
 		});
 	}
@@ -231,7 +231,7 @@ export function WorkspaceProvider({
 			setUniverses(remaining);
 
 			if (selectedUniverseId === id) {
-				activateFranchise(null);
+				setSelectedUniverseId(remaining[0]?.id ?? null);
 			}
 		});
 	}

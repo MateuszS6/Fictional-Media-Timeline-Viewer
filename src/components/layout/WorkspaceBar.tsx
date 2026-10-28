@@ -88,6 +88,7 @@ export default function WorkspaceBar({
 					>
 						{availableUniverses.map((universe) => (
 							<option key={universe.id} value={universe.id}>
+								{!universe.is_published ? "🔒︎ Private — " : ""}
 								{universe.name}
 								{universe.code
 									? " (" + universe.code + ")"

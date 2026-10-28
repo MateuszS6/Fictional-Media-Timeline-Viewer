@@ -123,7 +123,7 @@ export default function App() {
 	const title = activeView === "franchises"
 		? canEdit ? "Franchises" : "Explore timelines"
 		: activeView === "universes"
-			? selectedUniverse?.name ?? "Universes"
+			? selectedFranchise?.name ?? "Universes"
 			: isTimeline
 				? universeName
 				: activeView === "characters"
