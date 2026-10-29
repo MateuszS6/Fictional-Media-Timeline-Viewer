@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 28 October 2026 after reviewing the applied franchise/universe browsing pass and private lock indicators. The README currently records v0.4.3 for character exploration. Browsing is implemented; small heading, deletion-navigation and markup/accessibility corrections remain user-applied from this review. Shareable URLs and browser navigation are the recommended next pass.
+Updated 29 October 2026. The browsing review corrections are applied. The user chose timeline-only sharing, is considering Vercel, and requested a featured Marvel entry with a small gradient treatment. Routing and the featured card are prepared and tested in temporary files; the user applies application changes from chat.
 
 ## Working agreement
 
@@ -10,7 +10,7 @@ Updated 28 October 2026 after reviewing the applied franchise/universe browsing 
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: v0.4.3, with browsing applied for the next release
+## Current baseline: browsing and review corrections applied
 
 - The app opens in read-only Viewer mode on franchise cards. A franchise with one published universe opens directly; otherwise universe cards are shown. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
 - The Studio requires the configured owner account. Public signup remains disabled. Anonymous and authenticated non-owner access is limited to published content; writes remain owner-only. The Studio button opens sign-in, and the owner can return to Viewer without signing out.
@@ -244,7 +244,7 @@ The user wants an information tool with cinematic character, rather than a gener
 
 1. Viewer layout and visual cleanup are implemented in v0.4.2, including the corrected heading rules and screenshot-safe Studio label. The subsequent light frame and thin scrollbars are also present.
 2. Character exploration and the side-by-side facts/label-colour correction are applied and reviewed on 27 October; browsing selection remains separate from the editing/origin-focus target.
-3. Franchise/universe cards and Studio organisation are applied and reviewed on 28 October. Apply the small review corrections below; then review the actual changes and add the user's new screenshots before updating the README release.
+3. Franchise/universe cards and Studio organisation are applied and reviewed on 28 October. Apply the review corrections below (now present); keep the user's screenshots and README release notes current.
 4. Agree and implement shareable timeline URLs, refresh restoration and browser Back/Forward. Confirm hosting plans and whether the first scope includes character links. Then curate the preview dataset and finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
 
@@ -314,6 +314,29 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 
 - Give a franchise/universe a stable address, preserve the selected destination on refresh, and make browser Back/Forward follow navigation.
 - Keep links subject to the existing published/private permissions; a missing, removed or unpublished destination needs an honest unavailable state.
-- Recommend universe-level sharing first. Whether to include character-specific links and the intended hosting service/domain remain questions for the user before choosing the routing approach.
+- Confirmed universe-level sharing first; no character IDs in shared URLs. Hosting is not yet set up. Vercel is the provisional recommendation, with account setup and deployment following the applied-code review.
 - This pass does not imply global character chronology, new appearance types, a visual redesign, or deployment. Preview content/copy/metadata and final access/deployment checks follow in the existing plan.
+
+
+## Routing and featured Marvel pass — prepared on 29 October
+
+- The four previous review corrections are present: franchise overview heading, deletion-selection handling, text-only private dropdown labels, and spaced Edit accessibility labels.
+- Use React Router 8.5.1 with createBrowserRouter/RouterProvider. Addresses identify a franchise and timeline by stable numeric database IDs; names may change without changing an address.
+- Viewer routes: /, /franchises/:franchiseId and /franchises/:franchiseId/timelines/:universeId. Studio uses the same structure prefixed with /studio, plus /characters and /projects within a selected timeline.
+- The URL supplies selected IDs and page view. Remove duplicate selected-ID state and setters from WorkspaceProvider/Context. Keep loading, save guards, errors and database services. Key the provider by mode and franchise so late loads cannot populate another franchise.
+- Turn browsing and navigation controls into real links. A normal Viewer franchise-card click may replace its intermediate address with its single published timeline; explicitly returning to the franchise overview stays there.
+- Keep StudioAccess's existing session/owner checks. Its requested mode comes from /studio, so direct Studio links preserve their destination through sign-in. Viewer links remain read-only even for a signed-in owner. Missing/private/invalid or mismatched franchise/universe addresses get a generic unavailable page, not a fallback timeline.
+- Keep character edit/origin focus in temporary navigation state, outside the shared URL. Ordinary character-panel browsing never changes the URL. Block in-app navigation during workspace saves; this is not a general unsaved-form or hard-reload guard.
+- Add the Vercel SPA rewrite in vercel.json so a direct request/refresh serves index.html. Vercel deployment is not performed by this pass. Supabase remains the backend; existing environment variable names remain VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
+- Feature the published Marvel franchise at the top of the Viewer entry, with a larger card, Featured label and restrained red-to-dark CSS gradient. Put the other franchises below without duplicating Marvel. Match the franchise name case-insensitively for now; no database feature flag or artwork system is added. Studio keeps compact, uniform management cards.
+- Prepared source passes both TypeScript configurations, lint and a production build. Vite reports a bundle-size advisory after adding the router (about 557 kB minified / 160 kB gzip); this does not fail the build. Consider route/code splitting during preview performance checks, without hiding the warning threshold.
+- Browser fixtures use the proposed App, provider, router and StudioAccess with sample services and simulated authentication. Checks pass for direct/refresh/back/forward navigation, featured ordering, single-universe opening, explicit overview, private/invalid/cross-franchise destinations, signed-in Viewer, Studio tabs/sign-in/sign-out/non-owner behaviour, CRUD/publication, navigation during a workspace save and phone/keyboard/tap interaction.
+- These are prepared changes, not applied application code or a live deployment. Review the user's implementation next, then finish preview copy/metadata/content and hosting/access smoke tests. No live database, accounts or permissions were changed.
+
+### Touch and later design commitments
+
+- Touch compatibility is required. The current grid uses native scrolling, Viewer cells open on tap and character details already use a narrow-screen modal. One emulated touch tap was verified in this routing pass; actual-device usability remains to be checked.
+- Schedule a focused phone pass before broad outreach: comfortable tap targets, horizontal/vertical grid panning, sticky labels, popup placement, portrait/landscape and pinch zoom.
+- Studio's advanced cell editor currently relies on right-click; provide a deliberate touch-accessible edit control in that phone pass instead of assuming long-press will behave consistently.
+- Broader franchise/universe theming, gradients and final icons/branding remain welcome later. This pass's gradient is confined to the featured card and does not change timeline symbol meanings.
 

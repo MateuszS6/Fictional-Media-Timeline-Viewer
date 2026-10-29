@@ -1,6 +1,6 @@
 # Timeline Viewer & Studio — design direction
 
-Agreed 23 October 2026; refined 28 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
+Agreed 23 October 2026; refined 29 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
 ## Purpose and character
 
@@ -21,8 +21,9 @@ A personal tool for building fictional timelines and a public viewer for explori
 - On narrow screens, controls wrap and the timeline scrolls horizontally. Preserve legibility rather than shrinking the whole timeline to fit.
 - The agreed starting page uses franchise cards. Viewer opens a single published timeline directly; otherwise it shows universe cards. Studio always shows universe cards to expose management actions.
 - Replace the franchise dropdown with All franchises and a franchise breadcrumb. Keep the universe dropdown only when multiple selectable timelines exist. Explicitly returning to universe cards must not redirect back to a single timeline.
-- Initial cards use names, optional universe codes and existing restrained styles. Studio adds visibility and management actions; artwork and franchise themes can follow later.
-- Browsing is applied and reviewed on 28 October, with small heading, deletion-navigation and accessibility corrections pending. Reload starts at the cards; URL/history behaviour is the recommended next preview pass.
+- Initial cards use names, optional universe codes and existing restrained styles. Studio adds visibility and management actions.
+- The 29 October proposal features Marvel at the top of the Viewer entry with a larger card, a Featured label and a restrained red-to-dark CSS gradient; other franchises follow below. Studio retains uniform cards. Broader franchise/universe themes and artwork follow later.
+- Browsing and its review corrections are applied. The next prepared pass gives franchise/timeline destinations real links, refresh restoration and Back/Forward support. Application code remains user-applied.
 
 ## Colour and typography
 
@@ -50,7 +51,8 @@ A personal tool for building fictional timelines and a public viewer for explori
 ## Interaction and accessibility
 
 - Viewer entries open details on click/tap or Enter/Space; empty cells do not edit.
-- Preserve the Studio's existing editing behaviour.
+- Preserve the Studio's existing editing behaviour. A later phone pass must expose its right-click editor through an explicit touch-accessible control.
+- Verify grid swiping, comfortable tap targets, sticky labels, popups, portrait/landscape and pinch zoom on real phones before broad outreach.
 - Provide clear focus outlines and descriptive names for controls.
 - Legend & help is available on demand. Explain every appearance/event type, attachment, arrow, chronology, visitor origins and interaction.
 - Reuse the current popup's viewport positioning, outside-click dismissal, Escape and focus return. Give the legend a separate fixed heading and scrolling body so samples cannot overlap the heading.
@@ -70,6 +72,7 @@ A personal tool for building fictional timelines and a public viewer for explori
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines): interaction, accessibility and responsive-quality reference.
 
 Apply relevant principles to this app. No specific third-party brand style has been selected.
+
 
 
 
