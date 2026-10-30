@@ -1,11 +1,7 @@
+import { Link, useNavigate } from "react-router";
 import { useWorkspace } from "../../context/WorkspaceContext";
 import type { WorkspaceView } from "../../types/workspace";
-
-interface WorkspaceBarProps {
-	activeView: WorkspaceView;
-	onViewChange: (view: WorkspaceView) => void;
-	onWorkspaceChange: () => void;
-}
+import { workspacePath } from "../../utils/workspacePath";
 
 const views: { value: WorkspaceView; label: string }[] = [
 	{ value: "timeline", label: "Timeline" },
@@ -14,17 +10,18 @@ const views: { value: WorkspaceView; label: string }[] = [
 ];
 
 export default function WorkspaceBar({
-	activeView,
-	onViewChange,
-	onWorkspaceChange
-}: WorkspaceBarProps) {
+	activeView
+}: {
+	activeView: WorkspaceView;
+}) {
+	const navigate = useNavigate();
+
 	const {
 		franchises,
 		universes,
 		selectedFranchiseId,
 		selectedUniverseId,
 		canEdit,
-		setSelectedUniverseId,
 		loading,
 		savingWorkspace
 	} = useWorkspace();
@@ -47,14 +44,16 @@ export default function WorkspaceBar({
 				className="workspace-breadcrumbs"
 				aria-label="Browse timelines"
 			>
-				<button
-					type="button"
+				<Link
 					className="workspace-link"
-					disabled={savingWorkspace}
-					onClick={() => onViewChange("franchises")}
+					to={workspacePath(canEdit)}
+					aria-disabled={savingWorkspace}
+					onClick={(event) => {
+						if (savingWorkspace) event.preventDefault();
+					}}
 				>
 					All franchises
-				</button>
+				</Link>
 
 				<span aria-hidden="true">/</span>
 
@@ -63,14 +62,16 @@ export default function WorkspaceBar({
 						{franchise?.name}
 					</span>
 				) : (
-					<button
-						type="button"
+					<Link
 						className="workspace-link"
-						disabled={savingWorkspace}
-						onClick={() => onViewChange("universes")}
+						to={workspacePath(canEdit, selectedFranchiseId)}
+						aria-disabled={savingWorkspace}
+						onClick={(event) => {
+							if (savingWorkspace) event.preventDefault();
+						}}
 					>
 						{franchise?.name}
-					</button>
+					</Link>
 				)}
 			</nav>
 
@@ -82,8 +83,12 @@ export default function WorkspaceBar({
 						value={selectedUniverseId ?? ""}
 						disabled={loading || savingWorkspace}
 						onChange={(event) => {
-							onWorkspaceChange();
-							setSelectedUniverseId(Number(event.target.value));
+							navigate(workspacePath(
+								canEdit,
+								selectedFranchiseId,
+								Number(event.target.value),
+								activeView
+							))
 						}}
 					>
 						{availableUniverses.map((universe) => (
@@ -102,21 +107,28 @@ export default function WorkspaceBar({
 			{canEdit && !onUniversePage && selectedUniverseId !== null && (
 				<nav className="workspace-nav" aria-label="Studio pages">
 					{views.map((view) => (
-						<button
+						<Link
 							key={view.value}
-							type="button"
 							className="workspace-tab"
+							to={workspacePath(
+								true,
+								selectedFranchiseId,
+								selectedUniverseId,
+								view.value
+							)}
 							aria-current={
 								activeView === view.value ? "page" : undefined
 							}
-							disabled={savingWorkspace}
-							onClick={() => onViewChange(view.value)}
+							aria-disabled={loading || savingWorkspace}
+							onClick={(event) => {
+								if (loading || savingWorkspace) event.preventDefault();
+							}}
 						>
 							{view.label}
-						</button>
+						</Link>
 					))}
 				</nav>
 			)}
 		</div>
-	)
+	);
 }

@@ -1,8 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import StudioAccess from './components/auth/StudioAccess.tsx'
-import { WorkspaceProvider } from './context/WorkspaceProvider.tsx'
+import { createBrowserRouter, RouterProvider } from 'react-router'
+import AppRoutes from './AppRoutes.tsx'
 import './index.css'
 import './styles/auth.css'
 import './styles/character-panel.css'
@@ -12,17 +11,12 @@ import './styles/timeline-guide.css'
 import './styles/timeline.css'
 import './styles/workspace.css'
 
+const router = createBrowserRouter([
+	{ path: "*", element: <AppRoutes /> }
+]);
+
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<StudioAccess>
-			{(canEdit) => (
-				<WorkspaceProvider
-					key={canEdit ? "studio" : "viewer"}
-					canEdit={canEdit}
-				>
-					<App />
-				</WorkspaceProvider>
-			)}
-		</StudioAccess>
+		<RouterProvider router={router} />
 	</StrictMode>,
 )

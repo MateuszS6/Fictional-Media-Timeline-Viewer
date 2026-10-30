@@ -210,3 +210,63 @@
 .page-heading h1[tabindex="-1"]:focus {
 	outline: none;
 }
+
+/* Navigation links retain the existing control styling. */
+
+.workspace-link,
+.workspace-tab,
+.browse-card-open,
+.utility-button {
+	text-decoration: none;
+}
+
+a:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 3px;
+}
+
+a[aria-disabled="true"] {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.browse-card-open[aria-disabled="true"]:hover {
+	background: transparent;
+}
+
+/* Featured franchise */
+
+.browse-card-featured {
+	flex-shrink: 0;
+	margin: 4px;
+	border-color: #783039;
+
+	background: linear-gradient(120deg,
+			#501922 0%,
+			#25171e 55%,
+			var(--surface-alt) 100%);
+}
+
+.featured-label {
+	margin: 0;
+	padding: 20px 24px 0;
+	color: #f2b3bb;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.browse-card-featured .browse-card-open {
+	min-height: 120px;
+	padding: 16px 24px;
+	font-size: clamp(28px, 4vw, 40px);
+}
+
+.browse-card-featured .browse-card-open {
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.browse-card-featured .browse-card-meta {
+	padding: 0 24px 24px;
+}

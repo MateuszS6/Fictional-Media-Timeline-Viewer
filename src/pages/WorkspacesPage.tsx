@@ -4,6 +4,8 @@ import WorkspaceForm from "../components/workspaces/WorkspaceForm";
 import { useWorkspace } from "../context/WorkspaceContext";
 import type { Franchise } from "../types/franchise";
 import type { Universe } from "../types/universe";
+import { Link } from "react-router";
+import { workspacePath } from "../utils/workspacePath";
 
 type Editor =
 	| { kind: "franchise"; record: Franchise | null; }
@@ -11,14 +13,10 @@ type Editor =
 
 interface WorkspacesPageProps {
 	level: "franchises" | "universes";
-	onOpenFranchise: (id: number) => void;
-	onOpenUniverse: (id: number) => void;
 }
 
 export default function WorkspacesPage({
-	level,
-	onOpenFranchise,
-	onOpenUniverse
+	level
 }: WorkspacesPageProps) {
 	const {
 		franchises,
@@ -121,6 +119,110 @@ export default function WorkspacesPage({
 			(universe) => canEdit || universe.is_published
 		);
 
+	const featuredFranchise = atRoot && !canEdit
+		? franchises.find(
+			(franchise) => franchise.name.trim().toLowerCase() === "marvel"
+		)
+		: undefined;
+
+	const otherRecords = records.filter(
+		(record) => record.id !== featuredFranchise?.id
+	);
+
+	function renderCard(
+		record: Franchise | Universe,
+		featured = false
+	) {
+		const universe = "is_published" in record ? record : null;
+
+		return (
+			<article
+				key={record.id}
+				className={featured
+					? "browse-card browse-card-featured"
+					: "browse-card"
+				}
+			>
+				{featured && (
+					<p className="featured-label">Featured</p>
+				)}
+
+				<h2>
+					<Link
+						className="browse-card-open"
+						to={workspacePath(
+							canEdit,
+							atRoot ? record.id : selectedFranchiseId,
+							atRoot ? null : record.id
+						)}
+						state={atRoot && !canEdit
+							? { autoOpen: true }
+							: null
+						}
+						aria-disabled={controlsDisabled}
+						aria-label={
+							record.name +
+							(atRoot ? ": open franchise" : ": open timeline")
+						}
+						onClick={(event) => {
+							if (controlsDisabled) event.preventDefault();
+						}}
+					>
+						<span>{record.name}</span>
+						<span aria-hidden="true">→</span>
+					</Link>
+				</h2>
+
+				<p className="browse-card-meta">
+					{universe
+						? universe.code || "Timeline"
+						: "Explore timelines"}
+
+					{canEdit && universe && (
+						<span className="browse-visibility">
+							{!universe.is_published && (
+								<span aria-hidden="true">🔒︎ </span>
+							)}
+							{universe.is_published ? "Public" : "Private"}
+						</span>
+					)}
+				</p>
+
+				{canEdit && (
+					<div className="management-row-actions browse-card-actions">
+						<button
+							type="button"
+							className="utility-button"
+							disabled={controlsDisabled}
+							aria-label={"Edit " + record.name}
+							onClick={() => openEditor(
+								universe ? {
+									kind: "universe",
+									record: universe
+								} : {
+									kind: "franchise",
+									record
+								}
+							)}
+						>
+							Edit
+						</button>
+
+						<button
+							type="button"
+							className="utility-button utility-button-danger"
+							disabled={controlsDisabled}
+							aria-label={"Delete " + record.name}
+							onClick={() => handleDelete(kind, record)}
+						>
+							Delete
+						</button>
+					</div>
+				)}
+			</article>
+		)
+	}
+
 	return (
 		<section
 			className="management-page browse-page"
@@ -201,83 +303,19 @@ export default function WorkspacesPage({
 							: "No published timelines are available in this franchise."}
 				</p>
 			) : (
-				<div className="browse-grid">
-					{records.map((record) => {
-						const universe = "is_published" in record ? record : null;
+				<>
+					{featuredFranchise && renderCard(featuredFranchise, true)}
 
-						return (
-							<article key={record.id} className="browse-card">
-								<h2>
-									<button
-										type="button"
-										className="browse-card-open"
-										disabled={controlsDisabled}
-										aria-label={
-											record.name +
-											(atRoot ? ": open franchise" : ": open timeline")
-										}
-										onClick={() => atRoot
-											? onOpenFranchise(record.id)
-											: onOpenUniverse(record.id)
-										}
-									>
-										<span>{record.name}</span>
-										<span aria-hidden="true">→</span>
-									</button>
-								</h2>
+					{featuredFranchise && otherRecords.length > 0 && (
+						<h2 className="management-section-title">
+							More franchises
+						</h2>
+					)}
 
-								<p className="browse-card-meta">
-									{universe
-										? universe.code || "Timeline"
-										: "Explore timelines"}
-
-									{canEdit && universe && (
-										<span className="browse-visibility">
-											{!universe.is_published && (
-												<span aria-hidden="true">🔒︎ </span>
-											)}
-											{universe.is_published
-												? "Public"
-												: "Private"}
-										</span>
-									)}
-								</p>
-
-								{canEdit && (
-									<div className="management-row-actions browse-card-actions">
-										<button
-											type="button"
-											className="utility-button"
-											disabled={controlsDisabled}
-											aria-label={"Edit " + record.name}
-											onClick={() => openEditor(
-												universe ? {
-													kind: "universe",
-													record: universe
-												} : {
-													kind: "franchise",
-													record
-												}
-											)}
-										>
-											Edit
-										</button>
-
-										<button
-											type="button"
-											className="utility-button utility-button-danger"
-											disabled={controlsDisabled}
-											aria-label={"Delete " + record.name}
-											onClick={() => handleDelete(kind, record)}
-										>
-											Delete
-										</button>
-									</div>
-								)}
-							</article>
-						);
-					})}
-				</div>
+					<div className="browse-grid">
+						{otherRecords.map((record) => renderCard(record))}
+					</div>
+				</>
 			)}
 		</section>
 	);

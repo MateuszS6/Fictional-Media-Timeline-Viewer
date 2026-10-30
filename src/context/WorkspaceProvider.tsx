@@ -24,19 +24,20 @@ function sortUniverses(items: Universe[]): Universe[] {
 
 export function WorkspaceProvider({
 	children,
-	canEdit
+	canEdit,
+	selectedFranchiseId,
+	selectedUniverseId
 }: {
 	children: ReactNode;
 	canEdit: boolean;
+	selectedFranchiseId: number | null;
+	selectedUniverseId: number | null;
 }) {
 	const [franchises, setFranchises] = useState<Franchise[]>([]);
 	const [universes, setUniverses] = useState<Universe[]>([]);
 
-	const [selectedFranchiseId, setSelectedFranchiseId] = useState<number | null>(null);
-	const [selectedUniverseId, setSelectedUniverseId] = useState<number | null>(null);
-
 	const [franchisesLoading, setFranchisesLoading] = useState(true);
-	const [universesLoading, setUniversesLoading] = useState(false);
+	const [universesLoading, setUniversesLoading] = useState(selectedFranchiseId != null);
 
 	const [franchisesError, setFranchisesError] = useState<string | null>(null);
 	const [universesError, setUniversesError] = useState<string | null>(null);
@@ -85,11 +86,6 @@ export function WorkspaceProvider({
 				if (cancelled) return;
 
 				setUniverses(data);
-				setSelectedUniverseId(
-					data.find((universe) =>
-						canEdit || universe.is_published
-					)?.id ?? null
-				);
 			} catch (error) {
 				if (cancelled) return;
 
@@ -106,31 +102,6 @@ export function WorkspaceProvider({
 			cancelled = true;
 		}
 	}, [selectedFranchiseId, canEdit, loadAttempt]);
-
-	function activateFranchise(id: number | null) {
-		setSelectedFranchiseId(id);
-		setUniverses([]);
-		setSelectedUniverseId(null);
-		setUniversesError(null);
-		setUniversesLoading(id !== null);
-	}
-
-	function selectFranchise(id: number | null) {
-		if (savingRef.current || id === selectedFranchiseId) return;
-
-		activateFranchise(id);
-	}
-
-	function selectUniverse(id: number) {
-		if (savingRef.current) return;
-
-		const available = universes.some((universe) =>
-			universe.id === id &&
-			(canEdit || universe.is_published)
-		);
-
-		if (available) setSelectedUniverseId(id);
-	}
 
 	function retryWorkspace() {
 		if (savingRef.current) return;
@@ -199,8 +170,6 @@ export function WorkspaceProvider({
 				...current.filter((item) => item.id !== saved.id),
 				saved
 			]));
-
-			if (id === null) setSelectedUniverseId(saved.id);
 		});
 	}
 
@@ -213,10 +182,6 @@ export function WorkspaceProvider({
 			);
 
 			setFranchises(remaining);
-
-			if (selectedFranchiseId === id) {
-				activateFranchise(null);
-			}
 		});
 	}
 
@@ -229,10 +194,6 @@ export function WorkspaceProvider({
 			);
 
 			setUniverses(remaining);
-
-			if (selectedUniverseId === id) {
-				setSelectedUniverseId(remaining[0]?.id ?? null);
-			}
 		});
 	}
 
@@ -247,8 +208,6 @@ export function WorkspaceProvider({
 				loading: franchisesLoading || universesLoading,
 				savingWorkspace,
 				error: franchisesError || universesError,
-				setSelectedFranchiseId: selectFranchise,
-				setSelectedUniverseId: selectUniverse,
 				retryWorkspace,
 				saveFranchise,
 				saveUniverse,

@@ -1,24 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { Navigate, useBlocker, useLocation, useNavigate } from 'react-router';
 import WorkspaceBar from './components/layout/WorkspaceBar';
+import TimelineGuide from './components/timeline/TimelineGuide';
 import { useWorkspace } from './context/WorkspaceContext';
 import CharactersPage from './pages/CharactersPage';
 import ProjectsPage from './pages/ProjectsPage';
 import TimelinePage from './pages/TimelinePage';
+import UnavailablePage from './pages/UnavailablePage';
 import WorkspacesPage from './pages/WorkspacesPage';
 import type { Character } from './types/character';
 import type { WorkspaceView } from './types/workspace';
-import TimelineGuide from './components/timeline/TimelineGuide';
+import { workspacePath } from './utils/workspacePath';
 
-export default function App() {
-	const [requestedView, setRequestedView] =
-		useState<WorkspaceView>("franchises");
-
-	const [timelineTarget, setTimelineTarget] = useState<{
-		universeId: number;
-		characterId: number;
-	} | null>(null);
-
+export default function App({
+	activeView
+}: {
+	activeView: WorkspaceView;
+}) {
 	const headingRef = useRef<HTMLHeadingElement>(null);
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	const {
 		franchises,
@@ -29,75 +30,51 @@ export default function App() {
 		loading,
 		savingWorkspace,
 		error,
-		setSelectedFranchiseId,
-		setSelectedUniverseId,
 		retryWorkspace
 	} = useWorkspace();
 
+	const blocker = useBlocker(savingWorkspace);
+
+	useEffect(() => {
+		if (blocker.state === "blocked") blocker.reset();
+	}, [blocker]);
+
 	const selectedFranchise = franchises.find(
 		(franchise) => franchise.id === selectedFranchiseId
-	);
-
-	const selectedUniverse = universes.find(
-		(universe) => universe.id === selectedUniverseId
 	);
 
 	const availableUniverses = universes.filter(
 		(universe) => canEdit || universe.is_published
 	);
 
-	// "browse" chooses the first screen after a franchise's universes load.
-	const activeView =
-		!selectedFranchise || requestedView === "franchises"
-			? "franchises"
-			: requestedView === "browse"
-				? !canEdit && availableUniverses.length === 1
-					? "timeline"
-					: "universes"
-				: requestedView;
+	const selectedUniverse = availableUniverses.find(
+		(universe) => universe.id === selectedUniverseId
+	);
+
+	const available =
+		(selectedFranchiseId === null || !!selectedFranchise) &&
+		(selectedUniverseId === null || !!selectedUniverse);
 
 	const isTimeline = activeView === "timeline";
 
-	const isBrowsing = activeView === "franchises" || activeView === "universes";
+	const isBrowsing =
+		activeView === "franchises" ||
+		activeView === "universes";
+
+	const requestedCharacter = location.state?.focusCharacterId;
 
 	const focusedCharacterId =
-		timelineTarget?.universeId === selectedUniverseId
-			? timelineTarget.characterId
+		typeof requestedCharacter === "number" &&
+			Number.isSafeInteger(requestedCharacter) &&
+			requestedCharacter > 0
+			? requestedCharacter
 			: null;
 
 	useEffect(() => {
 		if (!loading && !error) {
 			headingRef.current?.focus({ preventScroll: true });
 		}
-	}, [activeView, selectedFranchiseId, selectedUniverseId, loading, error])
-
-	function changeView(view: WorkspaceView) {
-		if (savingWorkspace) return;
-
-		setTimelineTarget(null);
-
-		if (view === "franchises") {
-			setSelectedFranchiseId(null);
-		}
-
-		setRequestedView(view);
-	}
-
-	function openFranchise(id: number) {
-		if (savingWorkspace) return;
-
-		setTimelineTarget(null);
-		setSelectedFranchiseId(id);
-		setRequestedView("browse");
-	}
-
-	function openUniverse(id: number) {
-		if (savingWorkspace) return;
-
-		setTimelineTarget(null);
-		setSelectedUniverseId(id);
-		setRequestedView("timeline");
-	}
+	}, [location.pathname, loading, error])
 
 	function openCharacterTimeline(
 		universeId: number,
@@ -110,15 +87,41 @@ export default function App() {
 			)
 		) return;
 
-		setSelectedUniverseId(universeId);
-		setTimelineTarget({
-			universeId,
-			characterId: character.id
-		});
-		setRequestedView("timeline");
+		navigate(
+			workspacePath(
+				canEdit,
+				selectedFranchiseId,
+				universeId
+			),
+			{ state: { focusCharacterId: character.id } }
+		);
 	}
 
-	const universeName = selectedUniverse?.name ?? "this universe";
+	if (!loading && !error && !available) {
+		return <UnavailablePage studio={canEdit} />;
+	}
+
+	if (
+		!loading &&
+		!error &&
+		activeView === "universes" &&
+		!canEdit &&
+		location.state?.autoOpen === true &&
+		availableUniverses.length === 1
+	) {
+		return (
+			<Navigate
+				replace
+				to={workspacePath(
+					false,
+					selectedFranchiseId,
+					availableUniverses[0].id
+				)}
+			/>
+		);
+	}
+
+	const universeName = selectedUniverse?.name ?? "Timeline";
 
 	const title = activeView === "franchises"
 		? canEdit ? "Franchises" : "Explore timelines"
@@ -149,20 +152,24 @@ export default function App() {
 
 	return (
 		<div className='app-layout'>
-			<WorkspaceBar
-				activeView={activeView}
-				onViewChange={changeView}
-				onWorkspaceChange={() => setTimelineTarget(null)}
-			/>
+			<WorkspaceBar activeView={activeView} />
 
 			<main
-				className={`main-content ${isTimeline ? "main-content-timeline" : ""}`}
+				className={
+					"main-content" +
+					(isTimeline ? " main-content-timeline" : "")
+				}
 			>
 				<header
-					className={`page-header ${isTimeline ? "timeline-page-header" : ""}`}
+					className={
+						"page-header" +
+						(isTimeline ? " timeline-page-header" : "")
+					}
 				>
 					<div className='page-heading'>
-						<h1 ref={headingRef} tabIndex={-1}>{title}</h1>
+						<h1 ref={headingRef} tabIndex={-1}>
+							{title}
+						</h1>
 						<p>{description}</p>
 					</div>
 
@@ -188,18 +195,15 @@ export default function App() {
 					</div>
 				) : isBrowsing ? (
 					<WorkspacesPage
-						key={activeView + ":" + (selectedFranchiseId ?? "all")}
+						key={activeView}
 						level={activeView}
-						onOpenFranchise={openFranchise}
-						onOpenUniverse={openUniverse}
 					/>
-				) : selectedUniverseId === null ? (
-					<p className='status-message'>
-						Choose a universe from its franchise page.
-					</p>
-				) : isTimeline ? (
+				) : selectedUniverseId !== null && isTimeline ? (
 					<TimelinePage
-						key={selectedUniverseId + ":" + (focusedCharacterId ?? "all")}
+						key={
+							selectedUniverseId + ":" +
+							(focusedCharacterId ?? "all")
+						}
 						universeId={selectedUniverseId}
 						focusedCharacterId={focusedCharacterId}
 						onOpenOrigin={(character) =>
@@ -209,7 +213,7 @@ export default function App() {
 							)
 						}
 					/>
-				) : activeView === "characters" && canEdit ? (
+				) : selectedUniverseId !== null && activeView === "characters" && canEdit ? (
 					<CharactersPage
 						key={selectedUniverseId}
 						universeId={selectedUniverseId}
@@ -217,7 +221,7 @@ export default function App() {
 							openCharacterTimeline(selectedUniverseId, character)
 						}
 					/>
-				) : canEdit ? (
+				) : selectedUniverseId !== null && canEdit ? (
 					<ProjectsPage
 						key={selectedUniverseId}
 						universeId={selectedUniverseId}

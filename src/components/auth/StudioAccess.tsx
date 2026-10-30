@@ -2,6 +2,7 @@ import type { Session } from "@supabase/supabase-js";
 import type { SubmitEvent } from "react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "../../config/supabase";
+import { useLocation, useNavigate } from "react-router";
 
 interface OwnerCheck {
 	userId: string;
@@ -15,7 +16,17 @@ export default function StudioAccess({
 	children: (canEdit: boolean) => ReactNode;
 }) {
 	const [session, setSession] = useState<Session | null | undefined>(undefined);
-	const [studioRequested, setStudioRequested] = useState(false);
+
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
+
+	const studioRequested =
+		pathname === "/studio" ||
+		pathname.startsWith("/studio/");
+
+	const viewerPath = studioRequested
+		? pathname.slice("/studio".length) || "/"
+		: pathname;
 
 	const [ownerCheck, setOwnerCheck] = useState<OwnerCheck | null>(null);
 	const [checkAttempt, setCheckAttempt] = useState(0);
@@ -116,7 +127,7 @@ export default function StudioAccess({
 			if (error) throw error;
 
 			setPassword("");
-			setStudioRequested(false);
+			navigate("/");
 		} catch {
 			setActionError("Could not sign out. Please try again.");
 		} finally {
@@ -142,7 +153,7 @@ export default function StudioAccess({
 			className="utility-button"
 			disabled={busy}
 			onClick={() => {
-				setStudioRequested(false);
+				navigate(viewerPath);
 				setPassword("");
 				setActionError(null);
 			}}
@@ -177,12 +188,14 @@ export default function StudioAccess({
 				key={session?.user.id ?? "guest"}
 			>
 				<div className="studio-session-bar">
-					<span>{brand}</span>
+					{brand}
 
 					<button
 						type="button"
 						className="utility-button"
-						onClick={() => setStudioRequested(true)}
+						onClick={() => navigate(
+							"/studio" + (pathname === "/" ? "" : pathname)
+						)}
 					>
 						Studio
 					</button>
