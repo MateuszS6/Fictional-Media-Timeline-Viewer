@@ -7,7 +7,7 @@ Inspired by an Excel workflow, Plotstrand uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.5.0`
+## Current version — `0.5.0 Public Preview`
 
 Shareable timeline links, browser navigation and a featured Marvel entry.
 Owner-only Studio editing and selectively published timelines.
@@ -15,9 +15,13 @@ Solidified branding.
 
 See the [development plan](docs/development-plan.md).
 
-> ![Cards](docs/images/v0.5.0-viewer-marvel-featured.png)
+> ![Franchises](docs/images/v0.5.0-marvel-featured.png)
 
-> ![Timeline](docs/images/v0.4.4-studio-timeline-universes.png)
+> ![Universes](docs/images/v0.5.0-studio-marvel.png)
+
+> ![Timeline Viewer](docs/images/v0.5.0-viewer-timeline.png)
+
+> ![Timeline Studio](docs/images/v0.5.0-studio-timeline.png)
 
 ## Aim
 
