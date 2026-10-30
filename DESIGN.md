@@ -1,4 +1,4 @@
-# Timeline Viewer & Studio — design direction
+# Plotstrand — design direction
 
 Agreed 23 October 2026; refined 30 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
@@ -30,8 +30,8 @@ A personal tool for building fictional timelines and a public viewer for explori
 - Continue with dark neutral surfaces, strong primary text and readable secondary text.
 - Use the existing restrained link/focus accent consistently for this pass.
 - Franchise-specific accents are a later enhancement. Preserve symbol meanings across all franchises.
-- The red T logo is temporary; do not treat it as a final brand decision.
-- Use the current system font stack, a clear heading hierarchy and compact but readable labels. Final font/icon choices can follow real visual references.
+- Plotstrand is the provisional preview name. Use the generated blue-to-violet branching PNG beside real brand text in the top bar; add a small Studio label while editing. This replaces the red T placeholder. Assets are saved; integration code is user-applied from chat.
+- The user has applied locally bundled Manrope Variable for UI/body text and Space Grotesk Variable for headings/the brand. Keep their choices in the typography variables in src/index.css. Preserve readable labels; no franchise-specific font system is needed.
 - Avoid a dependency, theme framework or image pipeline just for this pass.
 
 ## Timeline symbols
@@ -86,3 +86,9 @@ Apply relevant principles to this app. No specific third-party brand style has b
 - Retain an optional, faint, toggleable row/column tracking aid for a later usability pass; it must not imply a character status or event.
 - Viewer correction proposals are planned after the preview. Distinguish pending suggestions from accepted timeline data, and preserve owner approval/rejection. The detailed interaction is still to be agreed.
 - First deployment needs clear fan-made-preview copy; final branding, broader themes, search/grouping, richer metadata and crew/cast remain separate passes.
+
+## Next pass after deployment: timeline content status
+
+- Show a clear text badge on universe cards to explain completeness/current coverage. Proposed labels are In progress and Up to date; agree their exact meanings before adding a field. Up to date should eventually make its coverage cutoff/date understandable.
+- Keep status independent from Public/Private. An incomplete timeline can be publicly readable; private/test timelines still need access protection. A status badge must never replace publication filtering or database permissions.
+- Do not infer completion from record counts or character life status. Keep the first implementation small and owner-controlled; consider franchise summaries only after universe-card status works.

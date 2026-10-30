@@ -18,11 +18,11 @@ Vercel serves the frontend; Supabase continues to store data and handle sign-in.
 
 ## Prepare locally
 
-1. In index.html, use Timeline Viewer as the browser title and add a short description of fictional timelines, character appearances and events. Mark the public home introduction as a fan-made public preview. Keep existing layout and functionality.
-2. Synchronise the package version with the README using npm version 0.5.0 --no-git-tag-version. This updates package.json and package-lock.json without creating a Git tag.
+1. Finish the Plotstrand branding edits from chat: generated app-bar logo, PNG favicon/Apple icon and contextual browser titles. The base title Plotstrand — Fictional Timelines, description, fonts and fan-made public-preview introduction are already present. Keep the new public assets/font licences in the deployment. Remove the unused starter favicon.svg and icons.svg after updating references.
+2. Set the package name with npm pkg set name=plotstrand, then synchronise the version with npm version 0.5.0 --no-git-tag-version. This updates package.json and package-lock.json without creating a Git tag. The repository/folder name can stay unchanged.
 3. Run npm run lint and npm run build after those edits.
-4. Review and commit the release changes, including the currently untracked vercel.json, then push to main on GitHub. Keep .env local; it is currently ignored and untracked. package-lock.json and .env.example are already tracked.
-5. Decide which universes should be public. The current five are MCU, X-Men (Revised), DCEU, Harry Potter Main films and Star Wars Galaxy Far, Far Away. X-Men (Revised) has only one project/appearance; confirm that this is intentional.
+4. Review and commit the release changes, including vercel.json and the new branding assets, then push to main on GitHub. Keep .env local; it is currently ignored and untracked. package-lock.json and .env.example are already tracked.
+5. Decide which universes should be public, including incomplete examples. The next feature pass will add content-status badges independently of Public/Private; unfinished does not have to mean private. Keep test timelines private. No publication values were changed by this branding pass.
 
 ## First Vercel deployment
 
@@ -61,4 +61,4 @@ Supabase has separate usage and availability limits from Vercel. Free projects m
 
 ## Retained work after preview
 
-See the development plan for toggleable tracking guides, sorting/search/grouping, character status, richer metadata, viewer correction proposals with owner review, themes/icons, and eventual crew/cast/credits. None requires rebuilding the hosting arrangement. Contribution accounts/moderation and schema changes need their own focused design pass.
+First add clear universe-card content-status badges, separate from publication/access. See the development plan for toggleable tracking guides, sorting/search/grouping, character status, richer metadata, viewer correction proposals with owner review, themes/icons, and eventual crew/cast/credits. None requires rebuilding the hosting arrangement. Contribution accounts/moderation and schema changes need their own focused design pass.

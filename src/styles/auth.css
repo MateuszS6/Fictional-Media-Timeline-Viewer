@@ -50,15 +50,17 @@
 
 .session-logo {
 	display: grid;
-	place-items: center;
 	flex-shrink: 0;
-
 	width: 32px;
 	height: 32px;
+	object-fit: contain;
+}
 
-	border-radius: var(--radius-md);
-	background: var(--logo-bg);
-	color: var(--logo-color);
+.session-mode {
+	font-family: var(--font-body);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--color-secondary);
 }
 
 .studio-session-status {

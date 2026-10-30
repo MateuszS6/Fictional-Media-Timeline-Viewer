@@ -364,3 +364,19 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Viewer contributions are a significant planned feature: propose a correction from a timeline cell, then let the owner approve or reject it. Pending proposals must not directly modify published timeline entries. Decide submission identity/login friction, evidence/context, abuse controls, conflicting/stale proposals and approval history in a focused design pass. Do not restore public write access to core timeline tables or add contribution tables in the deployment pass.
 - Continue code simplification and measured database/performance optimisation between feature passes; a live preview does not freeze development. Avoid speculative schema changes immediately before release.
 - These additions are retained work after the initial preview, not prerequisites for its first deployment. The exact order of the post-preview features remains the user's choice.
+
+## Preview branding — prepared 30 October 2026
+
+- Use Plotstrand as the provisional display name. The user has applied the Fontsource Manrope/Space Grotesk imports, typography variables, static browser title and initial app-bar text.
+- Generated a blue-to-violet branching PNG with the built-in image tool, saved the original under docs/branding, and prepared small app-bar/favicon/Apple-touch exports in public. Font licence texts are included in public/licenses.
+- Chat supplies the remaining source edits: image-based app-bar mark, small Studio label, branded sign-in page, icon metadata, contextual browser titles and removal of unused starter icons/logo colours. The assistant has edited assets and documentation only. Do not mark the source proposal applied until reviewed after the user implements it.
+- The proposed changes pass both TypeScript configurations, lint, production build and isolated real-component browser checks, including titles across Viewer/Studio/unavailable/sign-in paths, loaded image/font assets and phone layout. The existing bundle-size advisory remains non-blocking.
+- Keep this within v0.5.0 before the first preview release. Package metadata is still 0.0.0 at review; set its npm name to plotstrand and synchronise version/lockfile before committing. The GitHub repository does not need renaming.
+- Finish local checks, then follow preview-deployment.md. No deployment or live database changes are part of this branding pass.
+
+## First pass immediately after deployment: content-status badges
+
+- The user wants clear universe-card labels such as In progress and Up to date so readers can understand coverage without every unfinished universe being made private. Confirm wording and what Up to date covers when implementing the pass.
+- Recommend an owner-controlled content status independent of is_published. Publication continues to control access; a public timeline may be incomplete, while test timelines can stay private. Do not remove publication controls or relax permissions.
+- Keep the initial work to universe-card status and its Studio editing control. A visible coverage/check date may clarify Up to date; choose the simplest useful design with the user. Do not infer completeness from appearance counts or add contribution/moderation features to this pass.
+- This is the next feature pass after the hosted smoke test. Existing character-status, search/sort/grouping, tracking guides, contributions, metadata and crew/cast work remains in the roadmap.

@@ -1,16 +1,17 @@
-# Fictional-Media Timeline Viewer & Studio
+# Plotstrand — Fictional Timelines
 
 _A personal tool for creating and exploring fictional timelines,
 starting with the Marvel Cinematic Universe._
 
-Inspired by an Excel workflow, Timeline Studio uses character rows,
+Inspired by an Excel workflow, Plotstrand uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.5.0`
+## Current version — `0.5.1`
 
 Shareable timeline links, browser navigation and a featured Marvel entry.
 Owner-only Studio editing and selectively published timelines.
+Solidified branding.
 
 See the [development plan](docs/development-plan.md).
 

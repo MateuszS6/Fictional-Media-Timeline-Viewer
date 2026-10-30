@@ -136,7 +136,7 @@ export default function App({
 	const description = activeView === "franchises"
 		? canEdit
 			? "Choose a franchise to manage its universes."
-			: "Choose a franchise to explore its stories."
+			: "A fan-made public preview. Choose a franchise to explore its stories."
 		: activeView === "universes"
 			? canEdit
 				? "Open a timeline or manage its universe below."

@@ -139,13 +139,19 @@ export default function StudioAccess({
 
 	const brand = (
 		<div className="session-brand">
-			<span className="session-logo" aria-hidden="true">
-				T
-			</span>
+			<img
+				className="session-brand"
+				src="/brand/logo.png"
+				alt=""
+				width={32}
+				height={32}
+			/>
 
-			<span>
-				Timeline {studioRequested ? "Studio" : "Viewer"}
-			</span>
+			<span>Plotstrand</span>
+
+			{studioRequested && (
+				<span className="session-mode">Studio</span>
+			)}
 		</div>
 	)
 
