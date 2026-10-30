@@ -3,6 +3,7 @@ import type { SubmitEvent } from "react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "../../config/supabase";
 import { useLocation, useNavigate } from "react-router";
+import PageTitle from "../layout/PageTitle";
 
 interface OwnerCheck {
 	userId: string;
@@ -183,9 +184,17 @@ export default function StudioAccess({
 
 	if (session === undefined) {
 		return (
-			<p className="studio-access-screen" role="status">
-				Checking sign-in...
-			</p>
+			<>
+				<PageTitle title={
+					studioRequested
+						? "Plotstrand Studio"
+						: "Plotstrand — Fictional Timelines"
+				} />
+
+				<p className="studio-access-screen" role="status">
+					Checking sign-in...
+				</p>
+			</>
 		);
 	}
 
@@ -221,7 +230,8 @@ export default function StudioAccess({
 					className="management-form studio-login"
 					onSubmit={handleSignIn}
 				>
-					<h1>Timeline Studio</h1>
+					<PageTitle title="Sign in — Plotstrand Studio" />
+					<h1>Plotstrand Studio</h1>
 					<p>Sign in to manage your timelines.</p>
 
 					{actionError && (
@@ -278,6 +288,8 @@ export default function StudioAccess({
 	if (ownerCheck?.userId !== session.user.id) {
 		return (
 			<main className="studio-access-screen">
+				<PageTitle title="Plotstrand Studio" />
+
 				<p role="status">Checking Studio access...</p>
 
 				{actionError && (
@@ -296,6 +308,8 @@ export default function StudioAccess({
 	if (!ownerCheck.allowed) {
 		return (
 			<main className="studio-access-screen">
+				<PageTitle title="Studio access — Plotstrand" />
+
 				<p role="alert">
 					{ownerCheck.error ?? "This account does not have Studio access."}
 				</p>

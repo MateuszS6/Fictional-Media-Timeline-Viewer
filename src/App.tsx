@@ -11,6 +11,7 @@ import WorkspacesPage from './pages/WorkspacesPage';
 import type { Character } from './types/character';
 import type { WorkspaceView } from './types/workspace';
 import { workspacePath } from './utils/workspacePath';
+import PageTitle from './components/layout/PageTitle';
 
 export default function App({
 	activeView
@@ -152,6 +153,13 @@ export default function App({
 
 	return (
 		<div className='app-layout'>
+			<PageTitle title={
+				canEdit
+					? title + " — Plotstrand Studio"
+					: activeView === "franchises"
+						? "Plotstrand — Fictional Timelines"
+						: title + " — Plotstrand"
+			} />
 			<WorkspaceBar activeView={activeView} />
 
 			<main

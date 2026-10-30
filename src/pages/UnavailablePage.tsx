@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import PageTitle from "../components/layout/PageTitle";
 
 export default function UnavailablePage({
 	studio
@@ -7,6 +8,10 @@ export default function UnavailablePage({
 }) {
 	return (
 		<div className="app-layout">
+			<PageTitle
+				title={"Page unavailable — Plotstrand" + (studio ? " Studio" : "")}
+			/>
+
 			<main className="main-content">
 				<h1>Page unavailable</h1>
 

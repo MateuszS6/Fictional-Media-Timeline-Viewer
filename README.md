@@ -7,7 +7,7 @@ Inspired by an Excel workflow, Plotstrand uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.5.1`
+## Current version — `0.5.0`
 
 Shareable timeline links, browser navigation and a featured Marvel entry.
 Owner-only Studio editing and selectively published timelines.
