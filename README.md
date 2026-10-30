@@ -7,13 +7,14 @@ Inspired by an Excel workflow, Timeline Studio uses character rows,
 chronological project columns and visual lifelines to track appearances
 and events within each universe.
 
-## Current version — `0.4.4`
+## Current version — `0.5.0`
 
-Clean franchise and universe browsing through cards, and improved timeline navigation with breadcrumbs and visual improvements.
+Shareable timeline links, browser navigation and a featured Marvel entry.
+Owner-only Studio editing and selectively published timelines.
 
-See the [development plan](docs/development-plan.md) for the agreed order and scope of development.
+See the [development plan](docs/development-plan.md).
 
-> ![Cards](docs/images/v0.4.4-studio-franchise-cards.png)
+> ![Cards](docs/images/v0.5.0-viewer-marvel-featured.png)
 
 > ![Timeline](docs/images/v0.4.4-studio-timeline-universes.png)
 

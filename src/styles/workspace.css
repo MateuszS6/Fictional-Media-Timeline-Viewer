@@ -150,12 +150,17 @@
 	color: var(--color-link);
 }
 
-.browse-card-open:hover:not(:disabled) {
-	background: var(--button-bg-active);
+.browse-card:has(.browse-card-open:hover:not([aria-disabled="true"])) {
+	border-color: var(--color-link);
+}
+
+.browse-card:has(.browse-card-open:focus-visible) {
+	outline: 2px solid var(--color-link);
+	outline-offset: 2px;
 }
 
 .browse-card-open:focus-visible {
-	outline-offset: -3px;
+	outline: none;
 }
 
 .browse-card-open:disabled {
@@ -237,6 +242,8 @@ a[aria-disabled="true"] {
 /* Featured franchise */
 
 .browse-card-featured {
+	--color-link: #f2b3bb;
+
 	flex-shrink: 0;
 	margin: 4px;
 	border-color: #783039;
@@ -261,10 +268,6 @@ a[aria-disabled="true"] {
 	min-height: 120px;
 	padding: 16px 24px;
 	font-size: clamp(28px, 4vw, 40px);
-}
-
-.browse-card-featured .browse-card-open {
-	background: rgba(255, 255, 255, 0.035);
 }
 
 .browse-card-featured .browse-card-meta {

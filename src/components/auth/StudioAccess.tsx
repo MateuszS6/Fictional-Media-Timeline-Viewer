@@ -25,7 +25,9 @@ export default function StudioAccess({
 		pathname.startsWith("/studio/");
 
 	const viewerPath = studioRequested
-		? pathname.slice("/studio".length) || "/"
+		? pathname
+			.slice("/studio".length)
+			.replace(/\/(characters|projects)\/?$/, "") || "/"
 		: pathname;
 
 	const [ownerCheck, setOwnerCheck] = useState<OwnerCheck | null>(null);

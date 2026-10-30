@@ -1,6 +1,6 @@
 # Timeline Viewer & Studio — design direction
 
-Agreed 23 October 2026; refined 29 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
+Agreed 23 October 2026; refined 30 October 2026. This is a working direction, not a final brand or a claim that every change below is already implemented.
 
 ## Purpose and character
 
@@ -22,8 +22,8 @@ A personal tool for building fictional timelines and a public viewer for explori
 - The agreed starting page uses franchise cards. Viewer opens a single published timeline directly; otherwise it shows universe cards. Studio always shows universe cards to expose management actions.
 - Replace the franchise dropdown with All franchises and a franchise breadcrumb. Keep the universe dropdown only when multiple selectable timelines exist. Explicitly returning to universe cards must not redirect back to a single timeline.
 - Initial cards use names, optional universe codes and existing restrained styles. Studio adds visibility and management actions.
-- The 29 October proposal features Marvel at the top of the Viewer entry with a larger card, a Featured label and a restrained red-to-dark CSS gradient; other franchises follow below. Studio retains uniform cards. Broader franchise/universe themes and artwork follow later.
-- Browsing and its review corrections are applied. The next prepared pass gives franchise/timeline destinations real links, refresh restoration and Back/Forward support. Application code remains user-applied.
+- The implemented v0.5.0 pass features Marvel at the top of the Viewer entry with a larger card, a Featured label and a restrained red-to-dark CSS gradient; other franchises follow below. Studio retains uniform cards. Broader franchise/universe themes and artwork follow later.
+- Browsing, routing and their review corrections are applied. Franchise/timeline destinations have real links, refresh restoration and Back/Forward support. Application code remains user-applied.
 
 ## Colour and typography
 
@@ -78,3 +78,11 @@ Apply relevant principles to this app. No specific third-party brand style has b
 
 
 
+
+
+## Preview follow-up decisions — 30 October
+
+- The featured Marvel gradient and outer-card hover/focus treatment are implemented in v0.5.0. Keep Studio cards compact and uniform.
+- Retain an optional, faint, toggleable row/column tracking aid for a later usability pass; it must not imply a character status or event.
+- Viewer correction proposals are planned after the preview. Distinguish pending suggestions from accepted timeline data, and preserve owner approval/rejection. The detailed interaction is still to be agreed.
+- First deployment needs clear fan-made-preview copy; final branding, broader themes, search/grouping, richer metadata and crew/cast remain separate passes.

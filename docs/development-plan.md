@@ -1,6 +1,6 @@
 # Timeline Studio development plan
 
-Updated 29 October 2026. The browsing review corrections are applied. The user chose timeline-only sharing, is considering Vercel, and requested a featured Marvel entry with a small gradient treatment. Routing and the featured card are prepared and tested in temporary files; the user applies application changes from chat.
+Updated 30 October 2026. Routing, the featured Marvel card, the review corrections and vercel.json are implemented and reviewed as v0.5.0. The next step is a small release-preparation pass and the first hosted deployment; no deployment has been made by the assistant.
 
 ## Working agreement
 
@@ -10,7 +10,7 @@ Updated 29 October 2026. The browsing review corrections are applied. The user c
 - Supabase is the source of truth. Files under docs/supabase are reference snapshots, not automatically applied migrations or complete live exports.
 - The current checkout is C:/Users/matbu/Documents/Projects/Fictional-Media-Timeline-Viewer.
 
-## Current baseline: browsing and review corrections applied
+## Current baseline: v0.5.0 routing and browsing applied
 
 - The app opens in read-only Viewer mode on franchise cards. A franchise with one published universe opens directly; otherwise universe cards are shown. Only explicitly published timelines are selectable; new universes default to private. Participating visitors' origin names/codes may be readable even when those origins are private, but their private timeline entries remain hidden.
 - The Studio requires the configured owner account. Public signup remains disabled. Anonymous and authenticated non-owner access is limited to published content; writes remain owner-only. The Studio button opens sign-in, and the owner can return to Viewer without signing out.
@@ -245,7 +245,7 @@ The user wants an information tool with cinematic character, rather than a gener
 1. Viewer layout and visual cleanup are implemented in v0.4.2, including the corrected heading rules and screenshot-safe Studio label. The subsequent light frame and thin scrollbars are also present.
 2. Character exploration and the side-by-side facts/label-colour correction are applied and reviewed on 27 October; browsing selection remains separate from the editing/origin-focus target.
 3. Franchise/universe cards and Studio organisation are applied and reviewed on 28 October. Apply the review corrections below (now present); keep the user's screenshots and README release notes current.
-4. Agree and implement shareable timeline URLs, refresh restoration and browser Back/Forward. Confirm hosting plans and whether the first scope includes character links. Then curate the preview dataset and finish public/fan-project copy, metadata, loading/empty/error states, keyboard/touch and responsive checks.
+4. Timeline-only URLs, refresh restoration and browser Back/Forward are implemented in v0.5.0. Finish public-preview copy and metadata, confirm the published sample timelines, then check the hosted app and real-phone interactions.
 5. Verify guest/owner behaviour and publication/unpublication with the applied code, confirm repository/hosting configuration, and deploy a preview. Deployment is a separate step; nothing is published by this design pass.
 
 Character status and continuing lifelines, user-defined sorting/grouping/views, final custom icons/theming and management refinements remain on the roadmap. Their rules/design need agreement at their respective passes; they are not silently added as requirements for this pass. People, crew and credits remain after the timeline work. Optional multiverse entry/departure and force-deletion flows remain deferred.
@@ -318,7 +318,7 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - This pass does not imply global character chronology, new appearance types, a visual redesign, or deployment. Preview content/copy/metadata and final access/deployment checks follow in the existing plan.
 
 
-## Routing and featured Marvel pass — prepared on 29 October
+## Routing and featured Marvel pass — implemented and reviewed on 30 October (v0.5.0)
 
 - The four previous review corrections are present: franchise overview heading, deletion-selection handling, text-only private dropdown labels, and spaced Edit accessibility labels.
 - Use React Router 8.5.1 with createBrowserRouter/RouterProvider. Addresses identify a franchise and timeline by stable numeric database IDs; names may change without changing an address.
@@ -331,7 +331,9 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Feature the published Marvel franchise at the top of the Viewer entry, with a larger card, Featured label and restrained red-to-dark CSS gradient. Put the other franchises below without duplicating Marvel. Match the franchise name case-insensitively for now; no database feature flag or artwork system is added. Studio keeps compact, uniform management cards.
 - Prepared source passes both TypeScript configurations, lint and a production build. Vite reports a bundle-size advisory after adding the router (about 557 kB minified / 160 kB gzip); this does not fail the build. Consider route/code splitting during preview performance checks, without hiding the warning threshold.
 - Browser fixtures use the proposed App, provider, router and StudioAccess with sample services and simulated authentication. Checks pass for direct/refresh/back/forward navigation, featured ordering, single-universe opening, explicit overview, private/invalid/cross-franchise destinations, signed-in Viewer, Studio tabs/sign-in/sign-out/non-owner behaviour, CRUD/publication, navigation during a workspace save and phone/keyboard/tap interaction.
-- These are prepared changes, not applied application code or a live deployment. Review the user's implementation next, then finish preview copy/metadata/content and hosting/access smoke tests. No live database, accounts or permissions were changed.
+- The user applied this pass and the 30 October corrections: Back to viewer removes management-tab suffixes, card hover/focus highlights the outer border, and the featured arrow uses a matching accent. vercel.json contains the SPA fallback and is currently untracked; include it in the next commit.
+- Final applied-source checks pass: both TypeScript configurations, lint, production build and the expanded sample-data browser suite, including return to Viewer from both management tabs. The production bundle is about 555 kB minified / 160 kB gzip; the size advisory remains non-blocking.
+- Read-only live inspection confirms all seven public tables have RLS, publication-aware SELECT policies and owner-only write policies. Anonymous and simulated authenticated non-owner reads see no private appearances, events or timeline-project links. The three public functions deny anonymous EXECUTE. No live writes or configuration changes were performed; real hosted sign-in and owner editing still require a smoke test.
 
 ### Touch and later design commitments
 
@@ -340,3 +342,25 @@ Character status and continuing lifelines, user-defined sorting/grouping/views, 
 - Studio's advanced cell editor currently relies on right-click; provide a deliberate touch-accessible edit control in that phone pass instead of assuming long-press will behave consistently.
 - Broader franchise/universe theming, gradients and final icons/branding remain welcome later. This pass's gradient is confined to the featured card and does not change timeline symbol meanings.
 
+
+
+## Release preparation and first hosting setup — 30 October
+
+- Use v0.5.0 for the completed routing/featured pass. A later patch release can be v0.5.1; a new feature milestone can be v0.6.0. The app is still pre-1.0. README is updated; the user should synchronise package.json and package-lock.json with npm version 0.5.0 --no-git-tag-version.
+- Vercel Hobby is the recommended starting point for this personal non-commercial preview. Cloudflare Pages is a viable alternative if its different allowances are preferred; hosting is not tied into the timeline data model. Account/import/deploy steps are in [preview-deployment.md](preview-deployment.md).
+- The repository is MateuszS6/Fictional-Media-Timeline-Viewer and the current branch is main. .env is not tracked; .env.example and package-lock.json are tracked. No Git configuration was changed.
+- Keep this pass small: public-facing browser title/description, a short fan-made-preview introduction, release version, commit the Vercel file, configure hosting, and verify the hosted app. Existing placeholder branding may be refined later.
+- Five universes are currently published: MCU, X-Men (Revised), DCEU, Harry Potter Main films and Star Wars Galaxy Far, Far Away. Sixteen are private. X-Men (Revised) currently has one project and one appearance; ask whether it belongs in the initial public sample. Do not change publication without the user's decision.
+- Test the first hosted URL while signed out, refresh a direct timeline URL, use Back/Forward, verify private destinations are unavailable, sign into Studio and return to Viewer from both management tabs. Do a real-phone Viewer check before broad outreach. The initial hosting URL can be used before buying a domain.
+- The deployment guide distinguishes the public product preview from Vercel's branch Preview deployments. Sharing Supabase credentials across deployments shares live data; a frontend preview is not a database sandbox.
+- Keep ordinary refactors and features on a separate branch until reviewed. Future database changes need saved migration SQL, a restorable backup and an isolated test database for risky structural changes. Prefer compatible additions first, deploy the adapted app, and remove old fields only after old clients and rollback compatibility have been considered. Reference snapshots are not backups.
+- Do not remove character_events.id in this release. Current app updates/deletes address (universe_id, character_id, project_id), but the live table's primary key is id and the TypeScript interface includes it. A composite primary key is possible after dependency review; there is no demonstrated optimisation need. Stable event identity may help later moderation references, though no contribution design is imposed now.
+
+## After-preview roadmap additions — requested 30 October
+
+- Optional faint row/column tracking guides to help viewers follow a cell. Make the aid toggleable and preserve appearance/event meanings. Agree pointer, keyboard and touch behaviour when implementing it.
+- Search, sorting, grouping and saved/view presets, designed around the user's preferred browsing workflow. Reordering project columns affects chronology/continuity and needs separate decisions from character-row sorting.
+- Richer project and character metadata; character status remains a separate agreed-semantic pass. Crew/cast/people and credits remain later work.
+- Viewer contributions are a significant planned feature: propose a correction from a timeline cell, then let the owner approve or reject it. Pending proposals must not directly modify published timeline entries. Decide submission identity/login friction, evidence/context, abuse controls, conflicting/stale proposals and approval history in a focused design pass. Do not restore public write access to core timeline tables or add contribution tables in the deployment pass.
+- Continue code simplification and measured database/performance optimisation between feature passes; a live preview does not freeze development. Avoid speculative schema changes immediately before release.
+- These additions are retained work after the initial preview, not prerequisites for its first deployment. The exact order of the post-preview features remains the user's choice.
